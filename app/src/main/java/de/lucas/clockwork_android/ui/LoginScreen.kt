@@ -4,9 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,18 +22,45 @@ import de.lucas.clockwork_android.R
 @Composable
 internal fun LoginScreen(onClickLogin: () -> Unit, onClickSignUp: () -> Unit) {
     Scaffold {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             AppLogo()
-            OutlinedStyledText(id = R.string.email, padding = 40)
-            OutlinedStyledText(id = R.string.password, padding = 24)
-            RoundedButton(id = R.string.login, padding = 40, onClickLogin)
-            Text(
-                text = stringResource(id = R.string.no_account),
-                modifier = Modifier.padding(top = 32.dp)
-            )
-            RoundedButton(id = R.string.sign_up, padding = 4, onClickSignUp)
+            Column(
+                modifier = Modifier.padding(top = 40.dp, start = 32.dp, end = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                OutlinedStyledText(
+                    id = R.string.email,
+                    padding = 0,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedStyledText(
+                    id = R.string.password,
+                    padding = 24,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                RoundedButton(
+                    id = R.string.login,
+                    padding = 40,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onClickLogin
+                )
+                Text(
+                    text = stringResource(id = R.string.no_account),
+                    modifier = Modifier.padding(top = 32.dp)
+                )
+                RoundedButton(
+                    id = R.string.sign_up,
+                    padding = 4,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 4.dp),
+                    onClick = onClickSignUp
+                )
+            }
         }
-
     }
 }
 
@@ -48,15 +73,18 @@ fun AppLogo() {
             .background(MaterialTheme.colors.primary),
         contentAlignment = Alignment.Center
     ) {
-        Column(Modifier.verticalScroll(rememberScrollState())) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "",
-                Modifier.scale(1.2f)
+                modifier = Modifier
+                    .scale(1.2f)
+                    .padding(bottom = 16.dp)
             )
             Text(
                 text = stringResource(id = R.string.app_name),
-                Modifier.padding(top = 16.dp),
                 color = Color.White,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
@@ -66,28 +94,25 @@ fun AppLogo() {
 }
 
 @Composable
-fun OutlinedStyledText(@StringRes id: Int, padding: Int) {
+fun OutlinedStyledText(@StringRes id: Int, padding: Int, modifier: Modifier) {
     var text by remember { mutableStateOf("") }
 
     OutlinedTextField(
         value = text,
         onValueChange = { text = it },
         label = { Text(stringResource(id = id)) },
-        modifier = Modifier.padding(top = padding.dp)
+        modifier = modifier.padding(top = padding.dp)
     )
 }
 
 @Composable
-fun RoundedButton(@StringRes id: Int, padding: Int, onClick: () -> Unit) {
+fun RoundedButton(@StringRes id: Int, padding: Int, modifier: Modifier, onClick: () -> Unit) {
     Button(
         onClick = { onClick() },
         shape = RoundedCornerShape(30.dp),
-        modifier = Modifier
-            .padding(top = padding.dp)
-            .scale(1.2f)
-            .fillMaxWidth(0.4f)
+        modifier = modifier.padding(top = padding.dp)
     ) {
-        Text(text = stringResource(id = id))
+        Text(text = stringResource(id = id), fontSize = 18.sp)
     }
 }
 
