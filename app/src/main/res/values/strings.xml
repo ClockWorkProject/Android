@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">ClockWork_Android</string>
+    <string name="app_name">ClockWork</string>
+    <string name="email">Email</string>
+    <string name="password">Passwort</string>
+    <string name="login">Einloggen</string>
+    <string name="sign_up">Registrieren</string>
+    <string name="no_account">Noch keinen Account?</string>
+    <string name="username">Benutzername</string>
 </resources>
