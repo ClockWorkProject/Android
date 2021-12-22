@@ -20,6 +20,7 @@ import de.lucas.clockwork_android.model.NavigationItem.*
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LOGIN
 import de.lucas.clockwork_android.ui.theme.roundedShape
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Root() {
     val navController = rememberNavController()

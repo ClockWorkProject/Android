@@ -6,5 +6,5 @@ class ToggleViewModel : ViewModel() {
     /*
     TODO SharedPreferences to check current group id (if -1 -> empty state)
      */
-    val groupID = -1
+    val groupID = 1
 }
