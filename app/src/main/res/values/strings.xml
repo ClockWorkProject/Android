@@ -6,4 +6,16 @@
     <string name="sign_up">Registrieren</string>
     <string name="no_account">Noch keinen Account?</string>
     <string name="username">Benutzername</string>
+    <string name="time_record">Zeiterfassung</string>
+    <string name="issues_board">Issue Board</string>
+    <string name="statistic">Statistik</string>
+    <string name="profile">Profil</string>
+    <string name="no_group_empty_state_message">Sie befinden sich zurzeit in keiner Gruppe.\n\nWollen Sie einer Gruppe beitreten oder eine erstellen?</string>
+    <string name="join_group">Gruppe beitreten</string>
+    <string name="create_group">Gruppe erstellen</string>
+    <string name="enter_group_name">Gruppenname eingeben</string>
+    <string name="enter_group_id">Gruppennummer eingeben</string>
+    <string name="join">Beitreten</string>
+    <string name="create">Erstellen</string>
+    <string name="close">Schließen</string>
 </resources>

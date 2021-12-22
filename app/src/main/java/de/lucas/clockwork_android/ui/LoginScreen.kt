@@ -4,12 +4,13 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -23,7 +24,9 @@ import de.lucas.clockwork_android.R
 internal fun LoginScreen(onClickLogin: () -> Unit, onClickSignUp: () -> Unit) {
     Scaffold {
         Column(
-            Modifier.fillMaxSize(),
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AppLogo()
@@ -69,25 +72,23 @@ fun AppLogo() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.3f)
             .background(MaterialTheme.colors.primary),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.BottomCenter
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.logo),
+                painter = painterResource(id = R.drawable.ic_logo),
                 contentDescription = "",
-                modifier = Modifier
-                    .scale(1.2f)
-                    .padding(bottom = 16.dp)
+                modifier = Modifier.size(124.dp)
             )
             Text(
                 text = stringResource(id = R.string.app_name),
                 color = Color.White,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
         }
     }
@@ -118,6 +119,6 @@ fun RoundedButton(@StringRes id: Int, padding: Int, modifier: Modifier, onClick:
 
 @Preview
 @Composable
-fun LoginPreview() {
+private fun LoginPreview() {
     LoginScreen({}, {})
 }
