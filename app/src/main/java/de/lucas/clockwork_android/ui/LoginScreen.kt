@@ -36,13 +36,17 @@ internal fun LoginScreen(onClickLogin: () -> Unit, onClickSignUp: () -> Unit) {
             ) {
                 OutlinedStyledText(
                     id = R.string.email,
+                    optText = null,
                     padding = 0,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 1
                 )
                 OutlinedStyledText(
                     id = R.string.password,
+                    optText = null,
                     padding = 24,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 1
                 )
                 RoundedButton(
                     id = R.string.login,
@@ -95,14 +99,23 @@ fun AppLogo() {
 }
 
 @Composable
-fun OutlinedStyledText(@StringRes id: Int, padding: Int, modifier: Modifier) {
+fun OutlinedStyledText(
+    @StringRes id: Int,
+    optText: String?,
+    padding: Int,
+    modifier: Modifier,
+    maxLines: Int
+) {
     var text by remember { mutableStateOf("") }
-
+    if (optText != null) {
+        text = optText
+    }
     OutlinedTextField(
         value = text,
         onValueChange = { text = it },
         label = { Text(stringResource(id = id)) },
-        modifier = modifier.padding(top = padding.dp)
+        modifier = modifier.padding(top = padding.dp),
+        maxLines = maxLines
     )
 }
 
