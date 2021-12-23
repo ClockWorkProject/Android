@@ -16,15 +16,30 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import de.lucas.clockwork_android.R
+import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.NavigationItem.*
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LOGIN
+import de.lucas.clockwork_android.model.ProjectIssues
 import de.lucas.clockwork_android.ui.theme.roundedShape
+
+// For testing purpose
+val listOfIssues = listOf(
+    ProjectIssues(
+        "IT-Projekt",
+        listOf(Issue(2, "Bug Fix", "", ""), Issue(4, "Andere Fixes", "", ""))
+    ),
+    ProjectIssues(
+        "Vinson",
+        listOf(Issue(2, "Redesign", "", ""), Issue(4, "Irgendwas", "", ""))
+    )
+)
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Root() {
     val navController = rememberNavController()
     var showBottomNavigation by remember { mutableStateOf(false) }
+    var showIssuePickerList by remember { mutableStateOf(false) }
     Scaffold(
         bottomBar = {
             if (showBottomNavigation) BottomNavigationBar(navController = navController)
@@ -32,7 +47,7 @@ fun Root() {
         floatingActionButton = {
             if (showBottomNavigation) {
                 FloatingActionButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { showIssuePickerList = true },
                     backgroundColor = MaterialTheme.colors.primary,
                     shape = roundedShape,
                     modifier = Modifier.border(
@@ -45,6 +60,9 @@ fun Root() {
                         painter = painterResource(id = R.drawable.ic_plus),
                         contentDescription = ""
                     )
+                }
+                if (showIssuePickerList) IssuePickerList(listOfIssues) {
+                    showIssuePickerList = false
                 }
             }
         },

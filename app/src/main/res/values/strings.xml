@@ -18,4 +18,5 @@
     <string name="join">Beitreten</string>
     <string name="create">Erstellen</string>
     <string name="close">Schließen</string>
+    <string name="start_toggle">Toggle starten</string>
 </resources>

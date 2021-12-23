@@ -1,23 +1,15 @@
 package de.lucas.clockwork_android.ui
 
 import androidx.annotation.StringRes
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.ContentAlpha.medium
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -93,74 +85,6 @@ internal fun ToggleList(list: List<TotalToggle>) {
         items(list) { toggle ->
             ToggleItem(toggle = toggle)
         }
-    }
-}
-
-@ExperimentalMaterialApi
-@Composable
-internal fun ToggleItem(toggle: TotalToggle) {
-    var expandableState by remember { mutableStateOf(false) }
-    val rotationState by animateFloatAsState(targetValue = if (expandableState) 180f else 0f)
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize(
-                animationSpec = tween(
-                    delayMillis = 100,
-                    easing = LinearOutSlowInEasing
-                )
-            )
-            .padding(top = 8.dp),
-        shape = RoundedCornerShape(12.dp),
-        onClick = {
-            expandableState = !expandableState
-        }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = toggle.date,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(4f)
-                )
-                Text(text = toggle.total_time, fontSize = 18.sp, modifier = Modifier.weight(3f))
-                IconButton(modifier = Modifier
-                    .alpha(medium)
-                    .weight(1f)
-                    .rotate(rotationState),
-                    onClick = {
-                        expandableState = !expandableState
-                    }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_arrow_down_dark),
-                        contentDescription = ""
-                    )
-                }
-            }
-            if (expandableState) {
-                toggle.toggle_list.forEach { item -> ToggleEntryItem(toggle = item) }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ToggleEntryItem(toggle: Toggle) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(3f)) {
-            Text(text = toggle.issue, fontSize = 20.sp)
-            Text(text = toggle.project)
-        }
-        Text(text = toggle.time, fontSize = 18.sp, modifier = Modifier.weight(1f))
     }
 }
 
