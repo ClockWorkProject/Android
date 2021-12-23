@@ -51,7 +51,10 @@ internal fun IssuePickerList(issueList: List<ProjectIssues>, onClose: () -> Unit
 
                 Column {
                     issueList.forEach { project ->
-                        IssueItem(issues = project.issues, project_name = project.project_name)
+                        IssueItem(
+                            issues = project.issues,
+                            project_name = project.project_name
+                        )
                     }
                 }
             }
@@ -100,7 +103,9 @@ private fun IssueItem(issues: List<Issue>, project_name: String) {
                         .padding(top = 8.dp)
                         .height(48.dp),
                     shape = RoundedCornerShape(0.dp),
-                    onClick = { /* TODO Start toggle */ }
+                    onClick = {
+                        /* TODO Start toggle (controller) */
+                    }
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
