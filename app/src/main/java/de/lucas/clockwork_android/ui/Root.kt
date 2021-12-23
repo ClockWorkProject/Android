@@ -26,11 +26,11 @@ import de.lucas.clockwork_android.ui.theme.roundedShape
 val listOfIssues = listOf(
     ProjectIssues(
         "IT-Projekt",
-        listOf(Issue(2, "Bug Fix", "", ""), Issue(4, "Andere Fixes", "", ""))
+        listOf(Issue(2, "Bug Fix", "", "", ""), Issue(4, "Andere Fixes", "", "", ""))
     ),
     ProjectIssues(
         "Vinson",
-        listOf(Issue(2, "Redesign", "", ""), Issue(4, "Irgendwas", "", ""))
+        listOf(Issue(2, "Redesign", "", "", ""), Issue(4, "Irgendwas", "", "", ""))
     )
 )
 
@@ -61,8 +61,8 @@ fun Root() {
                         contentDescription = ""
                     )
                 }
-                if (showIssuePickerList) IssuePickerList(listOfIssues) {
-                    showIssuePickerList = false
+                if (showIssuePickerList) {
+                    IssuePickerList(listOfIssues) { showIssuePickerList = false }
                 }
             }
         },
@@ -147,7 +147,6 @@ internal fun BottomNavigationBar(navController: NavController) {
         }
     }
 }
-
 
 @Composable
 fun TopAppBar(title: String) {
