@@ -36,7 +36,7 @@ val listOfToggles =
 @ExperimentalMaterialApi
 @Composable
 internal fun ToggleScreen() {
-    Scaffold(topBar = { TopAppBar(title = stringResource(id = R.string.time_record)) }) {
+    Scaffold(topBar = { TopAppBar(title = R.string.time_record) }) {
         val viewModel = ToggleViewModel()
         var showToggleList by remember { mutableStateOf(false) }
         if (viewModel.groupID == -1) {

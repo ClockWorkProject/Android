@@ -1,5 +1,6 @@
 package de.lucas.clockwork_android.ui
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
@@ -7,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -98,7 +100,7 @@ fun Root() {
                 ToggleScreen()
             }
             composable(BOARD.route) {
-
+                IssueBoardScreen { navController.popBackStack() }
             }
             composable(STATISTIC.route) {
 
@@ -149,9 +151,9 @@ internal fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun TopAppBar(title: String) {
+fun TopAppBar(@StringRes title: Int) {
     TopAppBar(
-        title = { Text(title) },
+        title = { Text(stringResource(id = title)) },
         backgroundColor = MaterialTheme.colors.primary,
         contentColor = contentColorFor(MaterialTheme.colors.primarySurface),
         elevation = 0.dp

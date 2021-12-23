@@ -1,0 +1,128 @@
+package de.lucas.clockwork_android.ui
+
+import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import de.lucas.clockwork_android.R
+import de.lucas.clockwork_android.model.Issue
+import de.lucas.clockwork_android.ui.theme.Gray200
+
+@Composable
+internal fun EditIssueScreen(
+    issue: Issue?,
+    @StringRes topBarTitle: Int,
+    @StringRes buttonText: Int,
+    onClickBack: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(id = topBarTitle)) },
+                navigationIcon = {
+                    IconButton(onClick = { onClickBack() }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_arrow_back_light),
+                            contentDescription = ""
+                        )
+                    }
+                },
+                backgroundColor = MaterialTheme.colors.primary,
+                contentColor = contentColorFor(MaterialTheme.colors.primarySurface),
+                elevation = 0.dp
+            )
+        },
+        backgroundColor = Color.White
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            shape = RoundedCornerShape(4.dp),
+            backgroundColor = Gray200,
+            border = BorderStroke(1.dp, Color.Black),
+            elevation = 0.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                if (issue != null) {
+                    Text(text = "Issue #${issue.number}", fontSize = 14.sp)
+                    Text(
+                        text = issue.created_by,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    OutlinedStyledText(
+                        id = R.string.title,
+                        optText = issue.title,
+                        padding = 32,
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 1
+                    )
+                    OutlinedStyledText(
+                        id = R.string.description,
+                        optText = issue.description,
+                        padding = 16,
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 6
+                    )
+                } else {
+                    /* TODO get highest issue number +1 for creating new issue */
+                    Text(text = "Issue #12 erstellen", fontSize = 14.sp)
+                    OutlinedStyledText(
+                        id = R.string.title,
+                        optText = null,
+                        padding = 32,
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 1
+                    )
+                    OutlinedStyledText(
+                        id = R.string.description,
+                        optText = null,
+                        padding = 16,
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 6
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        onClick = { /*TODO Save/Create */ },
+                        modifier = Modifier.padding(top = 32.dp)
+                    ) {
+                        Text(text = stringResource(id = buttonText))
+                    }
+                }
+
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewIssueDetailScreen() {
+    IssueDetailScreen(
+        issue = Issue(
+            2,
+            "Bug Fixes",
+            "Vinson",
+            "Lot of Bugs. Should be Fixes asap!",
+            "Vor 2 Tagen erstellt von Mattis Uphoff"
+        )
+    ) { }
+}
