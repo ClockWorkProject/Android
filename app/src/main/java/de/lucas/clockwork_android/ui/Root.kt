@@ -100,7 +100,7 @@ fun Root() {
                 ToggleScreen()
             }
             composable(BOARD.route) {
-                IssueBoardScreen { navController.popBackStack() }
+                IssueBoardScreen()
             }
             composable(STATISTIC.route) {
 

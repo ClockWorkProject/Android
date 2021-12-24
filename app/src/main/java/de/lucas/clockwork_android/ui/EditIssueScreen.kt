@@ -1,11 +1,15 @@
 package de.lucas.clockwork_android.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -58,6 +62,8 @@ internal fun EditIssueScreen(
                     .padding(16.dp)
             ) {
                 if (issue != null) {
+                    val title by remember { mutableStateOf(issue.title) }
+                    val description by remember { mutableStateOf(issue.description) }
                     Text(text = "Issue #${issue.number}", fontSize = 14.sp)
                     Text(
                         text = issue.created_by,
@@ -66,14 +72,14 @@ internal fun EditIssueScreen(
                     )
                     OutlinedStyledText(
                         id = R.string.title,
-                        optText = issue.title,
+                        optText = title,
                         padding = 32,
                         modifier = Modifier.fillMaxWidth(),
                         maxLines = 1
                     )
                     OutlinedStyledText(
                         id = R.string.description,
-                        optText = issue.description,
+                        optText = description,
                         padding = 16,
                         modifier = Modifier.fillMaxWidth(),
                         maxLines = 6
@@ -101,7 +107,10 @@ internal fun EditIssueScreen(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Button(
-                        onClick = { /*TODO Save/Create */ },
+                        onClick = {
+                            /*TODO Save/Create */
+                            onClickBack()
+                        },
                         modifier = Modifier.padding(top = 32.dp)
                     ) {
                         Text(text = stringResource(id = buttonText))
@@ -111,18 +120,23 @@ internal fun EditIssueScreen(
             }
         }
     }
+    BackHandler {
+        onClickBack()
+    }
 }
 
 @Preview
 @Composable
 private fun PreviewIssueDetailScreen() {
-    IssueDetailScreen(
+    EditIssueScreen(
         issue = Issue(
             2,
             "Bug Fixes",
             "Vinson",
             "Lot of Bugs. Should be Fixes asap!",
             "Vor 2 Tagen erstellt von Mattis Uphoff"
-        )
+        ),
+        topBarTitle = R.string.edit_issue,
+        buttonText = R.string.save
     ) { }
 }

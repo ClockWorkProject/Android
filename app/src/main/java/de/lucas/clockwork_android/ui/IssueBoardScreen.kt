@@ -10,7 +10,7 @@ import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
 
 @Composable
-internal fun IssueBoardScreen(onClickBack: () -> Unit) {
+internal fun IssueBoardScreen() {
     var state by remember { mutableStateOf(false) }
     Scaffold(topBar = { TopAppBar(title = R.string.issue_board) }) {
         Column(verticalArrangement = Arrangement.Center) {
@@ -27,5 +27,5 @@ internal fun IssueBoardScreen(onClickBack: () -> Unit) {
             "Lot of Bugs. Should be fixed asap!",
             "Vor 2 Tagen erstellt von Mattis Uphoff"
         )
-    ) { onClickBack() }
+    ) { state = false }
 }
