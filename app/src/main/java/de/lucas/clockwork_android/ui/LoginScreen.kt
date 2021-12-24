@@ -106,10 +106,7 @@ fun OutlinedStyledText(
     modifier: Modifier,
     maxLines: Int
 ) {
-    var text by remember { mutableStateOf("") }
-    if (optText != null) {
-        text = optText
-    }
+    var text by remember { mutableStateOf(optText ?: "") }
     OutlinedTextField(
         value = text,
         onValueChange = { text = it },

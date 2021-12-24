@@ -1,5 +1,6 @@
 package de.lucas.clockwork_android.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -87,8 +88,12 @@ internal fun IssueDetailScreen(issue: Issue, onClickBack: () -> Unit) {
             topBarTitle = R.string.edit_issue,
             buttonText = R.string.save
         ) {
-            onClickBack()
+            editState = false
         }
+    }
+
+    BackHandler {
+        onClickBack()
     }
 }
 
