@@ -103,7 +103,7 @@ fun Root() {
                 IssueBoardScreen()
             }
             composable(STATISTIC.route) {
-
+                StatisticScreen()
             }
             composable(PROFILE.route) {
 
