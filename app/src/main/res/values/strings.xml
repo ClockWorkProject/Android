@@ -27,4 +27,6 @@
     <string name="create_issue">Issue Erstellen</string>
     <string name="title">Titel</string>
     <string name="description">Beschreibung</string>
+    <string name="monthly_hours_title">Ihre\nmonatlichen Arbeitsstunden\nim</string>
+    <string name="monthly_hours_value">betragen\n%1$d Stunden und %2$d Minuten</string>
 </resources>
