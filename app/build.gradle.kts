@@ -65,6 +65,9 @@ dependencies {
 
     implementation("com.jakewharton.timber:timber:${Versions.timber}")
 
+
+    implementation("androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayout}")
+
     implementation("com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}")
 
     testImplementation("junit:junit:${Versions.junit}")

@@ -17,6 +17,8 @@ object Versions {
 
     const val accompanist = "0.20.2"
 
+    const val constraintLayout = "1.0.0-rc02"
+
     const val about = "10.0.0-b02"
 
     const val okhttp = "4.9.1"
