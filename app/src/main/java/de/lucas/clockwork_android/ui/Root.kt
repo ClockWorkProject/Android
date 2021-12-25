@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.NavigationItem.*
+import de.lucas.clockwork_android.model.NavigationItem.Companion.INFO
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LOGIN
 import de.lucas.clockwork_android.model.ProjectIssues
 import de.lucas.clockwork_android.ui.theme.roundedShape
@@ -106,7 +107,21 @@ fun Root() {
 
             }
             composable(PROFILE.route) {
-
+                ProfileScreen(
+                    { navController.navigate(INFO) },
+                    {
+                        navController.navigate(LOGIN) {
+                            showBottomNavigation = false
+                            popUpTo(0) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    { navController.navigate(TOGGLE.route) }
+                )
+            }
+            composable(INFO) {
+                InfoScreen()
             }
         }
     }

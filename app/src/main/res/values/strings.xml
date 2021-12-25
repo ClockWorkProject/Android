@@ -26,10 +26,16 @@
     <string name="edit_issue">Issue Bearbeiten</string>
     <string name="create_issue">Issue Erstellen</string>
     <string name="title">Titel</string>
+    <string name="description">Beschreibung</string>
     <string name="current_group">Aktuelle Gruppe:\n%1$s</string>
     <string name="profile_username">Benutzername:\n%1$s</string>
     <string name="info">Info</string>
     <string name="leave_group">Gruppe verlassen</string>
     <string name="sign_out">Abmelden</string>
     <string name="delete_profile">Profil löschen</string>
+    <string name="leave">Verlassen</string>
+    <string name="delete">Löschen</string>
+    <string name="leave_message">Möchten Sie die Gruppe wirklich verlassen?</string>
+    <string name="delete_message">Möchten Sie Ihr Profil wirklich löschen?</string>
+    <string name="edit_username">Benutzername bearbeiten</string>
 </resources>

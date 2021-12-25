@@ -1,7 +1,6 @@
 package de.lucas.clockwork_android.ui
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -88,13 +87,6 @@ internal fun ToggleList(list: List<TotalToggle>) {
     }
 }
 
-@ExperimentalMaterialApi
-@Preview
-@Composable
-fun ToggleListPreview() {
-    ToggleList(list = listOfToggles)
-}
-
 @Composable
 fun CustomDialog(
     @StringRes title_id: Int,
@@ -107,13 +99,11 @@ fun CustomDialog(
     AlertDialog(
         onDismissRequest = { },
         title = {
-            Column {
-                Text(
-                    stringResource(id = title_id),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            Text(
+                stringResource(id = title_id),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
         },
         text = {
             TextField(
@@ -143,6 +133,25 @@ fun CustomDialog(
 @ExperimentalMaterialApi
 @Preview
 @Composable
+fun ToggleListPreview() {
+    ToggleList(list = listOfToggles)
+}
+
+@ExperimentalMaterialApi
+@Preview
+@Composable
 private fun PreviewToggleScreen() {
     ToggleScreen()
+}
+
+@Preview
+@Composable
+private fun PreviewCustomDialog() {
+    CustomDialog(
+        title_id = R.string.join_group,
+        message_id = R.string.enter_group_id,
+        button_text_id = R.string.join,
+        onClickDismiss = { },
+        onClickConfirm = { }
+    )
 }
