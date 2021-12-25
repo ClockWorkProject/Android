@@ -61,6 +61,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:${Versions.compose}")
     debugImplementation("androidx.compose.ui:ui-tooling:${Versions.compose}")
 
+    implementation("com.chargemap.compose:numberpicker:0.0.10")
+
     implementation("com.jakewharton.timber:timber:${Versions.timber}")
 
 
