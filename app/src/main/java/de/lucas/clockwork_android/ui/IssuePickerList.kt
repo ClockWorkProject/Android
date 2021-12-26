@@ -26,7 +26,11 @@ import de.lucas.clockwork_android.ui.theme.Gray200
 
 @ExperimentalMaterialApi
 @Composable
-internal fun IssuePickerList(issueList: List<ProjectIssues>, onClose: () -> Unit) {
+internal fun IssuePickerList(
+    issueList: List<ProjectIssues>,
+    onStartToggle: (Issue) -> Unit,
+    onClose: () -> Unit
+) {
     Dialog(onDismissRequest = { onClose() }) {
         Surface(
             modifier = Modifier
@@ -53,7 +57,11 @@ internal fun IssuePickerList(issueList: List<ProjectIssues>, onClose: () -> Unit
                     issueList.forEach { project ->
                         IssueItem(
                             issues = project.issues,
-                            project_name = project.project_name
+                            project_name = project.project_name,
+                            onStartToggle = { issue ->
+                                onStartToggle(issue)
+                                onClose()
+                            }
                         )
                     }
                 }
@@ -64,7 +72,7 @@ internal fun IssuePickerList(issueList: List<ProjectIssues>, onClose: () -> Unit
 
 @ExperimentalMaterialApi
 @Composable
-private fun IssueItem(issues: List<Issue>, project_name: String) {
+private fun IssueItem(issues: List<Issue>, project_name: String, onStartToggle: (Issue) -> Unit) {
     var expandableState by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(targetValue = if (expandableState) 180f else 0f)
 
@@ -105,6 +113,7 @@ private fun IssueItem(issues: List<Issue>, project_name: String) {
                     shape = RoundedCornerShape(0.dp),
                     onClick = {
                         /* TODO Start toggle (controller) */
+                        onStartToggle(issue)
                     }
                 ) {
                     Box(
