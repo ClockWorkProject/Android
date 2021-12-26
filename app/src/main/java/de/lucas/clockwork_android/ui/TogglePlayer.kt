@@ -22,8 +22,7 @@ val issue = Issue(2, "Bug Fix", "Vinson", "", "")
 
 @ExperimentalMaterialApi
 @Composable
-internal fun TogglePlayer(issue: Issue) {
-    val viewModel = TogglePlayerViewModel()
+internal fun TogglePlayer(issue: Issue, onClose: () -> Unit) {
     var pauseState by remember { mutableStateOf(false) }
     val stateVisibility = if (pauseState) 1f else 0.6f
     Card(
@@ -93,7 +92,7 @@ internal fun TogglePlayer(issue: Issue) {
                 onClick = {
                     if (pauseState) {
                         /* TODO enable clickable to stop toggle */
-                        viewModel.stopTogglePlayer()
+                        onClose()
                     }
                 }) {
                 Icon(
@@ -109,5 +108,5 @@ internal fun TogglePlayer(issue: Issue) {
 @Preview
 @Composable
 private fun PreviewTogglePlayer() {
-    TogglePlayer(issue = issue)
+    TogglePlayer(issue = issue) { }
 }

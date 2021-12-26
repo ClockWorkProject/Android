@@ -1,10 +1,7 @@
 package de.lucas.clockwork_android.ui
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -41,11 +38,14 @@ import de.lucas.clockwork_android.ui.theme.roundedShape
 val listOfIssues = listOf(
     ProjectIssues(
         "IT-Projekt",
-        listOf(Issue(2, "Bug Fix", "", "", ""), Issue(4, "Andere Fixes", "", "", ""))
+        listOf(
+            Issue(2, "Bug Fix", "IT-Projekt", "", ""),
+            Issue(4, "Andere Fixes", "IT-Projekt", "", "")
+        )
     ),
     ProjectIssues(
         "Vinson",
-        listOf(Issue(2, "Redesign", "", "", ""), Issue(4, "Irgendwas", "", "", ""))
+        listOf(Issue(2, "Redesign", "Vinson", "", ""), Issue(4, "Irgendwas", "Vinson", "", ""))
     )
 )
 
@@ -57,14 +57,22 @@ fun Root() {
     var showIssuePickerList by remember { mutableStateOf(false) }
     var appTitle by remember { mutableStateOf("") }
     var showNavigationIcon by remember { mutableStateOf(false) }
+    var showTogglePlayer by remember { mutableStateOf(false) }
+    var toggleIssue by remember { mutableStateOf(Issue(-1, "", "", "", "")) }
+
     Scaffold(
         topBar = {
-            if (showBottomNavigation) {
-                CustomTopBar(
-                    title = appTitle,
-                    onClickBack = { navController.popBackStack() },
-                    showNavigationIcon = showNavigationIcon
-                )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                if (showBottomNavigation) {
+                    CustomTopBar(
+                        title = appTitle,
+                        onClickBack = { navController.popBackStack() },
+                        showNavigationIcon = showNavigationIcon
+                    )
+                    if (showTogglePlayer) {
+                        TogglePlayer(issue = toggleIssue) { showTogglePlayer = false }
+                    }
+                }
             }
         },
         bottomBar = {
@@ -88,7 +96,18 @@ fun Root() {
                     )
                 }
                 if (showIssuePickerList) {
-                    IssuePickerList(listOfIssues) { showIssuePickerList = false }
+                    IssuePickerList(
+                        issueList = listOfIssues,
+                        onStartToggle = { issue ->
+                            toggleIssue = issue
+                            showTogglePlayer = true
+                        },
+                        onClose = {
+                            /* TODO save time and refresh list */
+                            toggleIssue = Issue(-1, "", "", "", "")
+                            showIssuePickerList = false
+                        }
+                    )
                 }
             }
         },
@@ -249,6 +268,7 @@ internal fun BottomNavigationBar(navController: NavController) {
     }
 }
 
+@ExperimentalMaterialApi
 @Composable
 internal fun CustomTopBar(
     title: String,
@@ -260,27 +280,29 @@ internal fun CustomTopBar(
         contentColor = contentColorFor(MaterialTheme.colors.primarySurface),
         elevation = 0.dp
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-        ) {
-            if (showNavigationIcon) {
-                IconButton(onClick = { onClickBack() }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_arrow_back_light),
-                        contentDescription = "",
-                        tint = MaterialTheme.colors.onPrimary
-                    )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            ) {
+                if (showNavigationIcon) {
+                    IconButton(onClick = { onClickBack() }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_arrow_back_light),
+                            contentDescription = "",
+                            tint = MaterialTheme.colors.onPrimary
+                        )
+                    }
                 }
+                Text(
+                    text = title,
+                    modifier = Modifier.padding(start = 16.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
-            Text(
-                text = title,
-                modifier = Modifier.padding(start = 16.dp),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium
-            )
         }
     }
 }
