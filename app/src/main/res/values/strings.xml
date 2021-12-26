@@ -40,4 +40,11 @@
     <string name="leave_message">Möchten Sie die Gruppe wirklich verlassen?</string>
     <string name="delete_message">Möchten Sie Ihr Profil wirklich löschen?</string>
     <string name="edit_username">Benutzername bearbeiten</string>
+    <string name="imprint">Impressum</string>
+    <string name="rights_and_licenses">Rechte und Lizenzen</string>
+    <string name="version_number">Versionsnummer</string>
+    <string name="data_protection">Datenschutz</string>
+    <string name="version">v. %s</string>
+    <string name="imprint_text">Irgendwas Datenschutzmäßges\nNoch viel mehr\n Und noch viel mehr als gedacht</string>
+    <string name="data_protection_text">Dateschutztext. Viel mehr als sonst</string>
 </resources>

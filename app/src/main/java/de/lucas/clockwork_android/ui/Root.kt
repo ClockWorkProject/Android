@@ -10,19 +10,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.*
 import de.lucas.clockwork_android.R
+import de.lucas.clockwork_android.model.InfoCategory
 import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.NavigationItem.*
+import de.lucas.clockwork_android.model.NavigationItem.Companion.DATA_PROTECTION
+import de.lucas.clockwork_android.model.NavigationItem.Companion.IMPRINT
 import de.lucas.clockwork_android.model.NavigationItem.Companion.INFO
+import de.lucas.clockwork_android.model.NavigationItem.Companion.LICENSES
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LOGIN
+import de.lucas.clockwork_android.model.NavigationItem.Companion.VERSION
 import de.lucas.clockwork_android.model.ProjectIssues
+import de.lucas.clockwork_android.ui.info.*
 import de.lucas.clockwork_android.ui.theme.roundedShape
 
 // For testing purpose
@@ -121,7 +125,35 @@ fun Root() {
                 )
             }
             composable(INFO) {
-                InfoScreen()
+                InfoScreen(
+                    categories = listOf(
+                        InfoCategory("imprint", R.string.imprint),
+                        InfoCategory("licenses", R.string.rights_and_licenses),
+                        InfoCategory("data_protection", R.string.data_protection),
+                        InfoCategory("version", R.string.version_number)
+                    ),
+                    onClickBack = { navController.popBackStack() },
+                    onClickCategory = { category ->
+                        navController.navigate(category.id)
+                    }
+                )
+            }
+            composable(IMPRINT) {
+                ImprintScreen()
+            }
+            composable(LICENSES) {
+                RightsAndLicencesScreen()
+            }
+            dialog(VERSION) { stackEntry ->
+                val model = viewModel<VersionViewModel>(stackEntry)
+                VersionDialog(
+                    title = model.appName,
+                    version = model.getCurrentVersion(),
+                    onDismiss = { navController.popBackStack() }
+                )
+            }
+            composable(DATA_PROTECTION) {
+                DataProtectionScreen()
             }
         }
     }
