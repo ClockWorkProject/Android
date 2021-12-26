@@ -21,6 +21,8 @@ object Versions {
 
     const val about = "10.0.0-b02"
 
+    const val numberPicker = "0.0.10"
+
     const val okhttp = "4.9.1"
     const val retrofit = "2.9.0"
 

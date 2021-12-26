@@ -1,10 +1,7 @@
-/*
- * Copyright (c) 2021.  Müller und Wulff. All rights reserved.
- */
-
 plugins {
     id("com.android.application")
     kotlin("android")
+    id("com.mikepenz.aboutlibraries.plugin") version Versions.about
 }
 
 android {
@@ -61,10 +58,11 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:${Versions.compose}")
     debugImplementation("androidx.compose.ui:ui-tooling:${Versions.compose}")
 
-    implementation("com.chargemap.compose:numberpicker:0.0.10")
+    implementation("com.chargemap.compose:numberpicker:${Versions.numberPicker}")
 
     implementation("com.jakewharton.timber:timber:${Versions.timber}")
 
+    implementation("com.mikepenz:aboutlibraries-compose:${Versions.about}")
 
     implementation("androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayout}")
 
