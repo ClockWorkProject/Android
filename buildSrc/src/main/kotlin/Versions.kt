@@ -8,6 +8,7 @@ object Versions {
     const val appcompat = "1.4.0"
     const val composeNav = "2.4.0-beta02"
     const val compose = "1.0.5"
+    const val composeLiveData = "1.1.0-rc01"
 
     const val material = "1.4.0"
 

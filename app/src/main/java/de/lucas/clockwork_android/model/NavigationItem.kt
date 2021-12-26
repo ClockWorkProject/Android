@@ -10,6 +10,8 @@ enum class NavigationItem(val route: String, val icon: Int, val title: String) {
 
     companion object {
         const val LOGIN = "login"
+        const val ISSUE_DETAIL = "detail"
+        const val ISSUE_EDIT = "edit"
         const val INFO = "info"
         const val IMPRINT = "imprint"
         const val VERSION = "version"

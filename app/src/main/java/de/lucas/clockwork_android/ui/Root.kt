@@ -1,15 +1,21 @@
 package de.lucas.clockwork_android.ui
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -22,6 +28,8 @@ import de.lucas.clockwork_android.model.NavigationItem.*
 import de.lucas.clockwork_android.model.NavigationItem.Companion.DATA_PROTECTION
 import de.lucas.clockwork_android.model.NavigationItem.Companion.IMPRINT
 import de.lucas.clockwork_android.model.NavigationItem.Companion.INFO
+import de.lucas.clockwork_android.model.NavigationItem.Companion.ISSUE_DETAIL
+import de.lucas.clockwork_android.model.NavigationItem.Companion.ISSUE_EDIT
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LICENSES
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LOGIN
 import de.lucas.clockwork_android.model.NavigationItem.Companion.VERSION
@@ -47,7 +55,18 @@ fun Root() {
     val navController = rememberNavController()
     var showBottomNavigation by remember { mutableStateOf(false) }
     var showIssuePickerList by remember { mutableStateOf(false) }
+    var appTitle by remember { mutableStateOf("") }
+    var showNavigationIcon by remember { mutableStateOf(false) }
     Scaffold(
+        topBar = {
+            if (showBottomNavigation) {
+                CustomTopBar(
+                    title = appTitle,
+                    onClickBack = { navController.popBackStack() },
+                    showNavigationIcon = showNavigationIcon
+                )
+            }
+        },
         bottomBar = {
             if (showBottomNavigation) BottomNavigationBar(navController = navController)
         },
@@ -102,15 +121,23 @@ fun Root() {
                 )
             }
             composable(TOGGLE.route) {
+                appTitle = stringResource(id = R.string.time_record)
+                showNavigationIcon = false
                 ToggleScreen()
             }
             composable(BOARD.route) {
-                IssueBoardScreen()
+                appTitle = stringResource(id = R.string.issue_board)
+                showNavigationIcon = false
+                IssueBoardScreen { navController.navigate(ISSUE_DETAIL) }
             }
             composable(STATISTIC.route) {
+                appTitle = stringResource(id = R.string.statistic)
+                showNavigationIcon = false
                 StatisticScreen()
             }
             composable(PROFILE.route) {
+                appTitle = stringResource(id = R.string.profile)
+                showNavigationIcon = false
                 ProfileScreen(
                     { navController.navigate(INFO) },
                     {
@@ -124,7 +151,26 @@ fun Root() {
                     { navController.navigate(TOGGLE.route) }
                 )
             }
+            composable(ISSUE_DETAIL) {
+                val viewModel = IssueViewModel()
+                val issue by viewModel.issue.observeAsState()
+                showNavigationIcon = true
+                appTitle = stringResource(id = R.string.issue_details)
+                IssueDetailScreen(viewModel = IssueViewModel()) { navController.navigate(ISSUE_EDIT) }
+            }
+            composable(ISSUE_EDIT) {
+                val viewModel = IssueViewModel()
+                val issue by viewModel.issue.observeAsState()
+                appTitle = stringResource(id = R.string.edit_issue)
+                showNavigationIcon = true
+                EditIssueScreen(
+                    issue = issue!!,
+                    buttonText = R.string.edit
+                ) { navController.popBackStack() }
+            }
             composable(INFO) {
+                appTitle = stringResource(id = R.string.info)
+                showNavigationIcon = true
                 InfoScreen(
                     categories = listOf(
                         InfoCategory("imprint", R.string.imprint),
@@ -139,9 +185,13 @@ fun Root() {
                 )
             }
             composable(IMPRINT) {
+                showNavigationIcon = true
+                appTitle = stringResource(id = R.string.imprint)
                 ImprintScreen()
             }
             composable(LICENSES) {
+                showNavigationIcon = true
+                appTitle = stringResource(id = R.string.rights_and_licenses)
                 RightsAndLicencesScreen()
             }
             dialog(VERSION) { stackEntry ->
@@ -153,6 +203,8 @@ fun Root() {
                 )
             }
             composable(DATA_PROTECTION) {
+                showNavigationIcon = true
+                appTitle = stringResource(id = R.string.data_protection)
                 DataProtectionScreen()
             }
         }
@@ -198,11 +250,37 @@ internal fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun TopAppBar(@StringRes title: Int) {
+internal fun CustomTopBar(
+    title: String,
+    onClickBack: () -> Unit,
+    showNavigationIcon: Boolean
+) {
     TopAppBar(
-        title = { Text(stringResource(id = title)) },
         backgroundColor = MaterialTheme.colors.primary,
         contentColor = contentColorFor(MaterialTheme.colors.primarySurface),
         elevation = 0.dp
-    )
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+        ) {
+            if (showNavigationIcon) {
+                IconButton(onClick = { onClickBack() }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_arrow_back_light),
+                        contentDescription = "",
+                        tint = MaterialTheme.colors.onPrimary
+                    )
+                }
+            }
+            Text(
+                text = title,
+                modifier = Modifier.padding(start = 16.dp),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
 }

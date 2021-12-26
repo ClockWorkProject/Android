@@ -5,10 +5,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.material.Divider
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -24,24 +29,7 @@ internal fun InfoScreen(
     onClickBack: () -> Unit,
     onClickCategory: (InfoCategory) -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(id = R.string.info)) },
-                navigationIcon = {
-                    IconButton(onClick = { onClickBack() }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_arrow_back_light),
-                            contentDescription = ""
-                        )
-                    }
-                },
-                backgroundColor = MaterialTheme.colors.primary,
-                contentColor = contentColorFor(MaterialTheme.colors.primarySurface),
-                elevation = 0.dp
-            )
-        }
-    ) {
+    Scaffold {
         Box(
             modifier = Modifier
                 .fillMaxHeight()
@@ -82,6 +70,7 @@ private fun CategoryItem(category: InfoCategory, onClick: () -> Unit) {
         Image(
             painter = painterResource(id = R.drawable.ic_arrow_right_dark),
             contentDescription = null,
+            colorFilter = ColorFilter.tint(Color.Black),
             modifier = Modifier
                 .align(Alignment.CenterVertically)
                 .padding(end = 16.dp)

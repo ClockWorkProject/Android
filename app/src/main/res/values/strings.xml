@@ -45,6 +45,6 @@
     <string name="version_number">Versionsnummer</string>
     <string name="data_protection">Datenschutz</string>
     <string name="version">v. %s</string>
-    <string name="imprint_text">Irgendwas Datenschutzmäßges\nNoch viel mehr\n Und noch viel mehr als gedacht</string>
+    <string name="imprint_text">Irgendwas Imprintmäßiges\nNoch viel mehr\n Und noch viel mehr als gedacht</string>
     <string name="data_protection_text">Dateschutztext. Viel mehr als sonst</string>
 </resources>
