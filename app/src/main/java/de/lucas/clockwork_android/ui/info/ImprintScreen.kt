@@ -2,6 +2,7 @@ package de.lucas.clockwork_android.ui.info
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
@@ -11,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import de.lucas.clockwork_android.R
 
 @Composable
@@ -28,6 +30,6 @@ internal fun InfoText(text: String) {
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        Text(text = text, textAlign = TextAlign.Center)
+        Text(text = text, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 32.dp))
     }
 }

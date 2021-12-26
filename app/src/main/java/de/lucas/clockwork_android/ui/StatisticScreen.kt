@@ -22,7 +22,7 @@ import java.util.*
 
 @Composable
 internal fun StatisticScreen() {
-    Scaffold(topBar = { TopAppBar(title = R.string.statistic) }) {
+    Scaffold {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally

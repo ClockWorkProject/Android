@@ -56,6 +56,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:${Versions.composeNav}")
     implementation("androidx.compose.material:material:${Versions.compose}")
     implementation("androidx.compose.ui:ui-tooling-preview:${Versions.compose}")
+    implementation("androidx.compose.runtime:runtime-livedata:${Versions.composeLiveData}")
+    implementation("androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayout}")
     debugImplementation("androidx.compose.ui:ui-tooling:${Versions.compose}")
 
     implementation("com.chargemap.compose:numberpicker:${Versions.numberPicker}")
@@ -63,8 +65,6 @@ dependencies {
     implementation("com.jakewharton.timber:timber:${Versions.timber}")
 
     implementation("com.mikepenz:aboutlibraries-compose:${Versions.about}")
-
-    implementation("androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayout}")
 
     implementation("com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}")
 
