@@ -1,11 +1,9 @@
 package de.lucas.clockwork_android.ui
 
-import android.net.Uri
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,13 +16,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
-import com.squareup.moshi.Moshi
+import com.google.gson.Gson
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.InfoCategory
 import de.lucas.clockwork_android.model.Issue
-import de.lucas.clockwork_android.model.IssueNavType
 import de.lucas.clockwork_android.model.NavigationItem.*
 import de.lucas.clockwork_android.model.NavigationItem.Companion.DATA_PROTECTION
 import de.lucas.clockwork_android.model.NavigationItem.Companion.IMPRINT
@@ -149,14 +147,12 @@ fun Root() {
                 ToggleScreen()
             }
             composable(BOARD.route) {
-                val moshi = Moshi.Builder().build()
-                val jsonAdapter = moshi.adapter(Issue::class.java).lenient()
                 appTitle = stringResource(id = R.string.issue_board)
                 showNavigationIcon = false
                 IssueBoardScreen(
                     { issue ->
-                        val json = Uri.encode(jsonAdapter.toJson(issue))
-                        navController.navigate("$ISSUE_DETAIL/$json")
+                        val jsonIssue = Gson().toJson(issue)
+                        navController.navigate("$ISSUE_DETAIL/$jsonIssue")
                     },
                     { navController.navigate(ISSUE_EDIT) }
                 )
@@ -183,22 +179,39 @@ fun Root() {
                 )
             }
             composable(
-                "$ISSUE_DETAIL/{issue}",
-                arguments = listOf(navArgument("issue") { type = IssueNavType() })
-            ) {
-                showNavigationIcon = true
-                appTitle = stringResource(id = R.string.issue_details)
-                val issue = it.arguments?.getParcelable<Issue>("issue")
-                IssueDetailScreen(issue = issue!!) { navController.navigate(ISSUE_EDIT) }
+                route = "$ISSUE_DETAIL/{issue}",
+                arguments = listOf(navArgument("issue")
+                { type = NavType.StringType })
+            ) { backStackEntry ->
+                backStackEntry.arguments
+                    ?.getString("issue").let { json ->
+                        val issue = Gson().fromJson(json, Issue::class.java)
+                        showNavigationIcon = true
+                        appTitle = stringResource(id = R.string.issue_details)
+                        IssueDetailScreen(issue) { navController.navigate("$ISSUE_EDIT/$json") }
+                    }
+            }
+            composable(
+                route = "$ISSUE_EDIT/{issue}",
+                arguments = listOf(navArgument("issue")
+                { type = NavType.StringType })
+            ) { backStackEntry ->
+                backStackEntry.arguments?.getString("issue").let { json ->
+                    val issue = Gson().fromJson(json, Issue::class.java)
+                    appTitle = stringResource(id = R.string.edit_issue)
+                    showNavigationIcon = true
+                    EditIssueScreen(
+                        issue = issue,
+                        buttonText = R.string.edit
+                    ) { navController.popBackStack() }
+                }
             }
             composable(ISSUE_EDIT) {
-                val viewModel = IssueViewModel()
-                val issue by viewModel.issue.observeAsState()
-                appTitle = stringResource(id = R.string.edit_issue)
+                appTitle = stringResource(id = R.string.create_issue)
                 showNavigationIcon = true
                 EditIssueScreen(
-                    issue = issue!!,
-                    buttonText = R.string.edit
+                    issue = null,
+                    buttonText = R.string.create
                 ) { navController.popBackStack() }
             }
             composable(INFO) {

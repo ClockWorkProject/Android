@@ -184,11 +184,6 @@ private fun IssueItem(issue: Issue, onClickIssue: (Issue) -> Unit) {
     }
 }
 
-@Preview
-@Composable
-private fun PreviewIssueBoard() {
-    IssueBoardScreen({ }, { })
-}
 
 @Preview
 @Composable
