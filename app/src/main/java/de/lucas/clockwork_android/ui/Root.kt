@@ -106,7 +106,6 @@ fun Root() {
                         },
                         onClose = {
                             /* TODO save time and refresh list */
-                            toggleIssue = Issue(-1, "", "", "", "")
                             showIssuePickerList = false
                         }
                     )

@@ -40,7 +40,13 @@ internal fun IssueBoardScreen(onClickIssue: (Issue) -> Unit, onClickNewIssue: ()
         listOf(Issue(2, "", "", "", ""), Issue(2, "", "", "", ""), Issue(2, "", "", "", ""))
     )
     val issueList = listOf(
-        Issue(2, "Bug Fixes", "", "Beschreibungen......viiiieeelllll", "Meatüs"),
+        Issue(
+            2,
+            "Bug Fixes",
+            "",
+            "Beschreibungen......viiiieeelllll",
+            "Vor 2 Tagen erstellt von Meatüs"
+        ),
         Issue(4, "Redesign", "", "", ""),
         Issue(7, "API connection", "", "", "")
     )
@@ -124,12 +130,13 @@ private fun CustomDropDownMenu(projects: List<Project>, currentProject: Project)
     var selectedIndex by remember { mutableStateOf(projects.indexOf(currentProject)) }
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.border(border = BorderStroke(width = 1.dp, Color.Black))
+        modifier = Modifier
+            .border(border = BorderStroke(width = 1.dp, Color.Black))
+            .clickable(onClick = { expanded = true })
     ) {
         Text(
             projects[selectedIndex].project_name,
             modifier = Modifier
-                .clickable(onClick = { expanded = true })
                 .background(Color.White)
                 .padding(start = 8.dp)
                 .weight(4f),
@@ -184,6 +191,11 @@ private fun IssueItem(issue: Issue, onClickIssue: (Issue) -> Unit) {
     }
 }
 
+@Preview
+@Composable
+private fun PreviewIssueBoard() {
+    IssueBoardScreen({ }, { })
+}
 
 @Preview
 @Composable
