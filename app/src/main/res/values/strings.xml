@@ -47,4 +47,11 @@
     <string name="version">v. %s</string>
     <string name="imprint_text">Irgendwas Imprintmäßiges\nNoch viel mehr\n Und noch viel mehr als gedacht</string>
     <string name="data_protection_text">Dateschutztext. Viel mehr als sonst</string>
+    <string name="project">Projekt:</string>
+    <string name="open">Open</string>
+    <string name="todo">ToDo</string>
+    <string name="doing">Doing</string>
+    <string name="review">Review</string>
+    <string name="blocker">Blocker</string>
+    <string name="closed">Closed</string>
 </resources>

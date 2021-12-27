@@ -17,9 +17,6 @@ import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.ui.theme.Purple200
 
-// For testing purpose
-val issue = Issue(2, "Bug Fix", "Vinson", "", "")
-
 @ExperimentalMaterialApi
 @Composable
 internal fun TogglePlayer(issue: Issue, onClose: () -> Unit) {
@@ -108,5 +105,5 @@ internal fun TogglePlayer(issue: Issue, onClose: () -> Unit) {
 @Preview
 @Composable
 private fun PreviewTogglePlayer() {
-    TogglePlayer(issue = issue) { }
+    TogglePlayer(issue = Issue(2, "Bug Fix", "Vinson", "", "")) { }
 }

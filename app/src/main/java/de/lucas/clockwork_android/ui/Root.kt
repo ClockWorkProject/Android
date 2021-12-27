@@ -1,5 +1,6 @@
 package de.lucas.clockwork_android.ui
 
+import android.net.Uri
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -18,9 +19,12 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
+import com.squareup.moshi.Moshi
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.InfoCategory
 import de.lucas.clockwork_android.model.Issue
+import de.lucas.clockwork_android.model.IssueNavType
 import de.lucas.clockwork_android.model.NavigationItem.*
 import de.lucas.clockwork_android.model.NavigationItem.Companion.DATA_PROTECTION
 import de.lucas.clockwork_android.model.NavigationItem.Companion.IMPRINT
@@ -30,20 +34,20 @@ import de.lucas.clockwork_android.model.NavigationItem.Companion.ISSUE_EDIT
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LICENSES
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LOGIN
 import de.lucas.clockwork_android.model.NavigationItem.Companion.VERSION
-import de.lucas.clockwork_android.model.ProjectIssues
+import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.info.*
 import de.lucas.clockwork_android.ui.theme.roundedShape
 
 // For testing purpose
 val listOfIssues = listOf(
-    ProjectIssues(
+    Project(
         "IT-Projekt",
         listOf(
             Issue(2, "Bug Fix", "IT-Projekt", "", ""),
             Issue(4, "Andere Fixes", "IT-Projekt", "", "")
         )
     ),
-    ProjectIssues(
+    Project(
         "Vinson",
         listOf(Issue(2, "Redesign", "Vinson", "", ""), Issue(4, "Irgendwas", "Vinson", "", ""))
     )
@@ -123,7 +127,7 @@ fun Root() {
                 LoginScreen(
                     onClickLogin = {
                         navController.navigate(TOGGLE.route) {
-                            popUpTo(LOGIN) {
+                            popUpTo(0) {
                                 inclusive = true
                             }
                         }
@@ -131,7 +135,7 @@ fun Root() {
                     },
                     onClickSignUp = {
                         navController.navigate(TOGGLE.route) {
-                            popUpTo(LOGIN) {
+                            popUpTo(0) {
                                 inclusive = true
                             }
                         }
@@ -145,9 +149,17 @@ fun Root() {
                 ToggleScreen()
             }
             composable(BOARD.route) {
+                val moshi = Moshi.Builder().build()
+                val jsonAdapter = moshi.adapter(Issue::class.java).lenient()
                 appTitle = stringResource(id = R.string.issue_board)
                 showNavigationIcon = false
-                IssueBoardScreen { navController.navigate(ISSUE_DETAIL) }
+                IssueBoardScreen(
+                    { issue ->
+                        val json = Uri.encode(jsonAdapter.toJson(issue))
+                        navController.navigate("$ISSUE_DETAIL/$json")
+                    },
+                    { navController.navigate(ISSUE_EDIT) }
+                )
             }
             composable(STATISTIC.route) {
                 appTitle = stringResource(id = R.string.statistic)
@@ -170,12 +182,14 @@ fun Root() {
                     { navController.navigate(TOGGLE.route) }
                 )
             }
-            composable(ISSUE_DETAIL) {
-                val viewModel = IssueViewModel()
-                val issue by viewModel.issue.observeAsState()
+            composable(
+                "$ISSUE_DETAIL/{issue}",
+                arguments = listOf(navArgument("issue") { type = IssueNavType() })
+            ) {
                 showNavigationIcon = true
                 appTitle = stringResource(id = R.string.issue_details)
-                IssueDetailScreen(viewModel = IssueViewModel()) { navController.navigate(ISSUE_EDIT) }
+                val issue = it.arguments?.getParcelable<Issue>("issue")
+                IssueDetailScreen(issue = issue!!) { navController.navigate(ISSUE_EDIT) }
             }
             composable(ISSUE_EDIT) {
                 val viewModel = IssueViewModel()
