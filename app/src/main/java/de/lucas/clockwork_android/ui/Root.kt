@@ -42,13 +42,18 @@ val listOfIssues = listOf(
     Project(
         "IT-Projekt",
         listOf(
-            Issue(2, "Bug Fix", "IT-Projekt", "", ""),
-            Issue(4, "Andere Fixes", "IT-Projekt", "", "")
+            Issue(2, "Bug Fix", "IT-Projekt", "", "", BoardState.OPEN),
+            Issue(4, "Andere Fixes", "IT-Projekt", "", "", BoardState.OPEN)
         )
     ),
     Project(
         "Vinson",
-        listOf(Issue(2, "Redesign", "Vinson", "", ""), Issue(4, "Irgendwas", "Vinson", "", ""))
+        listOf(
+            Issue(2, "Redesign", "Vinson", "", "", BoardState.OPEN), Issue(
+                4, "Irgendwas", "Vinson", "", "",
+                BoardState.OPEN
+            )
+        )
     )
 )
 
@@ -62,7 +67,7 @@ fun Root() {
     var appTitle by remember { mutableStateOf("") }
     var showNavigationIcon by remember { mutableStateOf(false) }
     var showTogglePlayer by remember { mutableStateOf(false) }
-    var toggleIssue by remember { mutableStateOf(Issue(-1, "", "", "", "")) }
+    var toggleIssue by remember { mutableStateOf(Issue(-1, "", "", "", "", BoardState.OPEN)) }
 
     Scaffold(
         topBar = {
@@ -148,10 +153,11 @@ fun Root() {
                 ToggleScreen()
             }
             composable(BOARD.route) {
+                val viewModel = IssueBoardViewModel()
                 appTitle = stringResource(id = R.string.issue_board)
                 showNavigationIcon = false
                 IssueBoardScreen(
-                    issueList,
+                    viewModel.projectID.value!!,
                     { issue ->
                         val jsonIssue = Gson().toJson(issue)
                         navController.navigate("$ISSUE_DETAIL/$jsonIssue")

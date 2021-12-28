@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
+import de.lucas.clockwork_android.ui.BoardState.OPEN
 import de.lucas.clockwork_android.ui.theme.Gray200
 
 @Composable
@@ -116,7 +117,8 @@ private fun PreviewIssueDetailScreen() {
             "Bug Fixes",
             "Vinson",
             "Lot of Bugs. Should be Fixes asap!",
-            "Vor 2 Tagen erstellt von Mattis Uphoff"
+            "Vor 2 Tagen erstellt von Mattis Uphoff",
+            OPEN
         ),
         buttonText = R.string.save
     ) { }
