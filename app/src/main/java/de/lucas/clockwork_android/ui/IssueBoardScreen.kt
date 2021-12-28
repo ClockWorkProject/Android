@@ -1,6 +1,5 @@
 package de.lucas.clockwork_android.ui
 
-import androidx.annotation.StringRes
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,6 +11,7 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
+import de.lucas.clockwork_android.ui.BoardState.*
 import de.lucas.clockwork_android.ui.theme.Blue500
 import de.lucas.clockwork_android.ui.theme.Green500
 import de.lucas.clockwork_android.ui.theme.Red500
@@ -24,10 +24,22 @@ val issueList = listOf(
         "Bug Fixes",
         "",
         "Beschreibungen......viiiieeelllll",
-        "Vor 2 Tagen erstellt von Meatüs"
+        "Vor 2 Tagen erstellt von Meatüs",
+        OPEN
     ),
-    Issue(4, "Redesign", "", "", ""),
-    Issue(7, "API connection", "", "", "")
+    Issue(
+        4, "Redesign", "", "rwwersdSAddSA", "",
+        TODO
+    ),
+    Issue(
+        1, "UI", "", "rwweradsgfrgervasdSAddSA", "",
+        CLOSED
+    ),
+    Issue(
+        3, "Documentation", "", "jfkrzuioolhgjfc", "",
+        CLOSED
+    ),
+    Issue(7, "API connection", "", "TQRHRZTWSER", "", BLOCKER)
 )
 
 @ExperimentalPagerApi
@@ -55,63 +67,69 @@ internal fun BoardViewPager(
     onClickIssue: (Issue) -> Unit,
     onClickNewIssue: () -> Unit
 ) {
-    val items = BoardItem.values()
+    val items = values()
     HorizontalPager(state = pagerState, count = items.size) { page ->
         when (items[page]) {
-            BoardItem.OPEN -> {
+            OPEN -> {
+                val issues = issueList.filter { issue -> issue.board_state == OPEN }
                 IssueBoardItem(
                     boardTitle = R.string.open,
-                    issueList = issueList,
+                    issueList = issues,
                     boardColor = Color.Black,
                     currentPageIndex = page,
                     onClickIssue = onClickIssue,
                     onClickNewIssue = onClickNewIssue
                 )
             }
-            BoardItem.TODO -> {
+            TODO -> {
+                val issues = issueList.filter { issue -> issue.board_state == TODO }
                 IssueBoardItem(
                     boardTitle = R.string.todo,
-                    issueList = issueList,
+                    issueList = issues,
                     boardColor = Green500,
                     currentPageIndex = page,
                     onClickIssue = onClickIssue,
                     onClickNewIssue = onClickNewIssue
                 )
             }
-            BoardItem.DOING -> {
+            DOING -> {
+                val issues = issueList.filter { issue -> issue.board_state == DOING }
                 IssueBoardItem(
                     boardTitle = R.string.doing,
-                    issueList = issueList,
+                    issueList = issues,
                     boardColor = Blue500,
                     currentPageIndex = page,
                     onClickIssue = onClickIssue,
                     onClickNewIssue = onClickNewIssue
                 )
             }
-            BoardItem.REVIEW -> {
+            REVIEW -> {
+                val issues = issueList.filter { issue -> issue.board_state == REVIEW }
                 IssueBoardItem(
                     boardTitle = R.string.review,
-                    issueList = issueList,
+                    issueList = issues,
                     boardColor = Yellow500,
                     currentPageIndex = page,
                     onClickIssue = onClickIssue,
                     onClickNewIssue = onClickNewIssue
                 )
             }
-            BoardItem.BLOCKER -> {
+            BLOCKER -> {
+                val issues = issueList.filter { issue -> issue.board_state == BLOCKER }
                 IssueBoardItem(
                     boardTitle = R.string.blocker,
-                    issueList = issueList,
+                    issueList = issues,
                     boardColor = Red500,
                     currentPageIndex = page,
                     onClickIssue = onClickIssue,
                     onClickNewIssue = onClickNewIssue
                 )
             }
-            BoardItem.CLOSED -> {
+            CLOSED -> {
+                val issues = issueList.filter { issue -> issue.board_state == CLOSED }
                 IssueBoardItem(
                     boardTitle = R.string.closed,
-                    issueList = issueList,
+                    issueList = issues,
                     boardColor = Color.Black,
                     currentPageIndex = page,
                     onClickIssue = onClickIssue,
@@ -122,11 +140,11 @@ internal fun BoardViewPager(
     }
 }
 
-internal enum class BoardItem(@StringRes val title: Int) {
-    OPEN(R.string.open),
-    TODO(R.string.todo),
-    DOING(R.string.doing),
-    REVIEW(R.string.review),
-    BLOCKER(R.string.blocker),
-    CLOSED(R.string.closed)
+enum class BoardState {
+    OPEN,
+    TODO,
+    DOING,
+    REVIEW,
+    BLOCKER,
+    CLOSED
 }

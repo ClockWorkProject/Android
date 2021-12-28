@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
+import de.lucas.clockwork_android.ui.BoardState.OPEN
+import de.lucas.clockwork_android.ui.BoardState.TODO
 import de.lucas.clockwork_android.ui.theme.Gray200
 import de.lucas.clockwork_android.ui.theme.Gray500
 import de.lucas.clockwork_android.ui.theme.Gray700
@@ -43,7 +45,11 @@ internal fun IssueBoardItem(
         Project("IT-Projekt", listOf()),
         Project(
             "Vinson",
-            listOf(Issue(2, "", "", "", ""), Issue(2, "", "", "", ""), Issue(2, "", "", "", ""))
+            listOf(
+                Issue(2, "", "", "", "", OPEN),
+                Issue(2, "", "", "", "", TODO),
+                Issue(2, "", "", "", "", TODO)
+            )
         ),
         Project("Noch eins", listOf())
     )
@@ -51,7 +57,11 @@ internal fun IssueBoardItem(
         mutableStateOf(
             Project(
                 "Vinson",
-                listOf(Issue(2, "", "", "", ""), Issue(2, "", "", "", ""), Issue(2, "", "", "", ""))
+                listOf(
+                    Issue(2, "", "", "", "", OPEN),
+                    Issue(2, "", "", "", "", TODO),
+                    Issue(2, "", "", "", "", TODO)
+                )
             )
         )
     }
