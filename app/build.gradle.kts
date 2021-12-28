@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     kotlin("android")
+    id("kotlin-parcelize")
     id("com.mikepenz.aboutlibraries.plugin") version Versions.about
 }
 
@@ -67,6 +68,12 @@ dependencies {
     implementation("com.mikepenz:aboutlibraries-compose:${Versions.about}")
 
     implementation("com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}")
+    implementation("com.google.accompanist:accompanist-pager:${Versions.accompanist}")
+
+    implementation("com.squareup.retrofit2:retrofit:${Versions.retrofit}")
+    implementation("com.squareup.retrofit2:converter-moshi:${Versions.retrofit}")
+
+    implementation("com.google.code.gson:gson:2.8.9")
 
     testImplementation("junit:junit:${Versions.junit}")
     androidTestImplementation("androidx.test.ext:junit:${Versions.junitExt}")

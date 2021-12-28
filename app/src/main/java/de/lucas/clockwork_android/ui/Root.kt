@@ -4,7 +4,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,7 +16,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.gson.Gson
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.InfoCategory
 import de.lucas.clockwork_android.model.Issue
@@ -30,25 +33,26 @@ import de.lucas.clockwork_android.model.NavigationItem.Companion.ISSUE_EDIT
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LICENSES
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LOGIN
 import de.lucas.clockwork_android.model.NavigationItem.Companion.VERSION
-import de.lucas.clockwork_android.model.ProjectIssues
+import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.info.*
 import de.lucas.clockwork_android.ui.theme.roundedShape
 
 // For testing purpose
 val listOfIssues = listOf(
-    ProjectIssues(
+    Project(
         "IT-Projekt",
         listOf(
             Issue(2, "Bug Fix", "IT-Projekt", "", ""),
             Issue(4, "Andere Fixes", "IT-Projekt", "", "")
         )
     ),
-    ProjectIssues(
+    Project(
         "Vinson",
         listOf(Issue(2, "Redesign", "Vinson", "", ""), Issue(4, "Irgendwas", "Vinson", "", ""))
     )
 )
 
+@ExperimentalPagerApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Root() {
@@ -104,7 +108,6 @@ fun Root() {
                         },
                         onClose = {
                             /* TODO save time and refresh list */
-                            toggleIssue = Issue(-1, "", "", "", "")
                             showIssuePickerList = false
                         }
                     )
@@ -123,7 +126,7 @@ fun Root() {
                 LoginScreen(
                     onClickLogin = {
                         navController.navigate(TOGGLE.route) {
-                            popUpTo(LOGIN) {
+                            popUpTo(0) {
                                 inclusive = true
                             }
                         }
@@ -131,7 +134,7 @@ fun Root() {
                     },
                     onClickSignUp = {
                         navController.navigate(TOGGLE.route) {
-                            popUpTo(LOGIN) {
+                            popUpTo(0) {
                                 inclusive = true
                             }
                         }
@@ -147,7 +150,14 @@ fun Root() {
             composable(BOARD.route) {
                 appTitle = stringResource(id = R.string.issue_board)
                 showNavigationIcon = false
-                IssueBoardScreen { navController.navigate(ISSUE_DETAIL) }
+                IssueBoardScreen(
+                    issueList,
+                    { issue ->
+                        val jsonIssue = Gson().toJson(issue)
+                        navController.navigate("$ISSUE_DETAIL/$jsonIssue")
+                    },
+                    { navController.navigate(ISSUE_EDIT) }
+                )
             }
             composable(STATISTIC.route) {
                 appTitle = stringResource(id = R.string.statistic)
@@ -170,21 +180,40 @@ fun Root() {
                     { navController.navigate(TOGGLE.route) }
                 )
             }
-            composable(ISSUE_DETAIL) {
-                val viewModel = IssueViewModel()
-                val issue by viewModel.issue.observeAsState()
-                showNavigationIcon = true
-                appTitle = stringResource(id = R.string.issue_details)
-                IssueDetailScreen(viewModel = IssueViewModel()) { navController.navigate(ISSUE_EDIT) }
+            composable(
+                route = "$ISSUE_DETAIL/{issue}",
+                arguments = listOf(navArgument("issue")
+                { type = NavType.StringType })
+            ) { backStackEntry ->
+                backStackEntry.arguments
+                    ?.getString("issue").let { json ->
+                        val issue = Gson().fromJson(json, Issue::class.java)
+                        showNavigationIcon = true
+                        appTitle = stringResource(id = R.string.issue_details)
+                        IssueDetailScreen(issue) { navController.navigate("$ISSUE_EDIT/$json") }
+                    }
+            }
+            composable(
+                route = "$ISSUE_EDIT/{issue}",
+                arguments = listOf(navArgument("issue")
+                { type = NavType.StringType })
+            ) { backStackEntry ->
+                backStackEntry.arguments?.getString("issue").let { json ->
+                    val issue = Gson().fromJson(json, Issue::class.java)
+                    appTitle = stringResource(id = R.string.edit_issue)
+                    showNavigationIcon = true
+                    EditIssueScreen(
+                        issue = issue,
+                        buttonText = R.string.edit
+                    ) { navController.popBackStack() }
+                }
             }
             composable(ISSUE_EDIT) {
-                val viewModel = IssueViewModel()
-                val issue by viewModel.issue.observeAsState()
-                appTitle = stringResource(id = R.string.edit_issue)
+                appTitle = stringResource(id = R.string.create_issue)
                 showNavigationIcon = true
                 EditIssueScreen(
-                    issue = issue!!,
-                    buttonText = R.string.edit
+                    issue = null,
+                    buttonText = R.string.create
                 ) { navController.popBackStack() }
             }
             composable(INFO) {

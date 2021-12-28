@@ -21,13 +21,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
-import de.lucas.clockwork_android.model.ProjectIssues
+import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.theme.Gray200
 
 @ExperimentalMaterialApi
 @Composable
 internal fun IssuePickerList(
-    issueList: List<ProjectIssues>,
+    issueList: List<Project>,
     onStartToggle: (Issue) -> Unit,
     onClose: () -> Unit
 ) {
