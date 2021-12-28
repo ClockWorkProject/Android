@@ -157,7 +157,7 @@ fun Root() {
                 appTitle = stringResource(id = R.string.issue_board)
                 showNavigationIcon = false
                 IssueBoardScreen(
-                    viewModel.projectID,
+                    viewModel.projectID.value!!,
                     { issue ->
                         val jsonIssue = Gson().toJson(issue)
                         navController.navigate("$ISSUE_DETAIL/$jsonIssue")

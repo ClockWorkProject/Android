@@ -130,7 +130,9 @@ internal fun IssueBoardItem(
 fun CustomDropDownMenu(
     projects: List<Project>,
     projectID: Int,
+    onProjectChange: (Int) -> Unit
 ) {
+    val viewModel = IssueBoardViewModel()
     var expanded by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableStateOf(projectID) }
     Row(
@@ -160,6 +162,8 @@ fun CustomDropDownMenu(
         ) {
             projects.forEachIndexed { index, project ->
                 DropdownMenuItem(onClick = {
+                    onProjectChange(index)
+                    viewModel.changeProject(index)
                     selectedIndex = index
                     expanded = false
                 }) {
@@ -214,6 +218,7 @@ private fun PreviewIssueBoard() {
 private fun PreviewDropDown() {
     CustomDropDownMenu(
         projects = listOf(Project("Projekt", listOf())),
-        projectID = 1
+        projectID = 1,
+        onProjectChange = { }
     )
 }

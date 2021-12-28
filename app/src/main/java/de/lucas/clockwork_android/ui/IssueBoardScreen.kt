@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -82,12 +80,9 @@ internal fun IssueBoardScreen(
     onClickIssue: (Issue) -> Unit,
     onClickNewIssue: () -> Unit
 ) {
-    val project = projectList[projectID]
+    val viewModel = IssueBoardViewModel()
     val pagerState = rememberPagerState()
-    LaunchedEffect(pagerState) {
-        // Collect from the a snapshotFlow reading the currentPage
-        snapshotFlow { pagerState.currentPage }
-    }
+    var currentProjectID by remember { mutableStateOf(viewModel.projectID.value) }
     Scaffold {
         Column(modifier = Modifier.background(Color.White)) {
             Row(
@@ -102,10 +97,16 @@ internal fun IssueBoardScreen(
                 )
                 CustomDropDownMenu(
                     projects = projectList,
-                    projectID = projectID
+                    projectID = projectID,
+                    onProjectChange = { id -> currentProjectID = id }
                 )
             }
-            BoardViewPager(pagerState = pagerState, project, onClickIssue, onClickNewIssue)
+            BoardViewPager(
+                pagerState = pagerState,
+                project = projectList[currentProjectID!!],
+                onClickIssue = onClickIssue,
+                onClickNewIssue = onClickNewIssue
+            )
         }
     }
 }
