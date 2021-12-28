@@ -68,6 +68,7 @@ dependencies {
     implementation("com.mikepenz:aboutlibraries-compose:${Versions.about}")
 
     implementation("com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}")
+    implementation("com.google.accompanist:accompanist-pager:${Versions.accompanist}")
 
     implementation("com.squareup.retrofit2:retrofit:${Versions.retrofit}")
     implementation("com.squareup.retrofit2:converter-moshi:${Versions.retrofit}")

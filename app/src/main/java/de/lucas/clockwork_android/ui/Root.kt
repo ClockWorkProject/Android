@@ -19,6 +19,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.gson.Gson
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.InfoCategory
@@ -51,6 +52,7 @@ val listOfIssues = listOf(
     )
 )
 
+@ExperimentalPagerApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Root() {
@@ -149,6 +151,7 @@ fun Root() {
                 appTitle = stringResource(id = R.string.issue_board)
                 showNavigationIcon = false
                 IssueBoardScreen(
+                    issueList,
                     { issue ->
                         val jsonIssue = Gson().toJson(issue)
                         navController.navigate("$ISSUE_DETAIL/$jsonIssue")
