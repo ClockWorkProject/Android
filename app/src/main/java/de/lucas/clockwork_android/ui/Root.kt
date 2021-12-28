@@ -153,10 +153,11 @@ fun Root() {
                 ToggleScreen()
             }
             composable(BOARD.route) {
+                val viewModel = IssueBoardViewModel()
                 appTitle = stringResource(id = R.string.issue_board)
                 showNavigationIcon = false
                 IssueBoardScreen(
-                    issueList,
+                    viewModel.projectID,
                     { issue ->
                         val jsonIssue = Gson().toJson(issue)
                         navController.navigate("$ISSUE_DETAIL/$jsonIssue")

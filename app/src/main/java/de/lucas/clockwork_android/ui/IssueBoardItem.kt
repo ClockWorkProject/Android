@@ -23,8 +23,6 @@ import androidx.compose.ui.unit.sp
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
-import de.lucas.clockwork_android.ui.BoardState.OPEN
-import de.lucas.clockwork_android.ui.BoardState.TODO
 import de.lucas.clockwork_android.ui.theme.Gray200
 import de.lucas.clockwork_android.ui.theme.Gray500
 import de.lucas.clockwork_android.ui.theme.Gray700
@@ -35,55 +33,15 @@ internal fun IssueBoardItem(
     issueList: List<Issue>,
     boardColor: Color,
     currentPageIndex: Int,
+    issueSize: Int,
     onClickIssue: (Issue) -> Unit,
     onClickNewIssue: () -> Unit
 ) {
     val swipeLeftVisible = if (currentPageIndex == 0) 0f else 1f
     val swipeRightVisible = if (currentPageIndex == 5) 0f else 1f
-    // For testing purpose
-    val projectList = listOf(
-        Project("IT-Projekt", listOf()),
-        Project(
-            "Vinson",
-            listOf(
-                Issue(2, "", "", "", "", OPEN),
-                Issue(2, "", "", "", "", TODO),
-                Issue(2, "", "", "", "", TODO)
-            )
-        ),
-        Project("Noch eins", listOf())
-    )
-    var currentProject = remember {
-        mutableStateOf(
-            Project(
-                "Vinson",
-                listOf(
-                    Issue(2, "", "", "", "", OPEN),
-                    Issue(2, "", "", "", "", TODO),
-                    Issue(2, "", "", "", "", TODO)
-                )
-            )
-        )
-    }
 
     Scaffold(backgroundColor = Color.White) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.project),
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                CustomDropDownMenu(
-                    projects = projectList,
-                    currentProject = currentProject.value,
-                    onClickProject = { currentProject.value = it }
-                )
-            }
             Card(
                 modifier = Modifier
                     .fillMaxSize()
@@ -107,7 +65,7 @@ internal fun IssueBoardItem(
                             color = boardColor
                         )
                         Text(
-                            text = currentProject.value.issues.size.toString(),
+                            text = issueSize.toString(),
                             fontSize = 24.sp,
                             modifier = Modifier.padding(end = 4.dp)
                         )
@@ -169,13 +127,12 @@ internal fun IssueBoardItem(
 }
 
 @Composable
-private fun CustomDropDownMenu(
+fun CustomDropDownMenu(
     projects: List<Project>,
-    currentProject: Project,
-    onClickProject: (Project) -> Unit
+    projectID: Int,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedIndex by remember { mutableStateOf(projects.indexOf(currentProject)) }
+    var selectedIndex by remember { mutableStateOf(projectID) }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -203,7 +160,6 @@ private fun CustomDropDownMenu(
         ) {
             projects.forEachIndexed { index, project ->
                 DropdownMenuItem(onClick = {
-                    onClickProject(project)
                     selectedIndex = index
                     expanded = false
                 }) {
@@ -248,7 +204,8 @@ private fun PreviewIssueBoard() {
         issueList = listOf(),
         boardColor = Color.Black,
         currentPageIndex = 1,
-        onClickIssue = { }
+        issueSize = 3,
+        onClickIssue = {}
     ) { }
 }
 
@@ -257,6 +214,6 @@ private fun PreviewIssueBoard() {
 private fun PreviewDropDown() {
     CustomDropDownMenu(
         projects = listOf(Project("Projekt", listOf())),
-        currentProject = Project("Projekt", listOf())
-    ) { }
+        projectID = 1
+    )
 }
