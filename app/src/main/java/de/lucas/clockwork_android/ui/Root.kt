@@ -49,14 +49,12 @@ fun Root() {
     var appTitle by remember { mutableStateOf("") }
     var showNavigationIcon by remember { mutableStateOf(false) }
     var showTogglePlayer by remember { mutableStateOf(false) }
-    var toggleIssue by remember { mutableStateOf(Issue(-1, "", "", "", "", BoardState.OPEN)) }
     lateinit var timer: CountUpTimer
 
     fun startTimer(pausedTime: Int) {
         timer = object : CountUpTimer(Int.MAX_VALUE, 1) {
 
             override fun onCount(count: Int) {
-                /* TODO save paused time and add to count on resume -> update string in togglePlayer display */
                 togglePlayerViewModel.displayTime(pausedTime, count)
                 Timber.e(togglePlayerViewModel.toggleTimeDisplay.value)
             }
@@ -65,6 +63,11 @@ fun Root() {
 
             }
         }.start() as CountUpTimer
+    }
+
+    if (togglePlayerViewModel.getToggle()!!.number != -1) {
+        startTimer(togglePlayerViewModel.getAppClosedTime((System.currentTimeMillis() / 1000).toInt()))
+        showTogglePlayer = true
     }
 
     Scaffold(
@@ -78,14 +81,14 @@ fun Root() {
                     )
                     if (showTogglePlayer) {
                         TogglePlayer(
-                            issue = toggleIssue,
+                            issue = togglePlayerViewModel.getToggle()!!,
                             timeState = togglePlayerViewModel.toggleTimeDisplay.value,
                             onPause = { timer.cancel() },
                             onResume = { startTimer(togglePlayerViewModel.getCurrentToggleTime()) },
                             onClose = {
                                 /* TODO add item to list with total toggle time */
                                 timer.cancel()
-                                togglePlayerViewModel.resetTimer()
+                                togglePlayerViewModel.resetToggle()
                                 showTogglePlayer = false
                             }
                         )
@@ -117,9 +120,12 @@ fun Root() {
                     IssuePickerList(
                         issueList = projectList,
                         onStartToggle = { issue ->
-                            toggleIssue = issue
-                            showTogglePlayer = true
-                            startTimer(togglePlayerViewModel.getCurrentToggleTime())
+                            if (togglePlayerViewModel.getToggle()!!.number == -1) {
+                                togglePlayerViewModel.setStartTime()
+                                showTogglePlayer = true
+                                togglePlayerViewModel.setToggle(issue)
+                                startTimer(togglePlayerViewModel.getCurrentToggleTime())
+                            }
                         },
                         onClose = { showIssuePickerList = false }
                     )

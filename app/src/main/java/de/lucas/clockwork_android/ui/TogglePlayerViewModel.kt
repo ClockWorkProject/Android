@@ -5,6 +5,7 @@ import android.os.CountDownTimer
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Preferences
 
 class TogglePlayerViewModel(context: Context) : ViewModel() {
@@ -13,12 +14,20 @@ class TogglePlayerViewModel(context: Context) : ViewModel() {
 
     fun displayTime(currentTime: Int, count: Int) {
         toggleTimeDisplay.value = getTimeString(currentTime + count)
-        preferences.setCurrentToggle(currentTime, count)
+        preferences.setCurrentToggleTime(currentTime, count)
     }
 
     fun getCurrentToggleTime() = preferences.getCurrentToggleTime()
 
-    fun resetTimer() = preferences.resetToggleTime()
+    fun resetToggle() = preferences.resetToggle()
+
+    fun setToggle(issue: Issue) = preferences.setToggle(issue)
+
+    fun getToggle() = preferences.getToggle()
+
+    fun setStartTime() = preferences.setStartTime((System.currentTimeMillis() / 1000).toInt())
+
+    fun getAppClosedTime(time: Int): Int = time - preferences.getStartTime()
 
     private fun getTimeString(time: Int): String {
         val hours = time % 86400 / 3600
