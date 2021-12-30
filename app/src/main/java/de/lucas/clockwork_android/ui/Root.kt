@@ -42,8 +42,9 @@ import timber.log.Timber
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Root() {
+    val context = LocalContext.current
     val navController = rememberNavController()
-    val togglePlayerViewModel = TogglePlayerViewModel(LocalContext.current)
+    val togglePlayerViewModel = TogglePlayerViewModel(context)
     var showBottomNavigation by remember { mutableStateOf(false) }
     var showIssuePickerList by remember { mutableStateOf(false) }
     var appTitle by remember { mutableStateOf("") }
@@ -66,7 +67,12 @@ fun Root() {
     }
 
     if (togglePlayerViewModel.getToggle()!!.number != -1) {
-        startTimer(togglePlayerViewModel.getAppClosedTime((System.currentTimeMillis() / 1000).toInt()))
+        if (togglePlayerViewModel.getTogglePause()) {
+            startTimer(togglePlayerViewModel.getCurrentToggleTime())
+        } else {
+            startTimer(togglePlayerViewModel.getAppClosedTime((System.currentTimeMillis() / 1000).toInt()))
+        }
+        Timber.e(togglePlayerViewModel.getTogglePause().toString())
         showTogglePlayer = true
     }
 
@@ -80,15 +86,30 @@ fun Root() {
                         showNavigationIcon = showNavigationIcon
                     )
                     if (showTogglePlayer) {
+                        Notification(
+                            context = context,
+                            channelId = stringResource(id = R.string.app_name),
+                            notificationId = 0,
+                            textTitle = stringResource(id = R.string.toggle_active),
+                            textContent = "#${togglePlayerViewModel.getToggle()!!.number} ${togglePlayerViewModel.getToggle()!!.title}"
+                        )
                         TogglePlayer(
                             issue = togglePlayerViewModel.getToggle()!!,
                             timeState = togglePlayerViewModel.toggleTimeDisplay.value,
-                            onPause = { timer.cancel() },
-                            onResume = { startTimer(togglePlayerViewModel.getCurrentToggleTime()) },
+                            onPause = {
+                                timer.cancel()
+                                togglePlayerViewModel.setTogglePause(true)
+                            },
+                            onResume = {
+                                startTimer(togglePlayerViewModel.getCurrentToggleTime())
+                                togglePlayerViewModel.setTogglePause(false)
+                            },
                             onClose = {
                                 /* TODO add item to list with total toggle time */
                                 timer.cancel()
                                 togglePlayerViewModel.resetToggle()
+                                togglePlayerViewModel.setTogglePause(false)
+                                removeNotification(context)
                                 showTogglePlayer = false
                             }
                         )

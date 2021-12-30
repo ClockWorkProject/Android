@@ -29,6 +29,12 @@ class TogglePlayerViewModel(context: Context) : ViewModel() {
 
     fun getAppClosedTime(time: Int): Int = time - preferences.getStartTime()
 
+    fun setTogglePause(isPaused: Boolean) {
+        preferences.setTogglePause(isPaused)
+    }
+
+    fun getTogglePause() = preferences.getTogglePause()
+
     private fun getTimeString(time: Int): String {
         val hours = time % 86400 / 3600
         val minutes = time % 86400 % 3600 / 60

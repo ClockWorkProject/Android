@@ -50,10 +50,17 @@ class Preferences(private val context: Context) {
         }
     }
 
+    fun setTogglePause(isPaused: Boolean) {
+        prefs().edit().putBoolean(TOGGLE_PAUSED, isPaused).apply()
+    }
+
+    fun getTogglePause() = prefs().getBoolean(TOGGLE_PAUSED, false)
+
     companion object {
         const val PREFERENCES = "PREFERENCES"
         const val TIME = "TIME"
         const val TOGGLE = "TOGGLE"
         const val START_TIME = "START_TIME"
+        const val TOGGLE_PAUSED = "TOGGLE_PAUSED"
     }
 }
