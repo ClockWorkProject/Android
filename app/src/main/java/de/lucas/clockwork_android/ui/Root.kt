@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,41 +34,38 @@ import de.lucas.clockwork_android.model.NavigationItem.Companion.ISSUE_EDIT
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LICENSES
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LOGIN
 import de.lucas.clockwork_android.model.NavigationItem.Companion.VERSION
-import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.info.*
 import de.lucas.clockwork_android.ui.theme.roundedShape
-
-// For testing purpose
-val listOfIssues = listOf(
-    Project(
-        "IT-Projekt",
-        listOf(
-            Issue(2, "Bug Fix", "IT-Projekt", "", "", BoardState.OPEN),
-            Issue(4, "Andere Fixes", "IT-Projekt", "", "", BoardState.OPEN)
-        )
-    ),
-    Project(
-        "Vinson",
-        listOf(
-            Issue(2, "Redesign", "Vinson", "", "", BoardState.OPEN), Issue(
-                4, "Irgendwas", "Vinson", "", "",
-                BoardState.OPEN
-            )
-        )
-    )
-)
+import timber.log.Timber
 
 @ExperimentalPagerApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Root() {
     val navController = rememberNavController()
+    val togglePlayerViewModel = TogglePlayerViewModel(LocalContext.current)
     var showBottomNavigation by remember { mutableStateOf(false) }
     var showIssuePickerList by remember { mutableStateOf(false) }
     var appTitle by remember { mutableStateOf("") }
     var showNavigationIcon by remember { mutableStateOf(false) }
     var showTogglePlayer by remember { mutableStateOf(false) }
     var toggleIssue by remember { mutableStateOf(Issue(-1, "", "", "", "", BoardState.OPEN)) }
+    lateinit var timer: CountUpTimer
+
+    fun startTimer(pausedTime: Int) {
+        timer = object : CountUpTimer(Int.MAX_VALUE, 1) {
+
+            override fun onCount(count: Int) {
+                /* TODO save paused time and add to count on resume -> update string in togglePlayer display */
+                togglePlayerViewModel.displayTime(pausedTime, count)
+                Timber.e(togglePlayerViewModel.toggleTimeDisplay.value)
+            }
+
+            override fun onFinish() {
+
+            }
+        }.start() as CountUpTimer
+    }
 
     Scaffold(
         topBar = {
@@ -79,7 +77,18 @@ fun Root() {
                         showNavigationIcon = showNavigationIcon
                     )
                     if (showTogglePlayer) {
-                        TogglePlayer(issue = toggleIssue) { showTogglePlayer = false }
+                        TogglePlayer(
+                            issue = toggleIssue,
+                            timeState = togglePlayerViewModel.toggleTimeDisplay.value,
+                            onPause = { timer.cancel() },
+                            onResume = { startTimer(togglePlayerViewModel.getCurrentToggleTime()) },
+                            onClose = {
+                                /* TODO add item to list with total toggle time */
+                                timer.cancel()
+                                togglePlayerViewModel.resetTimer()
+                                showTogglePlayer = false
+                            }
+                        )
                     }
                 }
             }
@@ -106,15 +115,13 @@ fun Root() {
                 }
                 if (showIssuePickerList) {
                     IssuePickerList(
-                        issueList = listOfIssues,
+                        issueList = projectList,
                         onStartToggle = { issue ->
                             toggleIssue = issue
                             showTogglePlayer = true
+                            startTimer(togglePlayerViewModel.getCurrentToggleTime())
                         },
-                        onClose = {
-                            /* TODO save time and refresh list */
-                            showIssuePickerList = false
-                        }
+                        onClose = { showIssuePickerList = false }
                     )
                 }
             }
