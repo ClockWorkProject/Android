@@ -29,7 +29,7 @@ internal fun TogglePlayer(
     onClose: () -> Unit
 ) {
     val togglePlayerViewModel = TogglePlayerViewModel(LocalContext.current)
-    var pauseState by remember { mutableStateOf(false) }
+    var pauseState by remember { mutableStateOf(togglePlayerViewModel.getIsTogglePaused()) }
     val stateVisibility = if (pauseState) 1f else 0.6f
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -61,7 +61,6 @@ internal fun TogglePlayer(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            /* TODO count timer */
             Text(
                 text = timeState,
                 fontSize = 18.sp,
@@ -72,7 +71,6 @@ internal fun TogglePlayer(
                     IconButton(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
-                            /* TODO continue time counter */
                             onResume()
                             pauseState = false
                         }) {
@@ -86,7 +84,6 @@ internal fun TogglePlayer(
                     IconButton(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
-                            /* TODO pause time counter */
                             onPause()
                             pauseState = true
                         }) {
@@ -102,7 +99,6 @@ internal fun TogglePlayer(
                 .alpha(stateVisibility),
                 onClick = {
                     if (pauseState) {
-                        /* TODO enable clickable to stop toggle */
                         onClose()
                     }
                 }) {

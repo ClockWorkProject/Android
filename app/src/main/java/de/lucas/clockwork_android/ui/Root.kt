@@ -67,12 +67,15 @@ fun Root() {
     }
 
     if (togglePlayerViewModel.getToggle()!!.number != -1) {
-        if (togglePlayerViewModel.getTogglePause()) {
+        if (togglePlayerViewModel.getIsTogglePaused()) {
             startTimer(togglePlayerViewModel.getCurrentToggleTime())
+            togglePlayerViewModel.displayTime(togglePlayerViewModel.getCurrentToggleTime(), 0)
+            timer.cancel()
+            togglePlayerViewModel.setIsTogglePaused(true)
         } else {
-            startTimer(togglePlayerViewModel.getAppClosedTime((System.currentTimeMillis() / 1000).toInt()))
+            startTimer(togglePlayerViewModel.getAppClosedTime((System.currentTimeMillis() / 1000).toInt() - togglePlayerViewModel.getPausedTime()))
         }
-        Timber.e(togglePlayerViewModel.getTogglePause().toString())
+        Timber.e(togglePlayerViewModel.getIsTogglePaused().toString())
         showTogglePlayer = true
     }
 
@@ -98,17 +101,18 @@ fun Root() {
                             timeState = togglePlayerViewModel.toggleTimeDisplay.value,
                             onPause = {
                                 timer.cancel()
-                                togglePlayerViewModel.setTogglePause(true)
+                                togglePlayerViewModel.setIsTogglePaused(true)
                             },
                             onResume = {
                                 startTimer(togglePlayerViewModel.getCurrentToggleTime())
-                                togglePlayerViewModel.setTogglePause(false)
+                                togglePlayerViewModel.setPausedTime()
+                                togglePlayerViewModel.setIsTogglePaused(false)
                             },
                             onClose = {
                                 /* TODO add item to list with total toggle time */
                                 timer.cancel()
                                 togglePlayerViewModel.resetToggle()
-                                togglePlayerViewModel.setTogglePause(false)
+                                togglePlayerViewModel.setIsTogglePaused(false)
                                 removeNotification(context)
                                 showTogglePlayer = false
                             }

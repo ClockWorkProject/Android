@@ -50,11 +50,20 @@ class Preferences(private val context: Context) {
         }
     }
 
-    fun setTogglePause(isPaused: Boolean) {
+    fun setIsTogglePaused(isPaused: Boolean) {
         prefs().edit().putBoolean(TOGGLE_PAUSED, isPaused).apply()
     }
 
-    fun getTogglePause() = prefs().getBoolean(TOGGLE_PAUSED, false)
+    fun getIsTogglePaused() = prefs().getBoolean(TOGGLE_PAUSED, false)
+
+    fun setPauseTime() {
+        prefs().edit().putInt(
+            PAUSE_TIME,
+            ((System.currentTimeMillis() / 1000).toInt() - getStartTime()) - getCurrentToggleTime()
+        ).apply()
+    }
+
+    fun getPauseTime() = prefs().getInt(PAUSE_TIME, 0)
 
     companion object {
         const val PREFERENCES = "PREFERENCES"
@@ -62,5 +71,6 @@ class Preferences(private val context: Context) {
         const val TOGGLE = "TOGGLE"
         const val START_TIME = "START_TIME"
         const val TOGGLE_PAUSED = "TOGGLE_PAUSED"
+        const val PAUSE_TIME = "PAUSE_TIME"
     }
 }
