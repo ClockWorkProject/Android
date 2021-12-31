@@ -15,6 +15,9 @@
     <string name="create_group">Gruppe erstellen</string>
     <string name="enter_group_name">Gruppenname eingeben</string>
     <string name="enter_group_id">Gruppennummer eingeben</string>
+    <string name="create_project">Projekt erstellen</string>
+    <string name="create_project_title">Neues Projekt erstellen</string>
+    <string name="create_project_message">Projektnamen eingeben</string>
     <string name="join">Beitreten</string>
     <string name="create">Erstellen</string>
     <string name="save">Speichern</string>
