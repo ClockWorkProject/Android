@@ -54,4 +54,6 @@
     <string name="review">Review</string>
     <string name="blocker">Blocker</string>
     <string name="closed">Closed</string>
+    <string name="toggle_active">Ein Toggle ist zurzeit aktiv!</string>
+    <string name="channelId">%s\'s Channel</string>
 </resources>

@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,12 +21,18 @@ import de.lucas.clockwork_android.ui.theme.Purple200
 
 @ExperimentalMaterialApi
 @Composable
-internal fun TogglePlayer(issue: Issue, onClose: () -> Unit) {
-    var pauseState by remember { mutableStateOf(false) }
+internal fun TogglePlayer(
+    issue: Issue,
+    timeState: String,
+    onPause: () -> Unit,
+    onResume: () -> Unit,
+    onClose: () -> Unit
+) {
+    val togglePlayerViewModel = TogglePlayerViewModel(LocalContext.current)
+    var pauseState by remember { mutableStateOf(togglePlayerViewModel.getIsTogglePaused()) }
     val stateVisibility = if (pauseState) 1f else 0.6f
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp),
         backgroundColor = Purple200,
         contentColor = Color.White
@@ -54,14 +61,17 @@ internal fun TogglePlayer(issue: Issue, onClose: () -> Unit) {
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            /* TODO count timer */
-            Text(text = "00:23:45", fontSize = 18.sp, modifier = Modifier.weight(1.5f))
+            Text(
+                text = timeState,
+                fontSize = 18.sp,
+                modifier = Modifier.weight(1.5f)
+            )
             Box(modifier = Modifier.weight(1f)) {
                 if (pauseState) {
                     IconButton(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
-                            /* TODO continue time counter */
+                            onResume()
                             pauseState = false
                         }) {
                         Icon(
@@ -74,7 +84,7 @@ internal fun TogglePlayer(issue: Issue, onClose: () -> Unit) {
                     IconButton(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
-                            /* TODO pause time counter */
+                            onPause()
                             pauseState = true
                         }) {
                         Icon(
@@ -89,7 +99,6 @@ internal fun TogglePlayer(issue: Issue, onClose: () -> Unit) {
                 .alpha(stateVisibility),
                 onClick = {
                     if (pauseState) {
-                        /* TODO enable clickable to stop toggle */
                         onClose()
                     }
                 }) {
@@ -106,5 +115,9 @@ internal fun TogglePlayer(issue: Issue, onClose: () -> Unit) {
 @Preview
 @Composable
 private fun PreviewTogglePlayer() {
-    TogglePlayer(issue = Issue(2, "Bug Fix", "Vinson", "", "", OPEN)) { }
+    TogglePlayer(
+        issue = Issue(2, "Bug Fix", "Vinson", "", "", OPEN),
+        timeState = "00:00:12",
+        onPause = {},
+        onResume = {}) { }
 }

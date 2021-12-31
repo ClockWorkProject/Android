@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,41 +34,50 @@ import de.lucas.clockwork_android.model.NavigationItem.Companion.ISSUE_EDIT
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LICENSES
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LOGIN
 import de.lucas.clockwork_android.model.NavigationItem.Companion.VERSION
-import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.info.*
 import de.lucas.clockwork_android.ui.theme.roundedShape
-
-// For testing purpose
-val listOfIssues = listOf(
-    Project(
-        "IT-Projekt",
-        listOf(
-            Issue(2, "Bug Fix", "IT-Projekt", "", "", BoardState.OPEN),
-            Issue(4, "Andere Fixes", "IT-Projekt", "", "", BoardState.OPEN)
-        )
-    ),
-    Project(
-        "Vinson",
-        listOf(
-            Issue(2, "Redesign", "Vinson", "", "", BoardState.OPEN), Issue(
-                4, "Irgendwas", "Vinson", "", "",
-                BoardState.OPEN
-            )
-        )
-    )
-)
+import timber.log.Timber
 
 @ExperimentalPagerApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Root() {
+    val context = LocalContext.current
     val navController = rememberNavController()
+    val togglePlayerViewModel = TogglePlayerViewModel(context)
     var showBottomNavigation by remember { mutableStateOf(false) }
     var showIssuePickerList by remember { mutableStateOf(false) }
     var appTitle by remember { mutableStateOf("") }
     var showNavigationIcon by remember { mutableStateOf(false) }
     var showTogglePlayer by remember { mutableStateOf(false) }
-    var toggleIssue by remember { mutableStateOf(Issue(-1, "", "", "", "", BoardState.OPEN)) }
+    lateinit var timer: CountUpTimer
+
+    fun startTimer(pausedTime: Int) {
+        timer = object : CountUpTimer(Int.MAX_VALUE, 1) {
+
+            override fun onCount(count: Int) {
+                togglePlayerViewModel.displayTime(pausedTime, count)
+                Timber.e(togglePlayerViewModel.toggleTimeDisplay.value)
+            }
+
+            override fun onFinish() {
+
+            }
+        }.start() as CountUpTimer
+    }
+
+    if (togglePlayerViewModel.getToggle()!!.number != -1) {
+        if (togglePlayerViewModel.getIsTogglePaused()) {
+            startTimer(togglePlayerViewModel.getCurrentToggleTime())
+            togglePlayerViewModel.displayTime(togglePlayerViewModel.getCurrentToggleTime(), 0)
+            timer.cancel()
+            togglePlayerViewModel.setIsTogglePaused(true)
+        } else {
+            startTimer(togglePlayerViewModel.getAppClosedTime((System.currentTimeMillis() / 1000).toInt() - togglePlayerViewModel.getPausedTime()))
+        }
+        Timber.e(togglePlayerViewModel.getIsTogglePaused().toString())
+        showTogglePlayer = true
+    }
 
     Scaffold(
         topBar = {
@@ -79,7 +89,34 @@ fun Root() {
                         showNavigationIcon = showNavigationIcon
                     )
                     if (showTogglePlayer) {
-                        TogglePlayer(issue = toggleIssue) { showTogglePlayer = false }
+                        Notification(
+                            context = context,
+                            channelId = stringResource(id = R.string.app_name),
+                            notificationId = 0,
+                            textTitle = stringResource(id = R.string.toggle_active),
+                            textContent = "#${togglePlayerViewModel.getToggle()!!.number} ${togglePlayerViewModel.getToggle()!!.title}"
+                        )
+                        TogglePlayer(
+                            issue = togglePlayerViewModel.getToggle()!!,
+                            timeState = togglePlayerViewModel.toggleTimeDisplay.value,
+                            onPause = {
+                                timer.cancel()
+                                togglePlayerViewModel.setIsTogglePaused(true)
+                            },
+                            onResume = {
+                                startTimer(togglePlayerViewModel.getCurrentToggleTime())
+                                togglePlayerViewModel.setPausedTime()
+                                togglePlayerViewModel.setIsTogglePaused(false)
+                            },
+                            onClose = {
+                                /* TODO add item to list with total toggle time */
+                                timer.cancel()
+                                togglePlayerViewModel.resetToggle()
+                                togglePlayerViewModel.setIsTogglePaused(false)
+                                removeNotification(context)
+                                showTogglePlayer = false
+                            }
+                        )
                     }
                 }
             }
@@ -106,15 +143,16 @@ fun Root() {
                 }
                 if (showIssuePickerList) {
                     IssuePickerList(
-                        issueList = listOfIssues,
+                        issueList = projectList,
                         onStartToggle = { issue ->
-                            toggleIssue = issue
-                            showTogglePlayer = true
+                            if (togglePlayerViewModel.getToggle()!!.number == -1) {
+                                togglePlayerViewModel.setStartTime()
+                                showTogglePlayer = true
+                                togglePlayerViewModel.setToggle(issue)
+                                startTimer(togglePlayerViewModel.getCurrentToggleTime())
+                            }
                         },
-                        onClose = {
-                            /* TODO save time and refresh list */
-                            showIssuePickerList = false
-                        }
+                        onClose = { showIssuePickerList = false }
                     )
                 }
             }
