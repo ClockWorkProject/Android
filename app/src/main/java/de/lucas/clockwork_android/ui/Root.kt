@@ -167,6 +167,7 @@ fun Root() {
         ) {
             composable(LOGIN) {
                 LoginScreen(
+                    viewModel = LoginViewModel(),
                     onClickLogin = {
                         navController.navigate(TOGGLE.route) {
                             popUpTo(0) {
