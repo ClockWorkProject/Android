@@ -21,7 +21,11 @@ import androidx.compose.ui.unit.sp
 import de.lucas.clockwork_android.R
 
 @Composable
-internal fun LoginScreen(onClickLogin: () -> Unit, onClickSignUp: () -> Unit) {
+internal fun LoginScreen(
+    viewModel: LoginViewModel,
+    onClickLogin: () -> Unit,
+    onClickSignUp: () -> Unit
+) {
     Scaffold {
         Column(
             Modifier
@@ -34,12 +38,16 @@ internal fun LoginScreen(onClickLogin: () -> Unit, onClickSignUp: () -> Unit) {
                 modifier = Modifier.padding(top = 40.dp, start = 32.dp, end = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OutlinedStyledText(
+                OutlinedStyledErrorText(
                     id = R.string.email,
                     optText = null,
                     padding = 0,
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 1
+                    maxLines = 1,
+                    loginState = viewModel.getLogin(),
+                    errorState = viewModel.getIsError(),
+                    viewModel = viewModel,
+                    login = onClickLogin
                 )
                 OutlinedStyledText(
                     id = R.string.password,
@@ -52,7 +60,9 @@ internal fun LoginScreen(onClickLogin: () -> Unit, onClickSignUp: () -> Unit) {
                     id = R.string.login,
                     padding = 40,
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = onClickLogin
+                    onClick = {
+                        viewModel.setLogin(true)
+                    }
                 )
                 Text(
                     text = stringResource(id = R.string.no_account),
@@ -112,8 +122,66 @@ fun OutlinedStyledText(
         onValueChange = { text = it },
         label = { Text(stringResource(id = id)) },
         modifier = modifier.padding(top = padding.dp),
-        maxLines = maxLines
+        maxLines = maxLines,
+        singleLine = true
     )
+}
+
+@Composable
+fun OutlinedStyledErrorText(
+    @StringRes id: Int,
+    optText: String?,
+    padding: Int,
+    modifier: Modifier,
+    maxLines: Int,
+    loginState: Boolean,
+    errorState: Boolean,
+    viewModel: LoginViewModel,
+    login: () -> Unit
+) {
+    var text by remember { mutableStateOf(optText ?: "") }
+
+    fun validate(text: String) {
+        /* TODO login -> if error from server show errorMessage */
+        if (text.isEmpty()) {
+            viewModel.setError(true)
+        } else {
+            login()
+        }
+    }
+
+    Column(modifier = modifier.padding(top = padding.dp)) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = {
+                text = it
+            },
+            label = { Text(stringResource(id = id)) },
+            trailingIcon = {
+                if (errorState)
+                    Icon(
+                        painterResource(id = R.drawable.ic_error),
+                        "",
+                        tint = MaterialTheme.colors.error
+                    )
+            },
+            isError = errorState,
+            maxLines = maxLines,
+            singleLine = true
+        )
+        if (errorState) {
+            Text(
+                text = stringResource(id = R.string.errorMessage),
+                color = MaterialTheme.colors.error,
+                style = MaterialTheme.typography.caption,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
+        if (loginState) {
+            validate(text)
+            viewModel.setLogin(false)
+        }
+    }
 }
 
 @Composable
@@ -130,5 +198,5 @@ fun RoundedButton(@StringRes id: Int, padding: Int, modifier: Modifier, onClick:
 @Preview
 @Composable
 private fun LoginPreview() {
-    LoginScreen({}, {})
+    LoginScreen(LoginViewModel(), {}, {})
 }
