@@ -11,7 +11,8 @@ import de.lucas.clockwork_android.model.Preferences
 class TogglePlayerViewModel(context: Context) : ViewModel() {
     private val preferences = Preferences(context)
     val toggleTimeDisplay: MutableState<String> = mutableStateOf(getTimeString(0))
-    private val isPausedState: MutableState<Boolean> = mutableStateOf(false)
+    private val isPausedState: MutableState<Boolean> =
+        mutableStateOf(preferences.getIsTogglePaused())
 
     fun displayTime(currentTime: Int, count: Int) {
         toggleTimeDisplay.value = getTimeString(currentTime + count)

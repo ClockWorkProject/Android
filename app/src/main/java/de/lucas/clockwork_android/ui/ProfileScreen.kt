@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -23,19 +24,17 @@ import de.lucas.clockwork_android.R
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal fun ProfileScreen(
+    viewModel: ProfileViewModel,
     onClickInfo: () -> Unit,
     onClickLogout: () -> Unit,
     onClickLeave: () -> Unit
 ) {
-    var showLeaveDialogState by remember { mutableStateOf(false) }
-    var showDeleteDialogState by remember { mutableStateOf(false) }
-    var showEditDialogState by remember { mutableStateOf(false) }
     Scaffold {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             ConstraintLayout(modifier = Modifier.fillMaxSize()) {
                 val (group, name, edit_icon, buttons) = createRefs()
                 Text(
-                    text = stringResource(id = R.string.current_group, "Müller & Wulff GmbH"),
+                    text = stringResource(id = R.string.current_group, viewModel.getGroupName()!!),
                     fontSize = 18.sp,
                     lineHeight = 32.sp,
                     textAlign = TextAlign.Center,
@@ -47,7 +46,10 @@ internal fun ProfileScreen(
                         }
                 )
                 Text(
-                    text = stringResource(id = R.string.profile_username, "Mattis Uphoff"),
+                    text = stringResource(
+                        id = R.string.profile_username,
+                        viewModel.getUsername()!!
+                    ),
                     fontSize = 18.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 32.sp,
@@ -61,7 +63,7 @@ internal fun ProfileScreen(
                 )
                 IconButton(onClick = {
                     /* TODO edit name, get name from sharedPrefs (must be implemented) */
-                    showEditDialogState = true
+                    viewModel.setEditDialog(true)
                 }, modifier = Modifier.constrainAs(edit_icon) {
                     start.linkTo(name.end)
                     bottom.linkTo(name.bottom)
@@ -90,7 +92,7 @@ internal fun ProfileScreen(
                         Text(text = stringResource(id = R.string.info))
                     }
                     Button(
-                        onClick = { showLeaveDialogState = true },
+                        onClick = { viewModel.setLeaveDialog(true) },
                         modifier = Modifier
                             .padding(top = 16.dp)
                             .fillMaxWidth()
@@ -106,7 +108,7 @@ internal fun ProfileScreen(
                         Text(text = stringResource(id = R.string.sign_out))
                     }
                     Button(
-                        onClick = { showDeleteDialogState = true },
+                        onClick = { viewModel.setDeleteDialog(true) },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red),
                         modifier = Modifier
                             .padding(top = 40.dp)
@@ -120,13 +122,13 @@ internal fun ProfileScreen(
                 }
             }
         }
-        if (showLeaveDialogState) {
+        if (viewModel.showLeaveDialogState.value) {
             ProfileDialog(
                 username = null,
                 title_id = R.string.leave_group,
                 message_id = R.string.leave_message,
                 button_text_id = R.string.leave,
-                onClickDismiss = { showLeaveDialogState = false },
+                onClickDismiss = { viewModel.setLeaveDialog(false) },
                 onClickConfirm = {
                     /* TODO leave group -> set group id to -1 */
                     onClickLeave()
@@ -134,26 +136,27 @@ internal fun ProfileScreen(
             )
         }
 
-        if (showDeleteDialogState) {
+        if (viewModel.showDeleteDialogState.value) {
             ProfileDialog(
                 username = null,
                 title_id = R.string.delete_profile,
                 message_id = R.string.delete_message,
                 button_text_id = R.string.delete,
-                onClickDismiss = { showDeleteDialogState = false },
+                onClickDismiss = { viewModel.setDeleteDialog(false) },
                 onClickConfirm = { /* TODO leave group -> delete profile request to backend -> navigate to login  */ }
             )
         }
-        if (showEditDialogState) {
+        if (viewModel.showEditDialogState.value) {
             ProfileDialog(
-                username = "Mattis Uphoff",
+                username = viewModel.getUsername(),
                 title_id = R.string.edit_username,
                 message_id = null,
                 button_text_id = R.string.save,
-                onClickDismiss = { showEditDialogState = false },
-                onClickConfirm = {
+                onClickDismiss = { viewModel.setEditDialog(false) },
+                onClickConfirm = { name ->
                     /* TODO save new name and change in profile */
-                    showEditDialogState = false
+                    viewModel.setUsername(name)
+                    viewModel.setEditDialog(false)
                 }
             )
         }
@@ -167,9 +170,10 @@ fun ProfileDialog(
     @StringRes message_id: Int?,
     @StringRes button_text_id: Int,
     onClickDismiss: () -> Unit,
-    onClickConfirm: () -> Unit
+    onClickConfirm: (String) -> Unit
 ) {
     var text by remember { mutableStateOf(username ?: "") }
+    var errorState by remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = { },
         title = {
@@ -188,9 +192,24 @@ fun ProfileDialog(
                     onValueChange = { text = it }
                 )
             }
+            if (errorState) {
+                Text(
+                    text = stringResource(id = R.string.error_message_edit_name),
+                    color = MaterialTheme.colors.error,
+                    style = MaterialTheme.typography.caption,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
         },
         confirmButton = {
-            Button(onClick = { onClickConfirm() }) {
+            Button(onClick = {
+                if (text.isNotEmpty()) {
+                    errorState = false
+                    onClickConfirm(text)
+                } else {
+                    errorState = true
+                }
+            }) {
                 Text(text = stringResource(id = button_text_id))
             }
         },
@@ -210,7 +229,7 @@ fun ProfileDialog(
 @Preview
 @Composable
 private fun PreviewProfileScreen() {
-    ProfileScreen({ }, { }, { })
+    ProfileScreen(ProfileViewModel(LocalContext.current), { }, { }, { })
 }
 
 @Preview

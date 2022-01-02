@@ -69,6 +69,19 @@ class Preferences(private val context: Context) {
 
     fun getProjectId() = prefs().getInt(PROJECT_ID, 1)
 
+    fun setGroupName(name: String) = prefs().edit().putString(GROUP_NAME, name).apply()
+
+    // If setGroupName() properly implemented -> replace "Müller & Wulff GmbH" with ""
+    fun getGroupName() = prefs().getString(GROUP_NAME, "Müller & Wulff GmbH")
+
+    fun setUsername(name: String) = prefs().edit().putString(USER_NAME, name).apply()
+
+    fun getUsername() = prefs().getString(USER_NAME, "")
+
+    fun setGroupId(id: Int) = prefs().edit().putInt(GROUP_ID, id).apply()
+
+    fun getGroupId() = prefs().getInt(GROUP_ID, -1)
+
     companion object {
         const val PREFERENCES = "PREFERENCES"
         const val TIME = "TIME"
@@ -77,5 +90,8 @@ class Preferences(private val context: Context) {
         const val TOGGLE_PAUSED = "TOGGLE_PAUSED"
         const val PAUSE_TIME = "PAUSE_TIME"
         const val PROJECT_ID = "PROJECT_ID"
+        const val USER_NAME = "USER_NAME"
+        const val GROUP_NAME = "GROUP_NAME"
+        const val GROUP_ID = "GORUP_ID"
     }
 }

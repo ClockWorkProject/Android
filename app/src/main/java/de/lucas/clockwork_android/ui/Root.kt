@@ -164,7 +164,7 @@ fun Root(rootViewModel: RootViewModel) {
         ) {
             composable(LOGIN) {
                 LoginScreen(
-                    viewModel = LoginViewModel(),
+                    viewModel = LoginViewModel(context),
                     onClickLogin = {
                         navController.navigate(TOGGLE.route) {
                             popUpTo(0) {
@@ -210,6 +210,7 @@ fun Root(rootViewModel: RootViewModel) {
                 rootViewModel.setAppTitle(stringResource(id = R.string.profile))
                 rootViewModel.setShowNavigationIcon(false)
                 ProfileScreen(
+                    viewModel = ProfileViewModel(context),
                     { navController.navigate(INFO) },
                     {
                         navController.navigate(LOGIN) {
@@ -246,7 +247,7 @@ fun Root(rootViewModel: RootViewModel) {
                     rootViewModel.setShowNavigationIcon(true)
                     EditIssueScreen(
                         issue = issue,
-                        buttonText = R.string.edit
+                        buttonText = R.string.save
                     ) { navController.popBackStack() }
                 }
             }
