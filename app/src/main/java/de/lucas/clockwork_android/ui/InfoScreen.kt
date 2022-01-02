@@ -26,7 +26,6 @@ import de.lucas.clockwork_android.model.InfoCategory
 @Composable
 internal fun InfoScreen(
     categories: List<InfoCategory>,
-    onClickBack: () -> Unit,
     onClickCategory: (InfoCategory) -> Unit
 ) {
     Scaffold {
@@ -93,7 +92,6 @@ private fun DefaultPreview() {
             InfoCategory("dataProtection", R.string.data_protection),
             InfoCategory("version", R.string.version_number)
         ),
-        onClickBack = { },
         onClickCategory = { }
     )
 }

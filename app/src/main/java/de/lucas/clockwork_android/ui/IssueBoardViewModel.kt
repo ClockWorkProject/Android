@@ -1,13 +1,19 @@
 package de.lucas.clockwork_android.ui
 
-import androidx.lifecycle.MutableLiveData
+import android.content.Context
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import de.lucas.clockwork_android.model.Preferences
 
-class IssueBoardViewModel : ViewModel() {
-    private var _projectID = MutableLiveData(1)
-    val projectID = _projectID
+class IssueBoardViewModel(context: Context) : ViewModel() {
+    private val preferences = Preferences(context)
+    private val projectID: MutableState<Int> = mutableStateOf(preferences.getProjectId())
 
-    fun changeProject(projectID: Int) {
-        _projectID.value = projectID
+    fun changeProject(id: Int) {
+        projectID.value = id
+        preferences.setProjectId(id)
     }
+
+    fun getProjectId() = projectID.value
 }

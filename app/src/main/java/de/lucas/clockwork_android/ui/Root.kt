@@ -3,7 +3,8 @@ package de.lucas.clockwork_android.ui
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,15 +42,10 @@ import timber.log.Timber
 @ExperimentalPagerApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Root() {
+fun Root(rootViewModel: RootViewModel) {
     val context = LocalContext.current
     val navController = rememberNavController()
     val togglePlayerViewModel = TogglePlayerViewModel(context)
-    var showBottomNavigation by remember { mutableStateOf(false) }
-    var showIssuePickerList by remember { mutableStateOf(false) }
-    var appTitle by remember { mutableStateOf("") }
-    var showNavigationIcon by remember { mutableStateOf(false) }
-    var showTogglePlayer by remember { mutableStateOf(false) }
     lateinit var timer: CountUpTimer
 
     fun startTimer(pausedTime: Int) {
@@ -76,19 +72,19 @@ fun Root() {
             startTimer(togglePlayerViewModel.getAppClosedTime((System.currentTimeMillis() / 1000).toInt() - togglePlayerViewModel.getPausedTime()))
         }
         Timber.e(togglePlayerViewModel.getIsTogglePaused().toString())
-        showTogglePlayer = true
+        rootViewModel.setShowTogglePlayer(true)
     }
 
     Scaffold(
         topBar = {
             Column(modifier = Modifier.fillMaxWidth()) {
-                if (showBottomNavigation) {
+                if (rootViewModel.showBottomNavigation.value) {
                     CustomTopBar(
-                        title = appTitle,
+                        title = rootViewModel.appTitle.value,
                         onClickBack = { navController.popBackStack() },
-                        showNavigationIcon = showNavigationIcon
+                        showNavigationIcon = rootViewModel.showNavigationIcon.value
                     )
-                    if (showTogglePlayer) {
+                    if (rootViewModel.showTogglePlayer.value) {
                         Notification(
                             context = context,
                             channelId = stringResource(id = R.string.app_name),
@@ -114,20 +110,21 @@ fun Root() {
                                 togglePlayerViewModel.resetToggle()
                                 togglePlayerViewModel.setIsTogglePaused(false)
                                 removeNotification(context)
-                                showTogglePlayer = false
-                            }
+                                rootViewModel.setShowTogglePlayer(false)
+                            },
+                            viewModel = TogglePlayerViewModel(context)
                         )
                     }
                 }
             }
         },
         bottomBar = {
-            if (showBottomNavigation) BottomNavigationBar(navController = navController)
+            if (rootViewModel.showBottomNavigation.value) BottomNavigationBar(navController = navController)
         },
         floatingActionButton = {
-            if (showBottomNavigation) {
+            if (rootViewModel.showBottomNavigation.value) {
                 FloatingActionButton(
-                    onClick = { showIssuePickerList = true },
+                    onClick = { rootViewModel.setShowIssuePicker(true) },
                     backgroundColor = MaterialTheme.colors.primary,
                     shape = roundedShape,
                     modifier = Modifier.border(
@@ -141,18 +138,18 @@ fun Root() {
                         contentDescription = ""
                     )
                 }
-                if (showIssuePickerList) {
+                if (rootViewModel.showIssuePickerList.value) {
                     IssuePickerList(
                         issueList = projectList,
                         onStartToggle = { issue ->
                             if (togglePlayerViewModel.getToggle()!!.number == -1) {
                                 togglePlayerViewModel.setStartTime()
-                                showTogglePlayer = true
+                                rootViewModel.setShowTogglePlayer(true)
                                 togglePlayerViewModel.setToggle(issue)
                                 startTimer(togglePlayerViewModel.getCurrentToggleTime())
                             }
                         },
-                        onClose = { showIssuePickerList = false }
+                        onClose = { rootViewModel.setShowIssuePicker(false) }
                     )
                 }
             }
@@ -174,7 +171,7 @@ fun Root() {
                                 inclusive = true
                             }
                         }
-                        showBottomNavigation = true
+                        rootViewModel.setShowBottomNavigation(true)
                     },
                     onClickSignUp = {
                         navController.navigate(TOGGLE.route) {
@@ -182,41 +179,41 @@ fun Root() {
                                 inclusive = true
                             }
                         }
-                        showBottomNavigation = true
+                        rootViewModel.setShowBottomNavigation(true)
                     },
                 )
             }
             composable(TOGGLE.route) {
-                appTitle = stringResource(id = R.string.time_record)
-                showNavigationIcon = false
+                rootViewModel.setAppTitle(stringResource(id = R.string.time_record))
+                rootViewModel.setShowNavigationIcon(false)
                 ToggleScreen()
             }
             composable(BOARD.route) {
-                val viewModel = IssueBoardViewModel()
-                appTitle = stringResource(id = R.string.issue_board)
-                showNavigationIcon = false
+                val viewModel = IssueBoardViewModel(context)
+                rootViewModel.setAppTitle(stringResource(id = R.string.issue_board))
+                rootViewModel.setShowNavigationIcon(false)
                 IssueBoardScreen(
-                    viewModel.projectID.value!!,
-                    { issue ->
+                    viewModel = IssueBoardViewModel(context),
+                    onClickIssue = { issue ->
                         val jsonIssue = Gson().toJson(issue)
                         navController.navigate("$ISSUE_DETAIL/$jsonIssue")
                     },
-                    { navController.navigate(ISSUE_EDIT) }
+                    onClickNewIssue = { navController.navigate(ISSUE_EDIT) }
                 )
             }
             composable(STATISTIC.route) {
-                appTitle = stringResource(id = R.string.statistic)
-                showNavigationIcon = false
+                rootViewModel.setAppTitle(stringResource(id = R.string.statistic))
+                rootViewModel.setShowNavigationIcon(false)
                 StatisticScreen()
             }
             composable(PROFILE.route) {
-                appTitle = stringResource(id = R.string.profile)
-                showNavigationIcon = false
+                rootViewModel.setAppTitle(stringResource(id = R.string.profile))
+                rootViewModel.setShowNavigationIcon(false)
                 ProfileScreen(
                     { navController.navigate(INFO) },
                     {
                         navController.navigate(LOGIN) {
-                            showBottomNavigation = false
+                            rootViewModel.setShowBottomNavigation(false)
                             popUpTo(0) {
                                 inclusive = true
                             }
@@ -233,8 +230,8 @@ fun Root() {
                 backStackEntry.arguments
                     ?.getString("issue").let { json ->
                         val issue = Gson().fromJson(json, Issue::class.java)
-                        showNavigationIcon = true
-                        appTitle = stringResource(id = R.string.issue_details)
+                        rootViewModel.setShowNavigationIcon(true)
+                        rootViewModel.setAppTitle(stringResource(id = R.string.issue_details))
                         IssueDetailScreen(issue) { navController.navigate("$ISSUE_EDIT/$json") }
                     }
             }
@@ -245,8 +242,8 @@ fun Root() {
             ) { backStackEntry ->
                 backStackEntry.arguments?.getString("issue").let { json ->
                     val issue = Gson().fromJson(json, Issue::class.java)
-                    appTitle = stringResource(id = R.string.edit_issue)
-                    showNavigationIcon = true
+                    rootViewModel.setAppTitle(stringResource(id = R.string.edit_issue))
+                    rootViewModel.setShowNavigationIcon(true)
                     EditIssueScreen(
                         issue = issue,
                         buttonText = R.string.edit
@@ -254,16 +251,16 @@ fun Root() {
                 }
             }
             composable(ISSUE_EDIT) {
-                appTitle = stringResource(id = R.string.create_issue)
-                showNavigationIcon = true
+                rootViewModel.setAppTitle(stringResource(id = R.string.create_issue))
+                rootViewModel.setShowNavigationIcon(true)
                 EditIssueScreen(
                     issue = null,
                     buttonText = R.string.create
                 ) { navController.popBackStack() }
             }
             composable(INFO) {
-                appTitle = stringResource(id = R.string.info)
-                showNavigationIcon = true
+                rootViewModel.setAppTitle(stringResource(id = R.string.info))
+                rootViewModel.setShowNavigationIcon(true)
                 InfoScreen(
                     categories = listOf(
                         InfoCategory("imprint", R.string.imprint),
@@ -271,20 +268,19 @@ fun Root() {
                         InfoCategory("data_protection", R.string.data_protection),
                         InfoCategory("version", R.string.version_number)
                     ),
-                    onClickBack = { navController.popBackStack() },
                     onClickCategory = { category ->
                         navController.navigate(category.id)
                     }
                 )
             }
             composable(IMPRINT) {
-                showNavigationIcon = true
-                appTitle = stringResource(id = R.string.imprint)
+                rootViewModel.setShowNavigationIcon(true)
+                rootViewModel.setAppTitle(stringResource(id = R.string.imprint))
                 ImprintScreen()
             }
             composable(LICENSES) {
-                showNavigationIcon = true
-                appTitle = stringResource(id = R.string.rights_and_licenses)
+                rootViewModel.setShowNavigationIcon(true)
+                rootViewModel.setAppTitle(stringResource(id = R.string.rights_and_licenses))
                 RightsAndLicencesScreen()
             }
             dialog(VERSION) { stackEntry ->
@@ -296,8 +292,8 @@ fun Root() {
                 )
             }
             composable(DATA_PROTECTION) {
-                showNavigationIcon = true
-                appTitle = stringResource(id = R.string.data_protection)
+                rootViewModel.setShowNavigationIcon(true)
+                rootViewModel.setAppTitle(stringResource(id = R.string.data_protection))
                 DataProtectionScreen()
             }
         }

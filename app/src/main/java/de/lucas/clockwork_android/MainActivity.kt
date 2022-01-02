@@ -8,6 +8,7 @@ import androidx.compose.runtime.SideEffect
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import de.lucas.clockwork_android.ui.Root
+import de.lucas.clockwork_android.ui.RootViewModel
 import de.lucas.clockwork_android.ui.theme.ClockWork_AndroidTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,7 +22,7 @@ class MainActivity : ComponentActivity() {
                 SideEffect {
                     systemUiController.setStatusBarColor(primary)
                 }
-                Root()
+                Root(rootViewModel = RootViewModel())
             }
         }
     }
