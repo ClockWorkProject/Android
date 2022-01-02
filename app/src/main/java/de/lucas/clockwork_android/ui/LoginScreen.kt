@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,9 +44,11 @@ internal fun LoginScreen(
                     optText = null,
                     maxLines = 1,
                     loginState = viewModel.getLogin(),
+                    signUpState = viewModel.getSignUp(),
                     errorState = viewModel.getIsError(),
                     viewModel = viewModel,
-                    login = onClickLogin
+                    login = onClickLogin,
+                    signUp = { onClickSignUp() }
                 )
                 OutlinedStyledText(
                     id = R.string.password,
@@ -58,9 +61,7 @@ internal fun LoginScreen(
                     id = R.string.login,
                     padding = 40,
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        viewModel.setLogin(true)
-                    }
+                    onClick = { viewModel.setLogin(true) }
                 )
                 Text(
                     text = stringResource(id = R.string.no_account),
@@ -72,7 +73,7 @@ internal fun LoginScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 4.dp),
-                    onClick = onClickSignUp
+                    onClick = { viewModel.setSignUp(true) }
                 )
             }
         }
@@ -131,18 +132,30 @@ fun OutlinedStyledErrorText(
     optText: String?,
     maxLines: Int,
     loginState: Boolean,
+    signUpState: Boolean,
     errorState: Boolean,
     viewModel: LoginViewModel,
-    login: () -> Unit
+    login: () -> Unit,
+    signUp: () -> Unit
 ) {
     var text by remember { mutableStateOf(optText ?: "") }
+    val regexEmail = Regex("[A-Za-z]+[a-zA-Z0-9]*([@])(.+)(\\.)([a-zA-Z]+)")
 
-    fun validate(text: String) {
+    fun validateLogin(text: String) {
         /* TODO login -> if error from server show errorMessage */
         if (text.isEmpty()) {
             viewModel.setError(true)
         } else {
             login()
+        }
+    }
+
+    fun validateSignUp(text: String) {
+        if (text.matches(regexEmail)) {
+            viewModel.setUsername(text)
+            signUp()
+        } else {
+            viewModel.setError(true)
         }
     }
 
@@ -168,15 +181,19 @@ fun OutlinedStyledErrorText(
         )
         if (errorState) {
             Text(
-                text = stringResource(id = R.string.errorMessage),
+                text = stringResource(id = R.string.error_message_login),
                 color = MaterialTheme.colors.error,
                 style = MaterialTheme.typography.caption,
                 modifier = Modifier.padding(start = 16.dp)
             )
         }
         if (loginState) {
-            validate(text)
+            validateLogin(text)
             viewModel.setLogin(false)
+        }
+        if (signUpState) {
+            validateSignUp(text)
+            viewModel.setSignUp(false)
         }
     }
 }
@@ -195,5 +212,5 @@ fun RoundedButton(@StringRes id: Int, padding: Int, modifier: Modifier, onClick:
 @Preview
 @Composable
 private fun LoginPreview() {
-    LoginScreen(LoginViewModel(), {}, {})
+    LoginScreen(LoginViewModel(LocalContext.current), {}, {})
 }

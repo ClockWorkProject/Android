@@ -58,6 +58,7 @@
     <string name="blocker">Blocker</string>
     <string name="closed">Closed</string>
     <string name="toggle_active">Ein Toggle ist zurzeit aktiv!</string>
-    <string name="channelId">%s\'s Channel</string>
-    <string name="errorMessage">Ungültige Email/Passwort</string>
+    <string name="channel_id">%s\'s Channel</string>
+    <string name="error_message_login">Ungültige Email/Passwort</string>
+    <string name="error_message_edit_name">Name darf nicht leer sein!</string>
 </resources>
