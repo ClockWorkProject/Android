@@ -3,7 +3,7 @@ package de.lucas.clockwork_android.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -26,11 +26,10 @@ internal fun TogglePlayer(
     timeState: String,
     onPause: () -> Unit,
     onResume: () -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    viewModel: TogglePlayerViewModel
 ) {
-    val togglePlayerViewModel = TogglePlayerViewModel(LocalContext.current)
-    var pauseState by remember { mutableStateOf(togglePlayerViewModel.getIsTogglePaused()) }
-    val stateVisibility = if (pauseState) 1f else 0.6f
+    val stateVisibility = if (viewModel.getIsPaused()) 1f else 0.6f
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp),
@@ -67,12 +66,12 @@ internal fun TogglePlayer(
                 modifier = Modifier.weight(1.5f)
             )
             Box(modifier = Modifier.weight(1f)) {
-                if (pauseState) {
+                if (viewModel.getIsPaused()) {
                     IconButton(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             onResume()
-                            pauseState = false
+                            viewModel.setIsPaused(false)
                         }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_play_light),
@@ -85,7 +84,7 @@ internal fun TogglePlayer(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             onPause()
-                            pauseState = true
+                            viewModel.setIsPaused(true)
                         }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_pause_light),
@@ -98,7 +97,7 @@ internal fun TogglePlayer(
                 .weight(1f)
                 .alpha(stateVisibility),
                 onClick = {
-                    if (pauseState) {
+                    if (viewModel.getIsPaused()) {
                         onClose()
                     }
                 }) {
@@ -119,5 +118,8 @@ private fun PreviewTogglePlayer() {
         issue = Issue(2, "Bug Fix", "Vinson", "", "", OPEN),
         timeState = "00:00:12",
         onPause = {},
-        onResume = {}) { }
+        onResume = {},
+        onClose = {},
+        viewModel = TogglePlayerViewModel(LocalContext.current)
+    )
 }

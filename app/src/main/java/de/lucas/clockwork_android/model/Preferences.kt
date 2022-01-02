@@ -65,6 +65,10 @@ class Preferences(private val context: Context) {
 
     fun getPauseTime() = prefs().getInt(PAUSE_TIME, 0)
 
+    fun setProjectId(id: Int) = prefs().edit().putInt(PROJECT_ID, id).apply()
+
+    fun getProjectId() = prefs().getInt(PROJECT_ID, 1)
+
     companion object {
         const val PREFERENCES = "PREFERENCES"
         const val TIME = "TIME"
@@ -72,5 +76,6 @@ class Preferences(private val context: Context) {
         const val START_TIME = "START_TIME"
         const val TOGGLE_PAUSED = "TOGGLE_PAUSED"
         const val PAUSE_TIME = "PAUSE_TIME"
+        const val PROJECT_ID = "PROJECT_ID"
     }
 }

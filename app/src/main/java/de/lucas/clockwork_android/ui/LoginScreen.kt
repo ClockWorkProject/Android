@@ -41,8 +41,6 @@ internal fun LoginScreen(
                 OutlinedStyledErrorText(
                     id = R.string.email,
                     optText = null,
-                    padding = 0,
-                    modifier = Modifier.fillMaxWidth(),
                     maxLines = 1,
                     loginState = viewModel.getLogin(),
                     errorState = viewModel.getIsError(),
@@ -131,8 +129,6 @@ fun OutlinedStyledText(
 fun OutlinedStyledErrorText(
     @StringRes id: Int,
     optText: String?,
-    padding: Int,
-    modifier: Modifier,
     maxLines: Int,
     loginState: Boolean,
     errorState: Boolean,
@@ -150,7 +146,7 @@ fun OutlinedStyledErrorText(
         }
     }
 
-    Column(modifier = modifier.padding(top = padding.dp)) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = text,
             onValueChange = {
@@ -167,7 +163,8 @@ fun OutlinedStyledErrorText(
             },
             isError = errorState,
             maxLines = maxLines,
-            singleLine = true
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
         )
         if (errorState) {
             Text(
