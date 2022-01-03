@@ -54,9 +54,12 @@ internal fun IssuePickerList(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
-                Column(modifier = Modifier.weight(1f)) {
-                    issueList.forEach { project ->
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(8.dp)
+                ) {
+                    items(issueList) { project ->
                         IssueItem(
                             issues = project.issues,
                             project_name = project.project_name,
@@ -129,8 +132,8 @@ private fun IssueItem(issues: List<Issue>, project_name: String, onStartToggle: 
         }
     }
     if (expandableState) {
-        LazyColumn {
-            items(issues) { issue ->
+        Column {
+            issues.forEach { issue ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
