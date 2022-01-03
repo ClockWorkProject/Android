@@ -39,9 +39,7 @@ internal fun ToggleItem(toggle: TotalToggle) {
             .padding(top = 8.dp),
         shape = RoundedCornerShape(12.dp),
         indication = null,
-        onClick = {
-            expandableState = !expandableState
-        }
+        onClick = { expandableState = !expandableState }
     ) {
         Column(
             modifier = Modifier

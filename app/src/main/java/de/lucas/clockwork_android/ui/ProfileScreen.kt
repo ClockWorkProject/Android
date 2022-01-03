@@ -30,7 +30,12 @@ internal fun ProfileScreen(
     onClickLeave: () -> Unit
 ) {
     Scaffold {
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 32.dp)
+        ) {
             ConstraintLayout(modifier = Modifier.fillMaxSize()) {
                 val (group, name, edit_icon, buttons) = createRefs()
                 Text(

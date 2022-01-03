@@ -79,6 +79,105 @@ val projectList = listOf(
                 CLOSED
             )
         )
+    ), Project(
+        "IT-Projekt", listOf(
+            Issue(
+                2,
+                "Bug Fixes",
+                "IT-Projekt",
+                "Beschreibungen......viiiieeelllll",
+                "Vor 2 Tagen erstellt von Meatüs",
+                BLOCKER
+            ),
+            Issue(
+                4, "Redesign", "", "rwwersdSAddSA", "",
+                BLOCKER
+            ),
+        )
+    ),
+    Project(
+        "Vinson",
+        listOf(
+            Issue(
+                2,
+                "Bug Fixes",
+                "IT-Projekt",
+                "Beschreibungen......viiiieeelllll",
+                "Vor 2 Tagen erstellt von Meatüs",
+                OPEN
+            ),
+            Issue(
+                4, "Redesign", "Vinson", "rwwersdSAddSA", "",
+                TODO
+            ),
+            Issue(
+                1, "UI", "Vinson", "rwweradsgfrgervasdSAddSA", "",
+                CLOSED
+            ),
+            Issue(
+                3, "Documentation", "Vinson", "jfkrzuioolhgjfc", "",
+                CLOSED
+            ),
+            Issue(7, "API connection", "Vinson", "TQRHRZTWSER", "", BLOCKER),
+        )
+    ),
+    Project(
+        "Noch eins", listOf(
+            Issue(
+                1, "UI", "Noch eins", "rwweradsgfrgervasdSAddSA", "",
+                CLOSED
+            )
+        )
+    ),
+    Project(
+        "IT-Projekt", listOf(
+            Issue(
+                2,
+                "Bug Fixes",
+                "IT-Projekt",
+                "Beschreibungen......viiiieeelllll",
+                "Vor 2 Tagen erstellt von Meatüs",
+                BLOCKER
+            ),
+            Issue(
+                4, "Redesign", "", "rwwersdSAddSA", "",
+                BLOCKER
+            ),
+        )
+    ),
+    Project(
+        "Vinson",
+        listOf(
+            Issue(
+                2,
+                "Bug Fixes",
+                "IT-Projekt",
+                "Beschreibungen......viiiieeelllll",
+                "Vor 2 Tagen erstellt von Meatüs",
+                OPEN
+            ),
+            Issue(
+                4, "Redesign", "Vinson", "rwwersdSAddSA", "",
+                TODO
+            ),
+            Issue(
+                1, "UI", "Vinson", "rwweradsgfrgervasdSAddSA", "",
+                CLOSED
+            ),
+            Issue(
+                3, "Documentation", "Vinson", "jfkrzuioolhgjfc", "",
+                CLOSED
+            ),
+            Issue(7, "API connection", "Vinson", "TQRHRZTWSER", "", BLOCKER),
+        )
+    ),
+    Project(
+        "Noch eins", listOf(
+            Issue(
+                1, "UI", "Noch eins", "rwweradsgfrgervasdSAddSA", "",
+                CLOSED
+            )
+        )
     )
 )
 
