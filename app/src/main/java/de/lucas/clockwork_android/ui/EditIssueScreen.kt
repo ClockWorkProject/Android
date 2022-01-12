@@ -5,14 +5,8 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -110,6 +104,26 @@ internal fun EditIssueScreen(
     BackHandler {
         onClickBack()
     }
+}
+
+@Composable
+fun OutlinedStyledText(
+    @StringRes id: Int,
+    optText: String?,
+    padding: Int,
+    modifier: Modifier,
+    maxLines: Int,
+    isSingleLine: Boolean
+) {
+    var text by remember { mutableStateOf(optText ?: "") }
+    OutlinedTextField(
+        value = text,
+        onValueChange = { text = it },
+        label = { Text(stringResource(id = id)) },
+        modifier = modifier.padding(top = padding.dp),
+        maxLines = maxLines,
+        singleLine = isSingleLine
+    )
 }
 
 @Preview

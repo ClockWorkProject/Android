@@ -1,29 +1,42 @@
 package de.lucas.clockwork_android.ui
 
+import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import de.lucas.clockwork_android.R
 
 @Composable
 internal fun LoginScreen(
     viewModel: LoginViewModel,
+    auth: FirebaseAuth,
     onClickLogin: () -> Unit,
     onClickSignUp: () -> Unit
 ) {
@@ -42,22 +55,22 @@ internal fun LoginScreen(
             ) {
                 OutlinedStyledErrorText(
                     id = R.string.email,
-                    optText = null,
                     maxLines = 1,
                     loginState = viewModel.getLogin(),
                     signUpState = viewModel.getSignUp(),
                     errorState = viewModel.getIsError(),
                     viewModel = viewModel,
-                    login = onClickLogin,
+                    auth = auth,
+                    login = { onClickLogin() },
                     signUp = { onClickSignUp() }
                 )
-                OutlinedStyledText(
+                OutlinedStyledTextPassword(
                     id = R.string.password,
-                    optText = null,
                     padding = 24,
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 1,
-                    isSingleLine = true
+                    isSingleLine = true,
+                    viewModel = viewModel
                 )
                 RoundedButton(
                     id = R.string.login,
@@ -78,6 +91,9 @@ internal fun LoginScreen(
                     onClick = { viewModel.setSignUp(true) }
                 )
             }
+        }
+        if (viewModel.getIsLoading()) {
+            LoadingIndicator()
         }
     }
 }
@@ -110,63 +126,62 @@ fun AppLogo() {
 }
 
 @Composable
-fun OutlinedStyledText(
+fun OutlinedStyledTextPassword(
     @StringRes id: Int,
-    optText: String?,
     padding: Int,
     modifier: Modifier,
     maxLines: Int,
-    isSingleLine: Boolean
+    isSingleLine: Boolean,
+    viewModel: LoginViewModel
 ) {
-    var text by remember { mutableStateOf(optText ?: "") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    val icon = if (passwordVisible) {
+        painterResource(id = R.drawable.ic_pw_visible)
+    } else {
+        painterResource(id = R.drawable.ic_pw_invisible)
+    }
     OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
+        value = viewModel.getPassword(),
+        onValueChange = { viewModel.setPassword(it) },
         label = { Text(stringResource(id = id)) },
         modifier = modifier.padding(top = padding.dp),
+        trailingIcon = {
+            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                Icon(painter = icon, contentDescription = "")
+            }
+        },
         maxLines = maxLines,
-        singleLine = isSingleLine
+        singleLine = isSingleLine,
+        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
     )
 }
 
 @Composable
 fun OutlinedStyledErrorText(
     @StringRes id: Int,
-    optText: String?,
     maxLines: Int,
     loginState: Boolean,
     signUpState: Boolean,
     errorState: Boolean,
     viewModel: LoginViewModel,
+    auth: FirebaseAuth,
     login: () -> Unit,
     signUp: () -> Unit
 ) {
-    var text by remember { mutableStateOf(optText ?: "") }
-    val regexEmail = Regex("[A-Za-z]+[a-zA-Z0-9]*([@])(.+)(\\.)([a-zA-Z]+)")
-
-    fun validateLogin(text: String) {
-        /* TODO login -> if error from server show errorMessage */
-        if (text.isEmpty()) {
-            viewModel.setError(true)
-        } else {
-            login()
-        }
+    fun validateLogin() {
+        viewModel.loginUser(auth, ComponentActivity(), login)
     }
 
-    fun validateSignUp(text: String) {
-        if (text.matches(regexEmail)) {
-            viewModel.setUsername(text)
-            signUp()
-        } else {
-            viewModel.setError(true)
-        }
+    fun validateSignUp() {
+        viewModel.signUpUser(auth, ComponentActivity(), signUp)
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
-            value = text,
+            value = viewModel.getEmail(),
             onValueChange = {
-                text = it
+                viewModel.setEmail(it)
             },
             label = { Text(stringResource(id = id)) },
             trailingIcon = {
@@ -191,11 +206,11 @@ fun OutlinedStyledErrorText(
             )
         }
         if (loginState) {
-            validateLogin(text)
+            validateLogin()
             viewModel.setLogin(false)
         }
         if (signUpState) {
-            validateSignUp(text)
+            validateSignUp()
             viewModel.setSignUp(false)
         }
     }
@@ -212,8 +227,35 @@ fun RoundedButton(@StringRes id: Int, padding: Int, modifier: Modifier, onClick:
     }
 }
 
+@Composable
+internal fun LoadingIndicator() {
+    Dialog(
+        onDismissRequest = { },
+        DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+    ) {
+        Box(
+            contentAlignment = Center,
+            modifier = Modifier.background(White, shape = RoundedCornerShape(8.dp))
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator()
+                Text(text = stringResource(id = R.string.login_loading))
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun LoginPreview() {
-    LoginScreen(LoginViewModel(LocalContext.current), {}, {})
+    LoginScreen(
+        LoginViewModel(LocalContext.current),
+        Firebase.auth,
+        {},
+        {}
+    )
 }
