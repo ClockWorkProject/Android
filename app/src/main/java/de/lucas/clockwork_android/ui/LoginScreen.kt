@@ -56,7 +56,8 @@ internal fun LoginScreen(
                     optText = null,
                     padding = 24,
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 1
+                    maxLines = 1,
+                    isSingleLine = true
                 )
                 RoundedButton(
                     id = R.string.login,
@@ -114,7 +115,8 @@ fun OutlinedStyledText(
     optText: String?,
     padding: Int,
     modifier: Modifier,
-    maxLines: Int
+    maxLines: Int,
+    isSingleLine: Boolean
 ) {
     var text by remember { mutableStateOf(optText ?: "") }
     OutlinedTextField(
@@ -123,7 +125,7 @@ fun OutlinedStyledText(
         label = { Text(stringResource(id = id)) },
         modifier = modifier.padding(top = padding.dp),
         maxLines = maxLines,
-        singleLine = true
+        singleLine = isSingleLine
     )
 }
 

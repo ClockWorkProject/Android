@@ -48,6 +48,11 @@ fun Root(rootViewModel: RootViewModel) {
     val togglePlayerViewModel = TogglePlayerViewModel(context)
     lateinit var timer: CountUpTimer
 
+    /**
+     * Starts the count up timer
+     * Int.MAX_VALUE to count indefinitely until canceled
+     * in onCount(): state in viewModel gets updated every second to update ui element of shown text in player
+     */
     fun startTimer(pausedTime: Int) {
         timer = object : CountUpTimer(Int.MAX_VALUE, 1) {
 
@@ -63,6 +68,7 @@ fun Root(rootViewModel: RootViewModel) {
     }
 
     if (togglePlayerViewModel.getToggle()!!.number != -1) {
+        // App restart while toggle is paused
         if (togglePlayerViewModel.getIsTogglePaused()) {
             startTimer(togglePlayerViewModel.getCurrentToggleTime())
             togglePlayerViewModel.displayTime(togglePlayerViewModel.getCurrentToggleTime(), 0)
@@ -94,7 +100,7 @@ fun Root(rootViewModel: RootViewModel) {
                         )
                         TogglePlayer(
                             issue = togglePlayerViewModel.getToggle()!!,
-                            timeState = togglePlayerViewModel.toggleTimeDisplay.value,
+                            time = togglePlayerViewModel.toggleTimeDisplay.value,
                             onPause = {
                                 timer.cancel()
                                 togglePlayerViewModel.setIsTogglePaused(true)
@@ -189,7 +195,6 @@ fun Root(rootViewModel: RootViewModel) {
                 ToggleScreen()
             }
             composable(BOARD.route) {
-                val viewModel = IssueBoardViewModel(context)
                 rootViewModel.setAppTitle(stringResource(id = R.string.issue_board))
                 rootViewModel.setShowNavigationIcon(false)
                 IssueBoardScreen(

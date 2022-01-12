@@ -30,7 +30,7 @@ internal fun EditIssueScreen(
     @StringRes buttonText: Int,
     onClickBack: () -> Unit
 ) {
-    Scaffold {
+    Scaffold(backgroundColor = Color.White) {
         Card(
             modifier = Modifier
                 .fillMaxSize()
@@ -59,14 +59,16 @@ internal fun EditIssueScreen(
                         optText = title,
                         padding = 32,
                         modifier = Modifier.fillMaxWidth(),
-                        maxLines = 1
+                        maxLines = 1,
+                        isSingleLine = true
                     )
                     OutlinedStyledText(
                         id = R.string.description,
                         optText = description,
                         padding = 16,
                         modifier = Modifier.fillMaxWidth(),
-                        maxLines = 6
+                        maxLines = 8,
+                        isSingleLine = false
                     )
                 } else {
                     /* TODO get highest issue number +1 for creating new issue */
@@ -76,14 +78,16 @@ internal fun EditIssueScreen(
                         optText = null,
                         padding = 32,
                         modifier = Modifier.fillMaxWidth(),
-                        maxLines = 1
+                        maxLines = 1,
+                        isSingleLine = true
                     )
                     OutlinedStyledText(
                         id = R.string.description,
                         optText = null,
                         padding = 16,
                         modifier = Modifier.fillMaxWidth(),
-                        maxLines = 6
+                        maxLines = 8,
+                        isSingleLine = false
                     )
                 }
                 Row(

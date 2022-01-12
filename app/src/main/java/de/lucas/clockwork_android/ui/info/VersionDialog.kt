@@ -11,6 +11,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import de.lucas.clockwork_android.R
 
+/**
+ * Shows a Dialog with [title] of the app and its current [version]
+ */
 @Composable
 internal fun VersionDialog(
     title: String,

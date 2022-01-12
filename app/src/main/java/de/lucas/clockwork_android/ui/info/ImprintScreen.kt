@@ -22,6 +22,9 @@ internal fun ImprintScreen() {
     }
 }
 
+/**
+ * Simple Text composable for Imprint and DataProtection
+ */
 @Composable
 internal fun InfoText(text: String) {
     Column(

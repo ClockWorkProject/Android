@@ -23,7 +23,7 @@ import de.lucas.clockwork_android.ui.theme.Purple200
 @Composable
 internal fun TogglePlayer(
     issue: Issue,
-    timeState: String,
+    time: String,
     onPause: () -> Unit,
     onResume: () -> Unit,
     onClose: () -> Unit,
@@ -61,7 +61,7 @@ internal fun TogglePlayer(
                 )
             }
             Text(
-                text = timeState,
+                text = time,
                 fontSize = 18.sp,
                 modifier = Modifier.weight(1.5f)
             )
@@ -116,7 +116,7 @@ internal fun TogglePlayer(
 private fun PreviewTogglePlayer() {
     TogglePlayer(
         issue = Issue(2, "Bug Fix", "Vinson", "", "", OPEN),
-        timeState = "00:00:12",
+        time = "00:00:12",
         onPause = {},
         onResume = {},
         onClose = {},

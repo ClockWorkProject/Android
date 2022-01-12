@@ -6,6 +6,7 @@ import timber.log.Timber
 class Application : Application() {
     override fun onCreate() {
         super.onCreate()
+        // activate timber
         Timber.plant(Timber.DebugTree())
     }
 }

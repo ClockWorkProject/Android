@@ -86,6 +86,7 @@ internal fun IssuePickerList(
             }
         }
     }
+    // check state, if true -> show Dialog to create new project
     if (showNewProjectDialog) {
         CustomDialog(
             title_id = R.string.create_project_title,

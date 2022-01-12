@@ -6,6 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import de.lucas.clockwork_android.model.Preferences
 
+/**
+ * 3 states:
+ * showLeaveDialogState -> set true if user clicks "leave"-button in ProfileScreen to show Dialog
+ * showDeleteDialogState -> set true if user clicks "delete"-button in ProfileScreen to show Dialog
+ * showEditDialogState -> set true if user clicks "edit"-button in ProfileScreen to show Dialog
+ */
 class ProfileViewModel(context: Context) : ViewModel() {
     private val preferences = Preferences(context)
     var showLeaveDialogState: MutableState<Boolean> = mutableStateOf(false)

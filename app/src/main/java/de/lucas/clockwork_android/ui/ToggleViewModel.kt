@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 
 class ToggleViewModel : ViewModel() {
     /*
-    TODO SharedPreferences to check current group id (if -1 -> empty state)
+    TODO SharedPreferences to check current group id (if -1 (user in no group) -> empty state)
      */
     val groupID = 1
 }

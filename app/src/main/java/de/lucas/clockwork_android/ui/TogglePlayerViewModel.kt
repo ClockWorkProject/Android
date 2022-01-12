@@ -14,6 +14,7 @@ class TogglePlayerViewModel(context: Context) : ViewModel() {
     private val isPausedState: MutableState<Boolean> =
         mutableStateOf(preferences.getIsTogglePaused())
 
+    // Sets the current counted time as String in the state variable to display in the TogglePlayer
     fun displayTime(currentTime: Int, count: Int) {
         toggleTimeDisplay.value = getTimeString(currentTime + count)
         preferences.setCurrentToggleTime(currentTime, count)
@@ -27,6 +28,7 @@ class TogglePlayerViewModel(context: Context) : ViewModel() {
 
     fun getToggle() = preferences.getToggle()
 
+    // Sets the systemtime when toggle is started
     fun setStartTime() = preferences.setStartTime((System.currentTimeMillis() / 1000).toInt())
 
     fun getAppClosedTime(time: Int): Int = time - preferences.getStartTime()
@@ -45,6 +47,10 @@ class TogglePlayerViewModel(context: Context) : ViewModel() {
 
     fun getIsPaused() = isPausedState.value
 
+    /*
+     calculates the time from milliseconds to hours, minutes and seconds
+     calls fun to build time as String
+     */
     private fun getTimeString(time: Int): String {
         val hours = time % 86400 / 3600
         val minutes = time % 86400 % 3600 / 60
@@ -53,10 +59,15 @@ class TogglePlayerViewModel(context: Context) : ViewModel() {
         return makeTimeString(hours, minutes, seconds)
     }
 
+    // Formats the given time to String format
     private fun makeTimeString(hour: Int, min: Int, sec: Int): String =
         String.format("%02d:%02d:%02d", hour, min, sec)
 }
 
+/*
+ modified CountDownTimer to count up
+ source: https://stackoverflow.com/questions/9276858/how-to-add-a-countup-timer-on-android
+ */
 abstract class CountUpTimer(private val secondsInFuture: Int, countUpIntervalSeconds: Int) :
     CountDownTimer(secondsInFuture.toLong() * 1000, countUpIntervalSeconds.toLong() * 1000) {
 

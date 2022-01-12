@@ -44,10 +44,15 @@ internal fun StatisticScreen() {
     }
 }
 
+/**
+ * Modified NumberPicker to show months
+ */
 @Composable
 internal fun MonthPicker() {
     val calendar = Calendar.getInstance()
+    // State with default value of current month
     var pickerValue by remember { mutableStateOf(calendar.get(Calendar.MONTH)) }
+    // List of all months to set as label in the NumberPicker
     val monthList = arrayListOf(
         "Januar",
         "Februar",
