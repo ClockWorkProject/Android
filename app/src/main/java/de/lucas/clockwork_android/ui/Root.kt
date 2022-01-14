@@ -193,6 +193,7 @@ fun Root(rootViewModel: RootViewModel) {
     ) { innerPadding ->
         NavHost(
             navController,
+            // If a user exists (is currently logged in) -> navigate straight to ToggleScreen and skip login
             startDestination = if (auth.currentUser != null) TOGGLE.route else LOGIN,
             Modifier.padding(innerPadding)
         ) {
