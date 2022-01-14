@@ -67,29 +67,47 @@ fun Root(rootViewModel: RootViewModel) {
         }.start() as CountUpTimer
     }
 
+    /**
+     * Check if a Toggle is active, for the scenario, that the user closed the app while Toggle is active
+     * After reopen it gets checked if a Toggle is saved, to show TogglePlayer with all it's information
+     */
     if (togglePlayerViewModel.getToggle()!!.number != -1) {
         // App restart while toggle is paused
         if (togglePlayerViewModel.getIsTogglePaused()) {
+            // Start timer with time from last pause
             startTimer(togglePlayerViewModel.getCurrentToggleTime())
+            // Show time in TogglePlayer
             togglePlayerViewModel.displayTime(togglePlayerViewModel.getCurrentToggleTime(), 0)
+            // Pause Toggle
             timer.cancel()
+            // Set state to true, to change icons in togglePlayer
             togglePlayerViewModel.setIsTogglePaused(true)
         } else {
+            // Start timer with time from counted time in app and time while app was closed (gets added together)
             startTimer(togglePlayerViewModel.getAppClosedTime((System.currentTimeMillis() / 1000).toInt() - togglePlayerViewModel.getPausedTime()))
         }
         Timber.e(togglePlayerViewModel.getIsTogglePaused().toString())
+        // Set state to true, to show togglePlayer
         rootViewModel.setShowTogglePlayer(true)
     }
 
     Scaffold(
         topBar = {
             Column(modifier = Modifier.fillMaxWidth()) {
+                /**
+                 * Check if state is true (which will be set true if not in LoginScreen)
+                 * Show TopBar and BottomNavigationBar if true
+                 */
                 if (rootViewModel.showBottomNavigation.value) {
                     CustomTopBar(
                         title = rootViewModel.appTitle.value,
                         onClickBack = { navController.popBackStack() },
                         showNavigationIcon = rootViewModel.showNavigationIcon.value
                     )
+                    /**
+                     * Check if state to show TogglePlayer is true
+                     * Show TogglePlayer and Notification if true
+                     */
                     if (rootViewModel.showTogglePlayer.value) {
                         Notification(
                             context = context,
@@ -102,17 +120,21 @@ fun Root(rootViewModel: RootViewModel) {
                             issue = togglePlayerViewModel.getToggle()!!,
                             time = togglePlayerViewModel.toggleTimeDisplay.value,
                             onPause = {
+                                // Stop Timer
                                 timer.cancel()
                                 togglePlayerViewModel.setIsTogglePaused(true)
                             },
                             onResume = {
+                                // Start Timer
                                 startTimer(togglePlayerViewModel.getCurrentToggleTime())
                                 togglePlayerViewModel.setPausedTime()
                                 togglePlayerViewModel.setIsTogglePaused(false)
                             },
                             onClose = {
                                 /* TODO add item to list with total toggle time */
+                                // Stop Timer
                                 timer.cancel()
+                                // Reset time to 0 and remove saved issue
                                 togglePlayerViewModel.resetToggle()
                                 togglePlayerViewModel.setIsTogglePaused(false)
                                 removeNotification(context)
@@ -130,6 +152,7 @@ fun Root(rootViewModel: RootViewModel) {
         floatingActionButton = {
             if (rootViewModel.showBottomNavigation.value) {
                 FloatingActionButton(
+                    // Set showIssuePicker to true, to show IssuePicker when fab is being clicked
                     onClick = { rootViewModel.setShowIssuePicker(true) },
                     backgroundColor = MaterialTheme.colors.primary,
                     shape = roundedShape,
@@ -144,9 +167,10 @@ fun Root(rootViewModel: RootViewModel) {
                         contentDescription = ""
                     )
                 }
+                // Show IssuePicker when state is true
                 if (rootViewModel.showIssuePickerList.value) {
                     IssuePickerList(
-                        issueList = projectList,
+                        projectList = projectList,
                         onStartToggle = { issue ->
                             if (togglePlayerViewModel.getToggle()!!.number == -1) {
                                 togglePlayerViewModel.setStartTime()
@@ -200,7 +224,9 @@ fun Root(rootViewModel: RootViewModel) {
                 IssueBoardScreen(
                     viewModel = IssueBoardViewModel(context),
                     onClickIssue = { issue ->
+                        // Create Json of information of clicked Issue
                         val jsonIssue = Gson().toJson(issue)
+                        // Navigate with arguments of clicked Issue, to show in IssueDetailScreen
                         navController.navigate("$ISSUE_DETAIL/$jsonIssue")
                     },
                     onClickNewIssue = { navController.navigate(ISSUE_EDIT) }
@@ -311,6 +337,7 @@ internal fun BottomNavigationBar(navController: NavController) {
     BottomNavigation {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
+        // Create an BottomNavigationItem for every provided NavigationItem
         values().forEach { item ->
             BottomNavigationItem(
                 icon = {
@@ -331,6 +358,7 @@ internal fun BottomNavigationBar(navController: NavController) {
                     }
                 },
             )
+            // Creates an empty Item between second and third, to keep the middle section empty for fab
             if (item.ordinal == 1) {
                 BottomNavigationItem(
                     icon = { },
@@ -344,6 +372,12 @@ internal fun BottomNavigationBar(navController: NavController) {
     }
 }
 
+/**
+ * Custom TopBar
+ * @param title shows provided String as title of the TopBar
+ * @param onClickBack callBack for the NavigationIcon (if shown)
+ * @param showNavigationIcon boolean to check if NavigationIcon must be shown for specific Screen
+ */
 @ExperimentalMaterialApi
 @Composable
 internal fun CustomTopBar(
