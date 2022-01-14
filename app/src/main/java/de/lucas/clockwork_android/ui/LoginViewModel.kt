@@ -14,6 +14,9 @@ import timber.log.Timber
  * loginAttempt -> set true if user tries to login (LoginButton is being clicked)
  * loginAttempt -> set true if user tries to sign up (SignUpButton is being clicked)
  * isError -> set true if validation of email/password if unsuccessful
+ * email -> state to store entered email
+ * password -> state to store entered password
+ * isLoading -> state to show loading indicator if needed
  */
 class LoginViewModel(context: Context) : ViewModel() {
     private val preferences = Preferences(context)
@@ -32,7 +35,7 @@ class LoginViewModel(context: Context) : ViewModel() {
         isError.value = state
     }
 
-    fun setUsername(name: String) {
+    private fun setUsername(name: String) {
         preferences.setUsername(name)
     }
 
@@ -50,7 +53,7 @@ class LoginViewModel(context: Context) : ViewModel() {
         password.value = text
     }
 
-    fun setIsLoading(state: Boolean) {
+    private fun setIsLoading(state: Boolean) {
         isLoading.value = state
     }
 
@@ -65,16 +68,22 @@ class LoginViewModel(context: Context) : ViewModel() {
     fun getIsError() = isError.value
 
     fun signUpUser(auth: FirebaseAuth, context: ComponentActivity, onSignUp: () -> Unit) {
+        // Check if Textfields are not empty locally
         if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
+            // Show loading Indicator
             setIsLoading(true)
+            // Firebase call to create a user with provided email and password
             auth.createUserWithEmailAndPassword(email.value.trim(), password.value.trim())
                 .addOnCompleteListener(context) { task ->
+                    // disable loading indicator
                     setIsLoading(false)
                     if (task.isSuccessful) {
                         // Sign in success, update UI with the signed-in user's information
                         Timber.e("createUserWithEmail:success")
                         val user = auth.currentUser
+                        // Save users email address as username -> can be changed in Profile
                         setUsername(user!!.displayName ?: email.value)
+                        // Navigate user to ToggleScreen
                         onSignUp()
                         setError(false)
                     } else {
@@ -89,16 +98,19 @@ class LoginViewModel(context: Context) : ViewModel() {
     }
 
     fun loginUser(auth: FirebaseAuth, context: ComponentActivity, onLogin: () -> Unit) {
+        // Check if Textfields are not empty locally
         if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
+            // Show loading Indicator
             setIsLoading(true)
+            // Firebase call to sign in user with provided email and password
             auth.signInWithEmailAndPassword(email.value.trim(), password.value.trim())
                 .addOnCompleteListener(context) { task ->
+                    // disable loading indicator
                     setIsLoading(false)
                     if (task.isSuccessful) {
                         // Sign in success, update UI with the signed-in user's information
                         Timber.e("signInWithEmail:success")
-                        val user = auth.currentUser
-                        setUsername(user!!.displayName ?: email.value)
+                        // Navigate user to ToggleScreen
                         onLogin()
                         setError(false)
                     } else {
