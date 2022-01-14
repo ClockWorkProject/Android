@@ -22,6 +22,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.InfoCategory
@@ -46,6 +49,7 @@ fun Root(rootViewModel: RootViewModel) {
     val context = LocalContext.current
     val navController = rememberNavController()
     val togglePlayerViewModel = TogglePlayerViewModel(context)
+    val auth: FirebaseAuth = Firebase.auth
     lateinit var timer: CountUpTimer
 
     /**
@@ -189,12 +193,15 @@ fun Root(rootViewModel: RootViewModel) {
     ) { innerPadding ->
         NavHost(
             navController,
-            startDestination = LOGIN,
+            // If a user exists (is currently logged in) -> navigate straight to ToggleScreen and skip login
+            startDestination = if (auth.currentUser != null) TOGGLE.route else LOGIN,
             Modifier.padding(innerPadding)
         ) {
             composable(LOGIN) {
+                val loginViewModel = LoginViewModel(context)
                 LoginScreen(
-                    viewModel = LoginViewModel(context),
+                    viewModel = loginViewModel,
+                    auth = auth,
                     onClickLogin = {
                         navController.navigate(TOGGLE.route) {
                             popUpTo(0) {
@@ -210,12 +217,13 @@ fun Root(rootViewModel: RootViewModel) {
                             }
                         }
                         rootViewModel.setShowBottomNavigation(true)
-                    },
+                    }
                 )
             }
             composable(TOGGLE.route) {
                 rootViewModel.setAppTitle(stringResource(id = R.string.time_record))
                 rootViewModel.setShowNavigationIcon(false)
+                rootViewModel.setShowBottomNavigation(true)
                 ToggleScreen()
             }
             composable(BOARD.route) {
@@ -242,8 +250,9 @@ fun Root(rootViewModel: RootViewModel) {
                 rootViewModel.setShowNavigationIcon(false)
                 ProfileScreen(
                     viewModel = ProfileViewModel(context),
-                    { navController.navigate(INFO) },
-                    {
+                    onClickInfo = { navController.navigate(INFO) },
+                    onClickLogout = {
+                        auth.signOut()
                         navController.navigate(LOGIN) {
                             rootViewModel.setShowBottomNavigation(false)
                             popUpTo(0) {
@@ -251,7 +260,7 @@ fun Root(rootViewModel: RootViewModel) {
                             }
                         }
                     },
-                    { navController.navigate(TOGGLE.route) }
+                    onClickLeave = { navController.navigate(TOGGLE.route) }
                 )
             }
             composable(

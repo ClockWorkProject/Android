@@ -3,6 +3,7 @@ plugins {
     kotlin("android")
     id("kotlin-parcelize")
     id("com.mikepenz.aboutlibraries.plugin") version Versions.about
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -59,7 +60,10 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:${Versions.compose}")
     implementation("androidx.compose.runtime:runtime-livedata:${Versions.composeLiveData}")
     implementation("androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayout}")
+    implementation("com.google.firebase:firebase-auth-ktx:${Versions.firebase_auth}")
     debugImplementation("androidx.compose.ui:ui-tooling:${Versions.compose}")
+
+    implementation(platform("com.google.firebase:firebase-bom:${Versions.firebase_bom}"))
 
     implementation("com.chargemap.compose:numberpicker:${Versions.numberPicker}")
 

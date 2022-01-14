@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "807358741465",
+    "firebase_url": "https://clockwork-2f753-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "clockwork-2f753",
+    "storage_bucket": "clockwork-2f753.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807358741465:android:8c7b92f012b7c1c619b7c8",
+        "android_client_info": {
+          "package_name": "de.lucas.clockwork_android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "807358741465-t95krjpv6k58kgtvr0rt6u2p8gmig6i1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "de.lucas.clockwork_android",
+            "certificate_hash": "d3f73c80a466f234516bca072f190295a217a6d9"
+          }
+        },
+        {
+          "client_id": "807358741465-93ivhed87nk726fc0q0pbqli9hkttm8v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmHFtj9ov6OpJ3XFl089FfsS1Q2Avar-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "807358741465-93ivhed87nk726fc0q0pbqli9hkttm8v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "807358741465-hp8dudv67skmrl5iapbj1n3d0ajjkprk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "de.clockworkproject.ClockWork"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
