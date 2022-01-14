@@ -22,6 +22,7 @@ internal fun Notification(
     textContent: String,
     priority: Int = NotificationCompat.PRIORITY_DEFAULT
 ) {
+    // Create NotificationChannel for "Build.VERSION.SDK_INT >= Build.VERSION_CODES.O"
     LaunchedEffect(Unit) {
         createNotificationChannel(channelId, context)
     }
@@ -44,11 +45,16 @@ fun notification(
     textContent: String,
     priority: Int = NotificationCompat.PRIORITY_DEFAULT
 ) {
+    // Create an intent for MainActivity
     val intent = Intent(context, MainActivity::class.java).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
     }
     val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
 
+    /**
+     * Builder for the notification (setOngoing = true), so user can't remove by clicking or swiping
+     * Notification gets automatically removed after active toggle is finished
+     */
     val builder = NotificationCompat.Builder(context, channelId)
         .setSmallIcon(R.drawable.ic_clock)
         .setContentTitle(textTitle)
@@ -56,11 +62,15 @@ fun notification(
         .setPriority(priority)
         .setContentIntent(pendingIntent)
         .setOngoing(true)
+    // Show notification
     with(NotificationManagerCompat.from(context)) {
         notify(notificationId, builder.build())
     }
 }
 
+/**
+ * For higher Android versions (8.0), create NotificationChannel with NotificationChannel Class
+ */
 fun createNotificationChannel(channelId: String, context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val name = context.getString(R.string.app_name)
@@ -75,4 +85,5 @@ fun createNotificationChannel(channelId: String, context: Context) {
     }
 }
 
+// Remove the currently shown notification
 fun removeNotification(context: Context) = NotificationManagerCompat.from(context).cancel(0)

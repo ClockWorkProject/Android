@@ -104,7 +104,7 @@ internal fun IssueBoardItem(
                                 .weight(1f)
                         ) {
                             items(issueList) { issue ->
-                                IssueItem(issue = issue, onClickIssue = { onClickIssue(issue) })
+                                ProjectItem(issue = issue, onClickIssue = { onClickIssue(issue) })
                             }
                         }
                         Row(
@@ -190,7 +190,7 @@ fun CustomDropDownMenu(
 }
 
 @Composable
-private fun IssueItem(issue: Issue, onClickIssue: (Issue) -> Unit) {
+private fun ProjectItem(issue: Issue, onClickIssue: (Issue) -> Unit) {
     Card(
         shape = RoundedCornerShape(4.dp),
         modifier = Modifier

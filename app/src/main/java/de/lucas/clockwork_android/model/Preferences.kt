@@ -26,9 +26,9 @@ class Preferences(private val context: Context) {
 
     fun getCurrentToggleTime(): Int = prefs().getInt(TIME, 0)
 
-    /*
-      Sets the start time of the toggle, for the scenario, that the user closes the app while toggle
-      is active. On app reopen -> can be calculated with current time to get app closed time difference
+    /**
+     * Sets the start time of the toggle, for the scenario, that the user closes the app while toggle
+     * is active. On app reopen -> can be calculated with current time to get app closed time difference
      */
     fun setStartTime(time: Int) = prefs().edit().putInt(START_TIME, time).apply()
 
