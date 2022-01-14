@@ -22,6 +22,11 @@ import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Toggle
 import de.lucas.clockwork_android.model.TotalToggle
 
+/**
+ * Item to populate the ToggleList
+ * Shows date and total toggled time of the date
+ * Can get expanded to show all individual toggles
+ */
 @ExperimentalMaterialApi
 @Composable
 internal fun ToggleItem(toggle: TotalToggle) {
@@ -73,6 +78,9 @@ internal fun ToggleItem(toggle: TotalToggle) {
     }
 }
 
+/**
+ * Item for the expandable List
+ */
 @Composable
 private fun ToggleEntryItem(toggle: Toggle) {
     Row(

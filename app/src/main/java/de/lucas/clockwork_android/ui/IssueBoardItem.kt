@@ -28,6 +28,13 @@ import de.lucas.clockwork_android.ui.theme.Gray200
 import de.lucas.clockwork_android.ui.theme.Gray500
 import de.lucas.clockwork_android.ui.theme.Gray700
 
+/**
+ * Item of the IssueBoard (card with boarder)
+ * @param boardTitle title of the item/card according to its BoardState (OPEN, DOING etc.)
+ * @param issueList list of the issues that match BoardState
+ * @param currentPageIndex index of currently shown Page, to check if swipe indicator icon must be set invisible/visible
+ * @param issueSize size of the shown issue in the list, to show its count/size on Screen
+ */
 @Composable
 internal fun IssueBoardItem(
     @StringRes boardTitle: Int,
@@ -38,6 +45,7 @@ internal fun IssueBoardItem(
     onClickIssue: (Issue) -> Unit,
     onClickNewIssue: () -> Unit
 ) {
+    // states that check if page index is 0 (open state) or 5 (closed state) to hide icon
     val swipeLeftVisible = if (currentPageIndex == 0) 0f else 1f
     val swipeRightVisible = if (currentPageIndex == 5) 0f else 1f
 
@@ -96,7 +104,7 @@ internal fun IssueBoardItem(
                                 .weight(1f)
                         ) {
                             items(issueList) { issue ->
-                                IssueItem(issue = issue, onClickIssue = { onClickIssue(issue) })
+                                ProjectItem(issue = issue, onClickIssue = { onClickIssue(issue) })
                             }
                         }
                         Row(
@@ -127,6 +135,12 @@ internal fun IssueBoardItem(
     }
 }
 
+/**
+ * DropDownMenu to select Project
+ * @param projects takes list of projects
+ * @param projectID takes the currently selected projectID
+ * @param onProjectChange sets newly selected projectID
+ */
 @Composable
 fun CustomDropDownMenu(
     projects: List<Project>,
@@ -176,7 +190,7 @@ fun CustomDropDownMenu(
 }
 
 @Composable
-private fun IssueItem(issue: Issue, onClickIssue: (Issue) -> Unit) {
+private fun ProjectItem(issue: Issue, onClickIssue: (Issue) -> Unit) {
     Card(
         shape = RoundedCornerShape(4.dp),
         modifier = Modifier

@@ -20,6 +20,7 @@ class MainActivity : ComponentActivity() {
                 val systemUiController = rememberSystemUiController()
                 val primary = MaterialTheme.colors.primary
                 SideEffect {
+                    // set the color of the statusBar of the app
                     systemUiController.setStatusBarColor(primary)
                 }
                 Root(rootViewModel = RootViewModel())

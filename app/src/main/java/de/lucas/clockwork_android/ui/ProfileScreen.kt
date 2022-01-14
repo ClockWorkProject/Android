@@ -21,6 +21,12 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import de.lucas.clockwork_android.R
 
+/**
+ * Screen of Profile -> shows information of user/current group and provides different actions
+ * @param onClickInfo on "info"-button click -> navigate to InfoScreen where information about the app is being found
+ * @param onClickLogout on "logout"-button click -> logout user -> navigate back to LoginScreen
+ * @param onClickLeave on "leave"-click -> leave group -> navigate to ToggleScreen and show empty state message
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal fun ProfileScreen(
@@ -66,13 +72,12 @@ internal fun ProfileScreen(
                             end.linkTo(group.end)
                         }
                 )
-                IconButton(onClick = {
-                    /* TODO edit name, get name from sharedPrefs (must be implemented) */
-                    viewModel.setEditDialog(true)
-                }, modifier = Modifier.constrainAs(edit_icon) {
-                    start.linkTo(name.end)
-                    bottom.linkTo(name.bottom)
-                }) {
+                IconButton(
+                    onClick = { viewModel.setEditDialog(true) },
+                    modifier = Modifier.constrainAs(edit_icon) {
+                        start.linkTo(name.end)
+                        bottom.linkTo(name.bottom)
+                    }) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_edit_dark),
                         contentDescription = ""
@@ -127,6 +132,9 @@ internal fun ProfileScreen(
                 }
             }
         }
+        /**
+         * Check if states are true to show according dialog
+         */
         if (viewModel.showLeaveDialogState.value) {
             ProfileDialog(
                 username = null,
@@ -140,7 +148,6 @@ internal fun ProfileScreen(
                 }
             )
         }
-
         if (viewModel.showDeleteDialogState.value) {
             ProfileDialog(
                 username = null,
@@ -159,7 +166,7 @@ internal fun ProfileScreen(
                 button_text_id = R.string.save,
                 onClickDismiss = { viewModel.setEditDialog(false) },
                 onClickConfirm = { name ->
-                    /* TODO save new name and change in profile */
+                    /* TODO send new name to backend */
                     viewModel.setUsername(name)
                     viewModel.setEditDialog(false)
                 }
@@ -168,6 +175,7 @@ internal fun ProfileScreen(
     }
 }
 
+// Custom Dialog for ProfileScreen actions
 @Composable
 fun ProfileDialog(
     username: String?,

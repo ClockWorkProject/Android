@@ -10,6 +10,7 @@ class IssueBoardViewModel(context: Context) : ViewModel() {
     private val preferences = Preferences(context)
     private val projectID: MutableState<Int> = mutableStateOf(preferences.getProjectId())
 
+    // Save project id in preference when project in IssueBoardScreen is being changed
     fun changeProject(id: Int) {
         projectID.value = id
         preferences.setProjectId(id)

@@ -152,8 +152,8 @@ val projectList = listOf(
                 2,
                 "Bug Fixes",
                 "IT-Projekt",
-                "Beschreibungen......viiiieeelllll",
-                "Vor 2 Tagen erstellt von Meatüs",
+                "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+                "Vor 2 Tagen erstellt von Mattis Uphoff",
                 OPEN
             ),
             Issue(
@@ -188,6 +188,7 @@ internal fun IssueBoardScreen(
     onClickIssue: (Issue) -> Unit,
     onClickNewIssue: () -> Unit
 ) {
+    // State for the HorizontalPager to remember state across composition
     val pagerState = rememberPagerState()
     Scaffold {
         Column(modifier = Modifier.background(Color.White)) {
@@ -217,6 +218,13 @@ internal fun IssueBoardScreen(
     }
 }
 
+/**
+ * The whole swipable Pager
+ * @param pagerState HorizonalPager needs a pagerState to remember its state across composition
+ * @param project takes the currently selected project
+ * @param onClickIssue callBack with clicked Issue to populate EditIssueScreen
+ * @param onClickNewIssue callBack to navigate to empty EditIssueScreen to create new Issue
+ */
 @ExperimentalPagerApi
 @Composable
 internal fun BoardViewPager(
@@ -225,10 +233,13 @@ internal fun BoardViewPager(
     onClickIssue: (Issue) -> Unit,
     onClickNewIssue: () -> Unit
 ) {
+    // Array of BoardState enums
     val items = values()
     HorizontalPager(state = pagerState, count = items.size) { page ->
+        // Checks the BoardState and creates IssueBoardItems according to state
         when (items[page]) {
             OPEN -> {
+                // Filters issues from current project according to state and returns as list
                 val issues = project.issues.filter { issue -> issue.board_state == OPEN }
                 IssueBoardItem(
                     boardTitle = R.string.open,

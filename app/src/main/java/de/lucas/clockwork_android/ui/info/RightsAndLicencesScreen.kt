@@ -11,6 +11,7 @@ import com.mikepenz.aboutlibraries.ui.compose.LibrariesContainer
 @Composable
 internal fun RightsAndLicencesScreen() {
     Scaffold { innerPadding ->
+        // Displays all used licences in a list
         LibrariesContainer(
             modifier = Modifier
                 .fillMaxSize()

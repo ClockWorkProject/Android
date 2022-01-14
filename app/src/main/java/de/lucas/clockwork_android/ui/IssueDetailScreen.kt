@@ -22,7 +22,7 @@ import de.lucas.clockwork_android.ui.theme.Gray200
 
 @Composable
 internal fun IssueDetailScreen(issue: Issue, onClickEdit: () -> Unit) {
-    Scaffold {
+    Scaffold(backgroundColor = Color.White) {
         Card(
             modifier = Modifier
                 .fillMaxSize()

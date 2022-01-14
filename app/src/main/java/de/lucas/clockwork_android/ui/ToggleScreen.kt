@@ -32,16 +32,23 @@ val listOfToggles =
         )
     )
 
+/**
+ * If user is member of a group -> show list of all his previous toggles and his current toggle
+ * If user is not a member of a group -> show empty state message
+ */
 @ExperimentalMaterialApi
 @Composable
 internal fun ToggleScreen() {
     Scaffold {
         val viewModel = ToggleViewModel()
         var showToggleList by remember { mutableStateOf(false) }
+        // Check if user is member of a group (-1 -> no member, else -> member of a group)
         if (viewModel.groupID == -1) {
+            // 2 states for button to show join or create group dialog -> gets set true if button clicked
             var showJoinDialog by remember { mutableStateOf(false) }
             var showCreateDialog by remember { mutableStateOf(false) }
 
+            // if true show join group dialog
             if (showJoinDialog) {
                 CustomDialog(
                     title_id = R.string.join_group,
@@ -54,6 +61,7 @@ internal fun ToggleScreen() {
                     showJoinDialog = false
                 }
             }
+            // if true show create group dialog
             if (showCreateDialog) {
                 CustomDialog(
                     title_id = R.string.create_group,
@@ -62,17 +70,21 @@ internal fun ToggleScreen() {
                     onClickDismiss = { showCreateDialog = false }
                 ) { input ->
                     /* TODO send to backend */
+                    showToggleList = true
                     showCreateDialog = false
                 }
             }
+            // Empty state message
             NoGroupScreen({ showJoinDialog = true }, { showCreateDialog = true })
         } else {
             ToggleList(listOfToggles)
         }
+        // Check state if user creates or joins a group -> show list instead of empty state
         if (showToggleList) ToggleList(listOfToggles)
     }
 }
 
+// List with all toggles of user
 @ExperimentalMaterialApi
 @Composable
 internal fun ToggleList(list: List<TotalToggle>) {

@@ -20,22 +20,27 @@ class RootViewModel : ViewModel() {
     var showTogglePlayer: MutableState<Boolean> = mutableStateOf(false)
         private set
 
+    // State to show or hide the Bottom Navigation Bar
     fun setShowBottomNavigation(state: Boolean) {
         showBottomNavigation.value = state
     }
 
+    // State to show or hide the IssuePickerList
     fun setShowIssuePicker(state: Boolean) {
         showIssuePickerList.value = state
     }
 
+    // State to change the title of the TopBar on screen change
     fun setAppTitle(text: String) {
         appTitle.value = text
     }
 
+    // State to show or hide the Navigation Icon (only needed on specific screens)
     fun setShowNavigationIcon(state: Boolean) {
         showNavigationIcon.value = state
     }
 
+    // State to show or hide the TogglePlayer
     fun setShowTogglePlayer(state: Boolean) {
         showTogglePlayer.value = state
     }

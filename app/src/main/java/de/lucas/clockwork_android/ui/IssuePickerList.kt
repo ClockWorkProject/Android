@@ -25,10 +25,15 @@ import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.theme.Gray200
 
+/**
+ * List with Project and it's Issues to chose from to start a Toggle
+ * @param projectList List of Projects and it's Issues
+ * @param onStartToggle callBack to retrieve clicked Issue to then start Toggle
+ */
 @ExperimentalMaterialApi
 @Composable
 internal fun IssuePickerList(
-    issueList: List<Project>,
+    projectList: List<Project>,
     onStartToggle: (Issue) -> Unit,
     onClose: () -> Unit
 ) {
@@ -59,8 +64,8 @@ internal fun IssuePickerList(
                         .weight(1f)
                         .padding(8.dp)
                 ) {
-                    items(issueList) { project ->
-                        IssueItem(
+                    items(projectList) { project ->
+                        ProjectItem(
                             issues = project.issues,
                             project_name = project.project_name,
                             onStartToggle = { issue ->
@@ -86,6 +91,7 @@ internal fun IssuePickerList(
             }
         }
     }
+    // check state, if true -> show Dialog to create new project
     if (showNewProjectDialog) {
         CustomDialog(
             title_id = R.string.create_project_title,
@@ -99,9 +105,15 @@ internal fun IssuePickerList(
     }
 }
 
+/**
+ * Expandable Item for a Project, that contains all it's Issues
+ * @param issues Issues of the Project
+ * @param project_name Name of the Project
+ * @param onStartToggle callBack to retrieve clicked Issue to then start Toggle
+ */
 @ExperimentalMaterialApi
 @Composable
-private fun IssueItem(issues: List<Issue>, project_name: String, onStartToggle: (Issue) -> Unit) {
+private fun ProjectItem(issues: List<Issue>, project_name: String, onStartToggle: (Issue) -> Unit) {
     var expandableState by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(targetValue = if (expandableState) 180f else 0f)
 
@@ -131,6 +143,7 @@ private fun IssueItem(issues: List<Issue>, project_name: String, onStartToggle: 
             )
         }
     }
+    // If true -> show all Issues of this Project
     if (expandableState) {
         Column {
             issues.forEach { issue ->
@@ -165,7 +178,7 @@ private fun IssueItem(issues: List<Issue>, project_name: String, onStartToggle: 
 @Composable
 private fun PreviewIssuePicker() {
     IssuePickerList(
-        issueList = listOf(
+        projectList = listOf(
             Project(
                 "Vinson",
                 listOf(Issue(1, "Titel 1", "", "", "", BoardState.OPEN))

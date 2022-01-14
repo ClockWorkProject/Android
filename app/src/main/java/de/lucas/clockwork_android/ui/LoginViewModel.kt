@@ -6,6 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import de.lucas.clockwork_android.model.Preferences
 
+/**
+ * 3 states:
+ * loginAttempt -> set true if user tries to login (LoginButton is being clicked)
+ * loginAttempt -> set true if user tries to sign up (SignUpButton is being clicked)
+ * isError -> set true if validation of email/password if unsuccessful
+ */
 class LoginViewModel(context: Context) : ViewModel() {
     private val preferences = Preferences(context)
     private val loginAttempt: MutableState<Boolean> = mutableStateOf(false)

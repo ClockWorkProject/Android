@@ -23,6 +23,11 @@ import androidx.compose.ui.unit.sp
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.InfoCategory
 
+/**
+ * Screen with a list of InfoCategories, which are showing information about the app when being clicked
+ * @param categories list of provided InfoCategory
+ * @param onClickCategory callBack -> send data of clicked InfoCategory back up, to then use in another Screen
+ */
 @Composable
 internal fun InfoScreen(
     categories: List<InfoCategory>,
