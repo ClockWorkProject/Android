@@ -1,10 +1,7 @@
 package de.lucas.clockwork_android.ui
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -42,8 +39,10 @@ internal fun IssueBoardItem(
     boardColor: Color,
     currentPageIndex: Int,
     issueSize: Int,
+    viewModel: IssueBoardViewModel,
     onClickIssue: (Issue) -> Unit,
-    onClickNewIssue: () -> Unit
+    onClickNewIssue: () -> Unit,
+    onLongPressIssue: (Issue) -> Unit
 ) {
     // states that check if page index is 0 (open state) or 5 (closed state) to hide icon
     val swipeLeftVisible = if (currentPageIndex == 0) 0f else 1f
@@ -104,7 +103,12 @@ internal fun IssueBoardItem(
                                 .weight(1f)
                         ) {
                             items(issueList) { issue ->
-                                ProjectItem(issue = issue, onClickIssue = { onClickIssue(issue) })
+                                IssueItem(
+                                    issue = issue,
+                                    viewModel = viewModel,
+                                    onClickIssue = { onClickIssue(issue) },
+                                    onLongPressIssue = { onLongPressIssue(issue) }
+                                )
                             }
                         }
                         Row(
@@ -189,14 +193,26 @@ fun CustomDropDownMenu(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ProjectItem(issue: Issue, onClickIssue: (Issue) -> Unit) {
+private fun IssueItem(
+    issue: Issue,
+    viewModel: IssueBoardViewModel,
+    onClickIssue: (Issue) -> Unit,
+    onLongPressIssue: (Issue) -> Unit
+) {
     Card(
         shape = RoundedCornerShape(4.dp),
         modifier = Modifier
             .padding(top = 8.dp)
             .fillMaxWidth()
-            .clickable { onClickIssue(issue) },
+            .combinedClickable(
+                onClick = { onClickIssue(issue) },
+                onLongClick = {
+                    viewModel.setShowBoardState(true)
+                    onLongPressIssue(issue)
+                }
+            ),
         backgroundColor = Color.White,
         border = BorderStroke(1.dp, Color.Black)
     ) {
@@ -224,7 +240,9 @@ private fun PreviewIssueBoard() {
         boardColor = Color.Black,
         currentPageIndex = 1,
         issueSize = 3,
-        onClickIssue = {}
+        viewModel = IssueBoardViewModel(LocalContext.current),
+        onClickIssue = {},
+        onClickNewIssue = {}
     ) { }
 }
 

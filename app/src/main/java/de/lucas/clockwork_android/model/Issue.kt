@@ -10,5 +10,5 @@ data class Issue(
     val project_name: String,
     val description: String,
     val created_by: String,
-    val board_state: BoardState
+    var board_state: BoardState
 )
