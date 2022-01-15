@@ -1,20 +1,23 @@
 package de.lucas.clockwork_android.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -23,10 +26,7 @@ import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.BoardState.*
-import de.lucas.clockwork_android.ui.theme.Blue500
-import de.lucas.clockwork_android.ui.theme.Green500
-import de.lucas.clockwork_android.ui.theme.Red500
-import de.lucas.clockwork_android.ui.theme.Yellow500
+import de.lucas.clockwork_android.ui.theme.*
 
 // For testing purpose
 val projectList = listOf(
@@ -188,6 +188,14 @@ internal fun IssueBoardScreen(
     onClickIssue: (Issue) -> Unit,
     onClickNewIssue: () -> Unit
 ) {
+    var longPressIssueId by remember { mutableStateOf(-1) }
+    if (viewModel.getShowBoardState()) {
+        BoardStateList(
+            viewModel = viewModel,
+            onStateClicked = { boardState -> /* TODO change BoardState for Issue with provided number/id, Refresh IssueBoard?  */ },
+            onClose = { viewModel.setShowBoardState(false) }
+        )
+    }
     // State for the HorizontalPager to remember state across composition
     val pagerState = rememberPagerState()
     Scaffold {
@@ -211,8 +219,10 @@ internal fun IssueBoardScreen(
             BoardViewPager(
                 pagerState = pagerState,
                 project = projectList[viewModel.getProjectId()],
+                viewModel = viewModel,
                 onClickIssue = onClickIssue,
-                onClickNewIssue = onClickNewIssue
+                onClickNewIssue = onClickNewIssue,
+                onLongPressIssue = { issue -> longPressIssueId = issue.number }
             )
         }
     }
@@ -230,8 +240,10 @@ internal fun IssueBoardScreen(
 internal fun BoardViewPager(
     pagerState: PagerState,
     project: Project,
+    viewModel: IssueBoardViewModel,
     onClickIssue: (Issue) -> Unit,
-    onClickNewIssue: () -> Unit
+    onClickNewIssue: () -> Unit,
+    onLongPressIssue: (Issue) -> Unit
 ) {
     // Array of BoardState enums
     val items = values()
@@ -247,8 +259,10 @@ internal fun BoardViewPager(
                     boardColor = Color.Black,
                     currentPageIndex = page,
                     issueSize = issues.size,
+                    viewModel = viewModel,
                     onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue
+                    onClickNewIssue = onClickNewIssue,
+                    onLongPressIssue = onLongPressIssue
                 )
             }
             TODO -> {
@@ -259,8 +273,10 @@ internal fun BoardViewPager(
                     boardColor = Green500,
                     currentPageIndex = page,
                     issueSize = issues.size,
+                    viewModel = viewModel,
                     onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue
+                    onClickNewIssue = onClickNewIssue,
+                    onLongPressIssue = onLongPressIssue
                 )
             }
             DOING -> {
@@ -271,8 +287,10 @@ internal fun BoardViewPager(
                     boardColor = Blue500,
                     currentPageIndex = page,
                     issueSize = issues.size,
+                    viewModel = viewModel,
                     onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue
+                    onClickNewIssue = onClickNewIssue,
+                    onLongPressIssue = onLongPressIssue
                 )
             }
             REVIEW -> {
@@ -283,8 +301,10 @@ internal fun BoardViewPager(
                     boardColor = Yellow500,
                     currentPageIndex = page,
                     issueSize = issues.size,
+                    viewModel = viewModel,
                     onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue
+                    onClickNewIssue = onClickNewIssue,
+                    onLongPressIssue = onLongPressIssue
                 )
             }
             BLOCKER -> {
@@ -295,8 +315,10 @@ internal fun BoardViewPager(
                     boardColor = Red500,
                     currentPageIndex = page,
                     issueSize = issues.size,
+                    viewModel = viewModel,
                     onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue
+                    onClickNewIssue = onClickNewIssue,
+                    onLongPressIssue = onLongPressIssue
                 )
             }
             CLOSED -> {
@@ -307,9 +329,65 @@ internal fun BoardViewPager(
                     boardColor = Color.Black,
                     currentPageIndex = page,
                     issueSize = issues.size,
+                    viewModel = viewModel,
                     onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue
+                    onClickNewIssue = onClickNewIssue,
+                    onLongPressIssue = onLongPressIssue
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun BoardStateList(
+    viewModel: IssueBoardViewModel,
+    onStateClicked: (BoardState) -> Unit,
+    onClose: () -> Unit
+) {
+    Dialog(onDismissRequest = { onClose() }) {
+        Surface(
+            modifier = Modifier.padding(16.dp),
+            color = Gray200
+        ) {
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { onClose() }, modifier = Modifier.padding(end = 8.dp)) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_close),
+                            contentDescription = ""
+                        )
+                    }
+                    Text(
+                        text = stringResource(id = R.string.change_board_state),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                LazyColumn(
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    items(BoardState.values()) { boardState ->
+                        Card(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                            .height(48.dp)
+                            .clickable {
+                                onStateClicked(boardState)
+                                viewModel.setShowBoardState(false)
+                            }) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                Text(
+                                    text = boardState.name,
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -330,6 +408,7 @@ enum class BoardState {
 private fun PreviewIssueBoard() {
     IssueBoardScreen(
         viewModel = IssueBoardViewModel(LocalContext.current),
-        onClickIssue = {}
-    ) { }
+        onClickIssue = {},
+        onClickNewIssue = {}
+    )
 }

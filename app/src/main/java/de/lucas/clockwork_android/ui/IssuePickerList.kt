@@ -65,7 +65,7 @@ internal fun IssuePickerList(
                         .padding(8.dp)
                 ) {
                     items(projectList) { project ->
-                        ProjectItem(
+                        IssueItem(
                             issues = project.issues,
                             project_name = project.project_name,
                             onStartToggle = { issue ->
@@ -113,7 +113,7 @@ internal fun IssuePickerList(
  */
 @ExperimentalMaterialApi
 @Composable
-private fun ProjectItem(issues: List<Issue>, project_name: String, onStartToggle: (Issue) -> Unit) {
+private fun IssueItem(issues: List<Issue>, project_name: String, onStartToggle: (Issue) -> Unit) {
     var expandableState by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(targetValue = if (expandableState) 180f else 0f)
 

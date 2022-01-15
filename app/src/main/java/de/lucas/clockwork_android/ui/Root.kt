@@ -94,7 +94,6 @@ fun Root(rootViewModel: RootViewModel) {
         // Set state to true, to show togglePlayer
         rootViewModel.setShowTogglePlayer(true)
     }
-
     Scaffold(
         topBar = {
             Column(modifier = Modifier.fillMaxWidth()) {
