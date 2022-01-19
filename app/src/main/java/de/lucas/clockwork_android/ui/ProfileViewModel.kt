@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.google.firebase.database.FirebaseDatabase
 import de.lucas.clockwork_android.model.Preferences
 
 /**
@@ -14,6 +15,7 @@ import de.lucas.clockwork_android.model.Preferences
  */
 class ProfileViewModel(context: Context) : ViewModel() {
     private val preferences = Preferences(context)
+    private val database = FirebaseDatabase.getInstance()
     var showLeaveDialogState: MutableState<Boolean> = mutableStateOf(false)
         private set
     var showDeleteDialogState: MutableState<Boolean> = mutableStateOf(false)
@@ -35,9 +37,10 @@ class ProfileViewModel(context: Context) : ViewModel() {
 
     fun getGroupName() = preferences.getGroupName()
 
-    fun setUsername(name: String) {
+    fun getUsername() = preferences.getUsername()
+
+    fun updateUsername(name: String) {
+        database.reference.child("user/${preferences.getUserId()}/username").setValue(name)
         preferences.setUsername(name)
     }
-
-    fun getUsername() = preferences.getUsername()
 }

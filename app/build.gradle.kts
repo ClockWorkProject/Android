@@ -64,6 +64,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling:${Versions.compose}")
 
     implementation(platform("com.google.firebase:firebase-bom:${Versions.firebase_bom}"))
+    implementation("com.google.firebase:firebase-database-ktx")
 
     implementation("com.chargemap.compose:numberpicker:${Versions.numberPicker}")
 

@@ -24,6 +24,7 @@ import androidx.navigation.navArgument
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import de.lucas.clockwork_android.R
@@ -50,6 +51,7 @@ fun Root(rootViewModel: RootViewModel) {
     val navController = rememberNavController()
     val togglePlayerViewModel = TogglePlayerViewModel(context)
     val auth: FirebaseAuth = Firebase.auth
+    val database = FirebaseDatabase.getInstance()
     lateinit var timer: CountUpTimer
 
     /**

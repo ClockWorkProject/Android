@@ -90,10 +90,15 @@ class Preferences(private val context: Context) {
 
     fun getUsername() = prefs().getString(USER_NAME, "")
 
-    // Set group id to send to backend for all actions
-    fun setGroupId(id: Int) = prefs().edit().putInt(GROUP_ID, id).apply()
+    // Set Username to show in Profile
+    fun setUserId(id: String) = prefs().edit().putString(USER_ID, id).apply()
 
-    fun getGroupId() = prefs().getInt(GROUP_ID, -1)
+    fun getUserId() = prefs().getString(USER_ID, "")
+
+    // Set group id to send to backend for all actions
+    fun setGroupId(id: String) = prefs().edit().putString(GROUP_ID, id).apply()
+
+    fun getGroupId() = prefs().getString(GROUP_ID, "")
 
     companion object {
         const val PREFERENCES = "PREFERENCES"
@@ -104,7 +109,8 @@ class Preferences(private val context: Context) {
         const val PAUSE_TIME = "PAUSE_TIME"
         const val PROJECT_ID = "PROJECT_ID"
         const val USER_NAME = "USER_NAME"
+        const val USER_ID = "USER_ID"
         const val GROUP_NAME = "GROUP_NAME"
-        const val GROUP_ID = "GORUP_ID"
+        const val GROUP_ID = "GROUP_ID"
     }
 }

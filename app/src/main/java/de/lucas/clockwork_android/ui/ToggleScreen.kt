@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,10 +41,10 @@ val listOfToggles =
 @Composable
 internal fun ToggleScreen() {
     Scaffold {
-        val viewModel = ToggleViewModel()
+        val viewModel = ToggleViewModel(LocalContext.current)
         var showToggleList by remember { mutableStateOf(false) }
         // Check if user is member of a group (-1 -> no member, else -> member of a group)
-        if (viewModel.groupID == -1) {
+        if (viewModel.getGroupId() == "") {
             // 2 states for button to show join or create group dialog -> gets set true if button clicked
             var showJoinDialog by remember { mutableStateOf(false) }
             var showCreateDialog by remember { mutableStateOf(false) }

@@ -166,8 +166,7 @@ internal fun ProfileScreen(
                 button_text_id = R.string.save,
                 onClickDismiss = { viewModel.setEditDialog(false) },
                 onClickConfirm = { name ->
-                    /* TODO send new name to backend */
-                    viewModel.setUsername(name)
+                    viewModel.updateUsername(name)
                     viewModel.setEditDialog(false)
                 }
             )
