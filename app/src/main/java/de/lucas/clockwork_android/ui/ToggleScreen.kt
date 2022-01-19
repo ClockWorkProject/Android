@@ -1,6 +1,7 @@
 package de.lucas.clockwork_android.ui
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -70,7 +71,7 @@ internal fun ToggleScreen() {
                     button_text_id = R.string.create,
                     onClickDismiss = { showCreateDialog = false }
                 ) { input ->
-                    /* TODO send to backend */
+                    viewModel.createGroup(input)
                     showToggleList = true
                     showCreateDialog = false
                 }
@@ -109,6 +110,7 @@ fun CustomDialog(
     onClickConfirm: (String) -> Unit
 ) {
     var text by remember { mutableStateOf("") }
+    var errorState by remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = { },
         title = {
@@ -119,14 +121,30 @@ fun CustomDialog(
             )
         },
         text = {
-            TextField(
-                value = text,
-                onValueChange = { text = it },
-                label = { Text(stringResource(id = message_id)) }
-            )
+            Column {
+                TextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text(stringResource(id = message_id)) }
+                )
+                if (errorState) {
+                    Text(
+                        text = stringResource(id = R.string.error_message_text_empty),
+                        color = MaterialTheme.colors.error,
+                        style = MaterialTheme.typography.caption
+                    )
+                }
+            }
         },
         confirmButton = {
-            Button(onClick = { onClickConfirm(text) }) {
+            Button(onClick = {
+                if (text.isNotEmpty()) {
+                    errorState = false
+                    onClickConfirm(text)
+                } else {
+                    errorState = true
+                }
+            }) {
                 Text(text = stringResource(id = button_text_id))
             }
         },

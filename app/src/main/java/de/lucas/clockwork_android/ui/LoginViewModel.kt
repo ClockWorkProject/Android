@@ -62,6 +62,10 @@ class LoginViewModel(context: Context) : ViewModel() {
         isLoading.value = state
     }
 
+    private fun setGroupID(id: String) {
+        preferences.setGroupId(id)
+    }
+
     fun getIsLoading() = isLoading.value
 
     fun getEmail() = email.value
@@ -120,21 +124,20 @@ class LoginViewModel(context: Context) : ViewModel() {
                         // Sign in success, update UI with the signed-in user's information
                         Timber.e("signInWithEmail:success")
                         // Get group_id from database to check if logged in user is a member of a group
-                        var groupId = ""
+                        var groupId: String
                         database.reference.child("user/${auth.currentUser!!.uid}").get()
                             .addOnSuccessListener {
                                 groupId = it.child("groupID").value.toString()
+                                setGroupID(groupId)
+                                setUserInfo(
+                                    email.value.substringBefore("@"),
+                                    auth.currentUser!!.uid,
+                                    groupId
+                                )
                                 Timber.e("Got value ${it.child("groupID").value.toString()}")
                             }.addOnFailureListener {
                                 Timber.e("Error getting data", it)
                             }
-
-                        Timber.e(groupId.toString())
-                        setUserInfo(
-                            email.value.substringBefore("@"),
-                            auth.currentUser!!.uid,
-                            groupId
-                        )
                         // Navigate user to ToggleScreen
                         onLogin()
                         setError(false)

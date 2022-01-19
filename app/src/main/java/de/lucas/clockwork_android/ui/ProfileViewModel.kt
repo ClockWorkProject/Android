@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.FirebaseDatabase
 import de.lucas.clockwork_android.model.Preferences
+import timber.log.Timber
 
 /**
  * 3 states:
@@ -35,9 +36,31 @@ class ProfileViewModel(context: Context) : ViewModel() {
         showEditDialogState.value = state
     }
 
+    fun getUsername() = preferences.getUsername()
+
+    fun getGroupId() = preferences.getGroupId()
+
     fun getGroupName() = preferences.getGroupName()
 
-    fun getUsername() = preferences.getUsername()
+    fun setGroupName() {
+        var groupName: String
+        if (preferences.getGroupName() == "" && getGroupId() != "") {
+            database.reference.child("groups/${getGroupId()}").get()
+                .addOnSuccessListener {
+                    groupName = it.child("name").value.toString()
+                    preferences.setGroupName(groupName)
+                    Timber.e("Got value ${it.child("name").value.toString()}")
+                }.addOnFailureListener {
+                    Timber.e("Error getting data", it)
+                }
+        }
+    }
+
+    fun leaveGroup() {
+        database.reference.child("user/${preferences.getUserId()}/groupID").setValue("")
+        preferences.setGroupId("")
+        preferences.setGroupName("")
+    }
 
     fun updateUsername(name: String) {
         database.reference.child("user/${preferences.getUserId()}/username").setValue(name)

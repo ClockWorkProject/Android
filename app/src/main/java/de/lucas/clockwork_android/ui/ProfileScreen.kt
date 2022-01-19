@@ -1,5 +1,7 @@
 package de.lucas.clockwork_android.ui
 
+import android.content.Context
+import android.content.Intent
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -35,6 +37,8 @@ internal fun ProfileScreen(
     onClickLogout: () -> Unit,
     onClickLeave: () -> Unit
 ) {
+    val context = LocalContext.current
+    viewModel.setGroupName()
     Scaffold {
         Column(
             modifier = Modifier
@@ -43,7 +47,7 @@ internal fun ProfileScreen(
                 .padding(bottom = 32.dp)
         ) {
             ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-                val (group, name, edit_icon, buttons) = createRefs()
+                val (group, name, info_icon, edit_icon, buttons) = createRefs()
                 Text(
                     text = stringResource(id = R.string.current_group, viewModel.getGroupName()!!),
                     fontSize = 18.sp,
@@ -56,6 +60,19 @@ internal fun ProfileScreen(
                             end.linkTo(parent.end)
                         }
                 )
+                if (viewModel.getGroupId() != "") {
+                    IconButton(
+                        onClick = { shareGroup(viewModel.getGroupId()!!, context) },
+                        modifier = Modifier.constrainAs(info_icon) {
+                            start.linkTo(group.end)
+                            bottom.linkTo(group.bottom)
+                        }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_share),
+                            contentDescription = ""
+                        )
+                    }
+                }
                 Text(
                     text = stringResource(
                         id = R.string.profile_username,
@@ -137,20 +154,20 @@ internal fun ProfileScreen(
          */
         if (viewModel.showLeaveDialogState.value) {
             ProfileDialog(
-                username = null,
+                username = "-",
                 title_id = R.string.leave_group,
                 message_id = R.string.leave_message,
                 button_text_id = R.string.leave,
                 onClickDismiss = { viewModel.setLeaveDialog(false) },
                 onClickConfirm = {
-                    /* TODO leave group -> set group id to -1 */
+                    viewModel.leaveGroup()
                     onClickLeave()
                 }
             )
         }
         if (viewModel.showDeleteDialogState.value) {
             ProfileDialog(
-                username = null,
+                username = "-",
                 title_id = R.string.delete_profile,
                 message_id = R.string.delete_message,
                 button_text_id = R.string.delete,
@@ -206,7 +223,7 @@ fun ProfileDialog(
             }
             if (errorState) {
                 Text(
-                    text = stringResource(id = R.string.error_message_edit_name),
+                    text = stringResource(id = R.string.error_message_text_empty),
                     color = MaterialTheme.colors.error,
                     style = MaterialTheme.typography.caption,
                     modifier = Modifier.padding(start = 16.dp)
@@ -236,6 +253,16 @@ fun ProfileDialog(
                 )
             }
         })
+}
+
+private fun shareGroup(groupId: String, context: Context) {
+    val share = Intent.createChooser(Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, groupId)
+        putExtra(Intent.EXTRA_TITLE, context.getString(R.string.invite_group))
+        type = "text/plain"
+    }, null)
+    context.startActivity(share)
 }
 
 @Preview

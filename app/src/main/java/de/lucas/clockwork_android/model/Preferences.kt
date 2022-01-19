@@ -82,8 +82,7 @@ class Preferences(private val context: Context) {
     // Set group name to show in Profile
     fun setGroupName(name: String) = prefs().edit().putString(GROUP_NAME, name).apply()
 
-    // If setGroupName() properly implemented -> replace "Müller & Wulff GmbH" with ""
-    fun getGroupName() = prefs().getString(GROUP_NAME, "Müller & Wulff GmbH")
+    fun getGroupName() = prefs().getString(GROUP_NAME, "")
 
     // Set Username to show in Profile
     fun setUsername(name: String) = prefs().edit().putString(USER_NAME, name).apply()
