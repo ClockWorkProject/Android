@@ -49,7 +49,10 @@ internal fun ProfileScreen(
             ConstraintLayout(modifier = Modifier.fillMaxSize()) {
                 val (group, name, info_icon, edit_icon, buttons) = createRefs()
                 Text(
-                    text = stringResource(id = R.string.current_group, viewModel.getGroupName()!!),
+                    text = stringResource(
+                        id = R.string.current_group,
+                        if (viewModel.getGroupName()!! == "") "-" else viewModel.getGroupName()!!
+                    ),
                     fontSize = 18.sp,
                     lineHeight = 32.sp,
                     textAlign = TextAlign.Center,

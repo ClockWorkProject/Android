@@ -48,13 +48,13 @@ internal fun TogglePlayer(
                     .weight(3f)
             ) {
                 Text(
-                    text = issue.title,
+                    text = issue.name,
                     fontSize = 20.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = issue.project_name,
+                    text = "issue.project_name",
                     fontSize = 16.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -115,7 +115,7 @@ internal fun TogglePlayer(
 @Composable
 private fun PreviewTogglePlayer() {
     TogglePlayer(
-        issue = Issue(2, "Bug Fix", "Vinson", "", "", OPEN),
+        issue = Issue("w", "Bug Fix", "Vinson", "", OPEN),
         time = "00:00:12",
         onPause = {},
         onResume = {},

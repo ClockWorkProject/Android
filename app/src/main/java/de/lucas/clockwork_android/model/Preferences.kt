@@ -45,8 +45,7 @@ class Preferences(private val context: Context) {
         val json = prefs().getString(TOGGLE, "")
         return if (json!!.isEmpty()) {
             Issue(
-                -1,
-                "",
+                "wqe",
                 "",
                 "",
                 "",

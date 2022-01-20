@@ -39,12 +39,7 @@ internal fun IssueDetailScreen(issue: Issue, onClickEdit: () -> Unit) {
             ) {
                 Text(text = "Issue #${issue.number}", fontSize = 14.sp)
                 Text(
-                    text = issue.created_by,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-                Text(
-                    text = issue.title,
+                    text = issue.name,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 32.dp)
@@ -72,11 +67,10 @@ internal fun IssueDetailScreen(issue: Issue, onClickEdit: () -> Unit) {
 private fun PreviewIssueDetailScreen() {
     IssueDetailScreen(
         issue = Issue(
-            2,
+            "2",
             "Bug Fixes",
             "Vinson",
             "Lot of Bugs. Should be Fixes asap!",
-            "Vor 2 Tagen erstellt von Mattis Uphoff",
             OPEN
         )
     ) { }

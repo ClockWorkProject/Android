@@ -40,14 +40,9 @@ internal fun EditIssueScreen(
                     .padding(16.dp)
             ) {
                 if (issue != null) {
-                    val title by remember { mutableStateOf(issue.title) }
+                    val title by remember { mutableStateOf(issue.name) }
                     val description by remember { mutableStateOf(issue.description) }
                     Text(text = "Issue #${issue.number}", fontSize = 14.sp)
-                    Text(
-                        text = issue.created_by,
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
                     OutlinedStyledText(
                         id = R.string.title,
                         optText = title,
@@ -131,11 +126,10 @@ fun OutlinedStyledText(
 private fun PreviewIssueDetailScreen() {
     EditIssueScreen(
         issue = Issue(
-            2,
+            "wqe",
             "Bug Fixes",
             "Vinson",
             "Lot of Bugs. Should be Fixes asap!",
-            "Vor 2 Tagen erstellt von Mattis Uphoff",
             OPEN
         ),
         buttonText = R.string.save

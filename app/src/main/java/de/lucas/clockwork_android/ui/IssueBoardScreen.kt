@@ -25,161 +25,8 @@ import com.google.accompanist.pager.rememberPagerState
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
-import de.lucas.clockwork_android.ui.BoardState.*
-import de.lucas.clockwork_android.ui.theme.*
-
-// For testing purpose
-val projectList = listOf(
-    Project(
-        "IT-Projekt", listOf(
-            Issue(
-                2,
-                "Bug Fixes",
-                "IT-Projekt",
-                "Beschreibungen......viiiieeelllll",
-                "Vor 2 Tagen erstellt von Meatüs",
-                BLOCKER
-            ),
-            Issue(
-                4, "Redesign", "", "rwwersdSAddSA", "",
-                BLOCKER
-            ),
-        )
-    ),
-    Project(
-        "Vinson",
-        listOf(
-            Issue(
-                2,
-                "Bug Fixes",
-                "IT-Projekt",
-                "Beschreibungen......viiiieeelllll",
-                "Vor 2 Tagen erstellt von Meatüs",
-                OPEN
-            ),
-            Issue(
-                4, "Redesign", "Vinson", "rwwersdSAddSA", "",
-                TODO
-            ),
-            Issue(
-                1, "UI", "Vinson", "rwweradsgfrgervasdSAddSA", "",
-                CLOSED
-            ),
-            Issue(
-                3, "Documentation", "Vinson", "jfkrzuioolhgjfc", "",
-                CLOSED
-            ),
-            Issue(7, "API connection", "Vinson", "TQRHRZTWSER", "", BLOCKER),
-        )
-    ),
-    Project(
-        "Noch eins", listOf(
-            Issue(
-                1, "UI", "Noch eins", "rwweradsgfrgervasdSAddSA", "",
-                CLOSED
-            )
-        )
-    ), Project(
-        "IT-Projekt", listOf(
-            Issue(
-                2,
-                "Bug Fixes",
-                "IT-Projekt",
-                "Beschreibungen......viiiieeelllll",
-                "Vor 2 Tagen erstellt von Meatüs",
-                BLOCKER
-            ),
-            Issue(
-                4, "Redesign", "", "rwwersdSAddSA", "",
-                BLOCKER
-            ),
-        )
-    ),
-    Project(
-        "Vinson",
-        listOf(
-            Issue(
-                2,
-                "Bug Fixes",
-                "IT-Projekt",
-                "Beschreibungen......viiiieeelllll",
-                "Vor 2 Tagen erstellt von Meatüs",
-                OPEN
-            ),
-            Issue(
-                4, "Redesign", "Vinson", "rwwersdSAddSA", "",
-                TODO
-            ),
-            Issue(
-                1, "UI", "Vinson", "rwweradsgfrgervasdSAddSA", "",
-                CLOSED
-            ),
-            Issue(
-                3, "Documentation", "Vinson", "jfkrzuioolhgjfc", "",
-                CLOSED
-            ),
-            Issue(7, "API connection", "Vinson", "TQRHRZTWSER", "", BLOCKER),
-        )
-    ),
-    Project(
-        "Noch eins", listOf(
-            Issue(
-                1, "UI", "Noch eins", "rwweradsgfrgervasdSAddSA", "",
-                CLOSED
-            )
-        )
-    ),
-    Project(
-        "IT-Projekt", listOf(
-            Issue(
-                2,
-                "Bug Fixes",
-                "IT-Projekt",
-                "Beschreibungen......viiiieeelllll",
-                "Vor 2 Tagen erstellt von Meatüs",
-                BLOCKER
-            ),
-            Issue(
-                4, "Redesign", "", "rwwersdSAddSA", "",
-                BLOCKER
-            ),
-        )
-    ),
-    Project(
-        "Vinson",
-        listOf(
-            Issue(
-                2,
-                "Bug Fixes",
-                "IT-Projekt",
-                "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
-                "Vor 2 Tagen erstellt von Mattis Uphoff",
-                OPEN
-            ),
-            Issue(
-                4, "Redesign", "Vinson", "rwwersdSAddSA", "",
-                TODO
-            ),
-            Issue(
-                1, "UI", "Vinson", "rwweradsgfrgervasdSAddSA", "",
-                CLOSED
-            ),
-            Issue(
-                3, "Documentation", "Vinson", "jfkrzuioolhgjfc", "",
-                CLOSED
-            ),
-            Issue(7, "API connection", "Vinson", "TQRHRZTWSER", "", BLOCKER),
-        )
-    ),
-    Project(
-        "Noch eins", listOf(
-            Issue(
-                1, "UI", "Noch eins", "rwweradsgfrgervasdSAddSA", "",
-                CLOSED
-            )
-        )
-    )
-)
+import de.lucas.clockwork_android.ui.BoardState.values
+import de.lucas.clockwork_android.ui.theme.Gray200
 
 @ExperimentalPagerApi
 @Composable
@@ -211,18 +58,19 @@ internal fun IssueBoardScreen(
                     modifier = Modifier.padding(end = 8.dp)
                 )
                 CustomDropDownMenu(
-                    projects = projectList,
+                    projects = listOf(),
                     projectID = viewModel.getProjectId(),
                     onProjectChange = { id -> viewModel.changeProject(id) }
                 )
             }
             BoardViewPager(
                 pagerState = pagerState,
-                project = projectList[viewModel.getProjectId()],
+                project = Project("sad", "asdf", listOf()),
                 viewModel = viewModel,
                 onClickIssue = onClickIssue,
                 onClickNewIssue = onClickNewIssue,
-                onLongPressIssue = { issue -> longPressIssueId = issue.number }
+//                onLongPressIssue = { issue -> longPressIssueId = issue.number }
+                onLongPressIssue = {}
             )
         }
     }
@@ -249,93 +97,93 @@ internal fun BoardViewPager(
     val items = values()
     HorizontalPager(state = pagerState, count = items.size) { page ->
         // Checks the BoardState and creates IssueBoardItems according to state
-        when (items[page]) {
-            OPEN -> {
-                // Filters issues from current project according to state and returns as list
-                val issues = project.issues.filter { issue -> issue.board_state == OPEN }
-                IssueBoardItem(
-                    boardTitle = R.string.open,
-                    issueList = issues,
-                    boardColor = Color.Black,
-                    currentPageIndex = page,
-                    issueSize = issues.size,
-                    viewModel = viewModel,
-                    onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue,
-                    onLongPressIssue = onLongPressIssue
-                )
-            }
-            TODO -> {
-                val issues = project.issues.filter { issue -> issue.board_state == TODO }
-                IssueBoardItem(
-                    boardTitle = R.string.todo,
-                    issueList = issues,
-                    boardColor = Green500,
-                    currentPageIndex = page,
-                    issueSize = issues.size,
-                    viewModel = viewModel,
-                    onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue,
-                    onLongPressIssue = onLongPressIssue
-                )
-            }
-            DOING -> {
-                val issues = project.issues.filter { issue -> issue.board_state == DOING }
-                IssueBoardItem(
-                    boardTitle = R.string.doing,
-                    issueList = issues,
-                    boardColor = Blue500,
-                    currentPageIndex = page,
-                    issueSize = issues.size,
-                    viewModel = viewModel,
-                    onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue,
-                    onLongPressIssue = onLongPressIssue
-                )
-            }
-            REVIEW -> {
-                val issues = project.issues.filter { issue -> issue.board_state == REVIEW }
-                IssueBoardItem(
-                    boardTitle = R.string.review,
-                    issueList = issues,
-                    boardColor = Yellow500,
-                    currentPageIndex = page,
-                    issueSize = issues.size,
-                    viewModel = viewModel,
-                    onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue,
-                    onLongPressIssue = onLongPressIssue
-                )
-            }
-            BLOCKER -> {
-                val issues = project.issues.filter { issue -> issue.board_state == BLOCKER }
-                IssueBoardItem(
-                    boardTitle = R.string.blocker,
-                    issueList = issues,
-                    boardColor = Red500,
-                    currentPageIndex = page,
-                    issueSize = issues.size,
-                    viewModel = viewModel,
-                    onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue,
-                    onLongPressIssue = onLongPressIssue
-                )
-            }
-            CLOSED -> {
-                val issues = project.issues.filter { issue -> issue.board_state == CLOSED }
-                IssueBoardItem(
-                    boardTitle = R.string.closed,
-                    issueList = issues,
-                    boardColor = Color.Black,
-                    currentPageIndex = page,
-                    issueSize = issues.size,
-                    viewModel = viewModel,
-                    onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue,
-                    onLongPressIssue = onLongPressIssue
-                )
-            }
-        }
+//        when (items[page]) {
+//            OPEN -> {
+//                // Filters issues from current project according to state and returns as list
+//                val issues = project.issues.filter { issue -> issue.board_state == OPEN }
+//                IssueBoardItem(
+//                    boardTitle = R.string.open,
+//                    issueList = issues,
+//                    boardColor = Color.Black,
+//                    currentPageIndex = page,
+//                    issueSize = issues.size,
+//                    viewModel = viewModel,
+//                    onClickIssue = onClickIssue,
+//                    onClickNewIssue = onClickNewIssue,
+//                    onLongPressIssue = onLongPressIssue
+//                )
+//            }
+//            TODO -> {
+//                val issues = project.issues.filter { issue -> issue.board_state == TODO }
+//                IssueBoardItem(
+//                    boardTitle = R.string.todo,
+//                    issueList = issues,
+//                    boardColor = Green500,
+//                    currentPageIndex = page,
+//                    issueSize = issues.size,
+//                    viewModel = viewModel,
+//                    onClickIssue = onClickIssue,
+//                    onClickNewIssue = onClickNewIssue,
+//                    onLongPressIssue = onLongPressIssue
+//                )
+//            }
+//            DOING -> {
+//                val issues = project.issues.filter { issue -> issue.board_state == DOING }
+//                IssueBoardItem(
+//                    boardTitle = R.string.doing,
+//                    issueList = issues,
+//                    boardColor = Blue500,
+//                    currentPageIndex = page,
+//                    issueSize = issues.size,
+//                    viewModel = viewModel,
+//                    onClickIssue = onClickIssue,
+//                    onClickNewIssue = onClickNewIssue,
+//                    onLongPressIssue = onLongPressIssue
+//                )
+//            }
+//            REVIEW -> {
+//                val issues = project.issues.filter { issue -> issue.board_state == REVIEW }
+//                IssueBoardItem(
+//                    boardTitle = R.string.review,
+//                    issueList = issues,
+//                    boardColor = Yellow500,
+//                    currentPageIndex = page,
+//                    issueSize = issues.size,
+//                    viewModel = viewModel,
+//                    onClickIssue = onClickIssue,
+//                    onClickNewIssue = onClickNewIssue,
+//                    onLongPressIssue = onLongPressIssue
+//                )
+//            }
+//            BLOCKER -> {
+//                val issues = project.issues.filter { issue -> issue.board_state == BLOCKER }
+//                IssueBoardItem(
+//                    boardTitle = R.string.blocker,
+//                    issueList = issues,
+//                    boardColor = Red500,
+//                    currentPageIndex = page,
+//                    issueSize = issues.size,
+//                    viewModel = viewModel,
+//                    onClickIssue = onClickIssue,
+//                    onClickNewIssue = onClickNewIssue,
+//                    onLongPressIssue = onLongPressIssue
+//                )
+//            }
+//            CLOSED -> {
+//                val issues = project.issues.filter { issue -> issue.board_state == CLOSED }
+//                IssueBoardItem(
+//                    boardTitle = R.string.closed,
+//                    issueList = issues,
+//                    boardColor = Color.Black,
+//                    currentPageIndex = page,
+//                    issueSize = issues.size,
+//                    viewModel = viewModel,
+//                    onClickIssue = onClickIssue,
+//                    onClickNewIssue = onClickNewIssue,
+//                    onLongPressIssue = onLongPressIssue
+//                )
+//            }
+//        }
     }
 }
 

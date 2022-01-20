@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
                     // set the color of the statusBar of the app
                     systemUiController.setStatusBarColor(primary)
                 }
-                Root(rootViewModel = RootViewModel())
+                Root(rootViewModel = RootViewModel(applicationContext))
             }
         }
     }

@@ -2,15 +2,18 @@ package de.lucas.clockwork_android.ui
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,12 +43,10 @@ val listOfToggles =
  */
 @ExperimentalMaterialApi
 @Composable
-internal fun ToggleScreen() {
+internal fun ToggleScreen(viewModel: ToggleViewModel) {
     Scaffold {
-        val viewModel = ToggleViewModel(LocalContext.current)
-        var showToggleList by remember { mutableStateOf(false) }
         // Check if user is member of a group (-1 -> no member, else -> member of a group)
-        if (viewModel.getGroupId() == "") {
+        if (viewModel.getGroupId() == "" && viewModel.showEmptyState.value) {
             // 2 states for button to show join or create group dialog -> gets set true if button clicked
             var showJoinDialog by remember { mutableStateOf(false) }
             var showCreateDialog by remember { mutableStateOf(false) }
@@ -58,8 +59,7 @@ internal fun ToggleScreen() {
                     button_text_id = R.string.join,
                     onClickDismiss = { showJoinDialog = false }
                 ) { input ->
-                    /* TODO send to backend */
-                    showToggleList = true
+                    viewModel.joinGroup("-Mtnv0WvAajXbKU0Wh5I")
                     showJoinDialog = false
                 }
             }
@@ -72,17 +72,24 @@ internal fun ToggleScreen() {
                     onClickDismiss = { showCreateDialog = false }
                 ) { input ->
                     viewModel.createGroup(input)
-                    showToggleList = true
+                    viewModel.showToggleList.value = true
                     showCreateDialog = false
+                    viewModel.showEmptyState.value = false
                 }
             }
             // Empty state message
             NoGroupScreen({ showJoinDialog = true }, { showCreateDialog = true })
+
+            if (viewModel.noGroupFoundState.value) {
+                CustomSnackBar(id = R.string.no_group_found) {
+                    viewModel.setNoGroupFound(false)
+                }
+            }
         } else {
             ToggleList(listOfToggles)
         }
         // Check state if user creates or joins a group -> show list instead of empty state
-        if (showToggleList) ToggleList(listOfToggles)
+        if (viewModel.showToggleList.value) ToggleList(listOfToggles)
     }
 }
 
@@ -161,6 +168,27 @@ fun CustomDialog(
         })
 }
 
+@Composable
+fun CustomSnackBar(@StringRes id: Int, onClick: () -> Unit) {
+    Snackbar(modifier = Modifier.padding(16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(id = id),
+                modifier = Modifier.weight(8f)
+            )
+            IconButton(
+                onClick = { onClick() },
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_close_light),
+                    contentDescription = ""
+                )
+            }
+        }
+    }
+}
+
 @ExperimentalMaterialApi
 @Preview
 @Composable
@@ -172,7 +200,7 @@ fun ToggleListPreview() {
 @Preview
 @Composable
 private fun PreviewToggleScreen() {
-    ToggleScreen()
+    ToggleScreen(ToggleViewModel(LocalContext.current))
 }
 
 @Preview

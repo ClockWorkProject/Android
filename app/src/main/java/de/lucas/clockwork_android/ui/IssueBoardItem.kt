@@ -218,7 +218,8 @@ private fun IssueItem(
     ) {
         Column {
             Text(
-                text = issue.title,
+//                text = issue.title,
+                text = "",
                 modifier = Modifier.padding(start = 8.dp, top = 8.dp),
                 fontSize = 18.sp
             )
@@ -250,7 +251,7 @@ private fun PreviewIssueBoard() {
 @Composable
 private fun PreviewDropDown() {
     CustomDropDownMenu(
-        projects = listOf(Project("Projekt", listOf())),
+        projects = listOf(Project("testid", "Projekt", listOf())),
         projectID = 1,
         onProjectChange = { }
     )

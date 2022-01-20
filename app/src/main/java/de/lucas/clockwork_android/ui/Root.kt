@@ -24,7 +24,6 @@ import androidx.navigation.navArgument
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import de.lucas.clockwork_android.R
@@ -51,8 +50,9 @@ fun Root(rootViewModel: RootViewModel) {
     val navController = rememberNavController()
     val togglePlayerViewModel = TogglePlayerViewModel(context)
     val auth: FirebaseAuth = Firebase.auth
-    val database = FirebaseDatabase.getInstance()
     lateinit var timer: CountUpTimer
+
+    rootViewModel.getAllProjects()
 
     /**
      * Starts the count up timer
@@ -77,7 +77,7 @@ fun Root(rootViewModel: RootViewModel) {
      * Check if a Toggle is active, for the scenario, that the user closed the app while Toggle is active
      * After reopen it gets checked if a Toggle is saved, to show TogglePlayer with all it's information
      */
-    if (togglePlayerViewModel.getToggle()!!.number != -1) {
+    if (togglePlayerViewModel.getToggle()!!.number != "") {
         // App restart while toggle is paused
         if (togglePlayerViewModel.getIsTogglePaused()) {
             // Start timer with time from last pause
@@ -119,7 +119,7 @@ fun Root(rootViewModel: RootViewModel) {
                             channelId = stringResource(id = R.string.app_name),
                             notificationId = 0,
                             textTitle = stringResource(id = R.string.toggle_active),
-                            textContent = "#${togglePlayerViewModel.getToggle()!!.number} ${togglePlayerViewModel.getToggle()!!.title}"
+                            textContent = "#${togglePlayerViewModel.getToggle()!!.number} ${togglePlayerViewModel.getToggle()!!.name}"
                         )
                         TogglePlayer(
                             issue = togglePlayerViewModel.getToggle()!!,
@@ -175,9 +175,14 @@ fun Root(rootViewModel: RootViewModel) {
                 // Show IssuePicker when state is true
                 if (rootViewModel.showIssuePickerList.value) {
                     IssuePickerList(
-                        projectList = projectList,
+                        projectList = if (rootViewModel.getGroupId() != "") {
+                            rootViewModel.getAllProjects()
+                        } else {
+                            listOf()
+                        },
+                        viewModel = IssuePickerListViewModel(context),
                         onStartToggle = { issue ->
-                            if (togglePlayerViewModel.getToggle()!!.number == -1) {
+                            if (togglePlayerViewModel.getToggle()!!.number == "") {
                                 togglePlayerViewModel.setStartTime()
                                 rootViewModel.setShowTogglePlayer(true)
                                 togglePlayerViewModel.setToggle(issue)
@@ -225,7 +230,7 @@ fun Root(rootViewModel: RootViewModel) {
                 rootViewModel.setAppTitle(stringResource(id = R.string.time_record))
                 rootViewModel.setShowNavigationIcon(false)
                 rootViewModel.setShowBottomNavigation(true)
-                ToggleScreen()
+                ToggleScreen(viewModel = ToggleViewModel(context))
             }
             composable(BOARD.route) {
                 rootViewModel.setAppTitle(stringResource(id = R.string.issue_board))
