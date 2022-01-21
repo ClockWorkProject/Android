@@ -76,7 +76,7 @@ class Preferences(private val context: Context) {
     // Set project id to show its issues in IssueBoard and send to backend if necessary action
     fun setProjectId(id: Int) = prefs().edit().putInt(PROJECT_ID, id).apply()
 
-    fun getProjectId() = prefs().getInt(PROJECT_ID, 1)
+    fun getProjectId() = prefs().getInt(PROJECT_ID, -1)
 
     // Set group name to show in Profile
     fun setGroupName(name: String) = prefs().edit().putString(GROUP_NAME, name).apply()

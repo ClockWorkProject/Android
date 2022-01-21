@@ -16,6 +16,8 @@ import timber.log.Timber
 class RootViewModel(context: Context) : ViewModel() {
     private val preferences = Preferences(context)
     private val database = FirebaseDatabase.getInstance()
+    val projectList: MutableList<Project> = mutableListOf()
+
     var showBottomNavigation: MutableState<Boolean> = mutableStateOf(false)
         private set
 
@@ -58,8 +60,7 @@ class RootViewModel(context: Context) : ViewModel() {
 
     fun getGroupId() = preferences.getGroupId()
 
-    fun getAllProjects(): List<Project> {
-        val projectList = mutableListOf<Project>()
+    fun getAllProjects() {
         if (getGroupId() != "") {
             database.reference.child("groups/${preferences.getGroupId()}/projects")
                 .addValueEventListener(object : ValueEventListener {
@@ -67,7 +68,7 @@ class RootViewModel(context: Context) : ViewModel() {
                         projectList.clear()
                         snapshot.children.forEach { project ->
                             val issues = mutableListOf<Issue>()
-                            project.child("issue").children.forEach { issue ->
+                            project.child("issues").children.forEach { issue ->
                                 issues.add(
                                     Issue(
                                         issue.child("id").value.toString(),
@@ -90,14 +91,12 @@ class RootViewModel(context: Context) : ViewModel() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        TODO("Not yet implemented")
+                        Timber.e("IAAAMMMM CANCCEEELLLEEEDDD")
                     }
-
                 })
         } else {
             projectList.clear()
         }
-        return projectList
     }
 
     private fun setIssueState(stateString: String): BoardState {

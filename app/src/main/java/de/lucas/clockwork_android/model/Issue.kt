@@ -11,3 +11,11 @@ data class Issue(
     val description: String,
     val issueState: BoardState
 )
+
+data class NewIssue(
+    val id: String,
+    val name: String,
+    val number: String,
+    val description: String,
+    val issueState: String
+)

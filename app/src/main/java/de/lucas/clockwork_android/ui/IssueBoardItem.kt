@@ -160,14 +160,16 @@ fun CustomDropDownMenu(
             .border(border = BorderStroke(width = 1.dp, Color.Black))
             .clickable(onClick = { expanded = true })
     ) {
-        Text(
-            projects[selectedIndex].project_name,
-            modifier = Modifier
-                .background(Color.White)
-                .padding(start = 8.dp)
-                .weight(4f),
-            fontSize = 20.sp
-        )
+        if (selectedIndex != -1) {
+            Text(
+                projects[selectedIndex].project_name,
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(start = 8.dp)
+                    .weight(4f),
+                fontSize = 20.sp
+            )
+        }
         Icon(
             painter = painterResource(id = R.drawable.ic_arrow_down_dark),
             contentDescription = "",
@@ -218,8 +220,7 @@ private fun IssueItem(
     ) {
         Column {
             Text(
-//                text = issue.title,
-                text = "",
+                text = issue.name,
                 modifier = Modifier.padding(start = 8.dp, top = 8.dp),
                 fontSize = 18.sp
             )

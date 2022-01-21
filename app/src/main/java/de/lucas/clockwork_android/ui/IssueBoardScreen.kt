@@ -25,21 +25,28 @@ import com.google.accompanist.pager.rememberPagerState
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
-import de.lucas.clockwork_android.ui.BoardState.values
-import de.lucas.clockwork_android.ui.theme.Gray200
+import de.lucas.clockwork_android.ui.BoardState.*
+import de.lucas.clockwork_android.ui.theme.*
 
 @ExperimentalPagerApi
 @Composable
 internal fun IssueBoardScreen(
+    projectList: List<Project>,
     viewModel: IssueBoardViewModel,
-    onClickIssue: (Issue) -> Unit,
-    onClickNewIssue: () -> Unit
+    onClickIssue: (Issue, String) -> Unit,
+    onClickNewIssue: (Project, BoardState) -> Unit
 ) {
-    var longPressIssueId by remember { mutableStateOf(-1) }
+    var longPressIssueId by remember { mutableStateOf("") }
     if (viewModel.getShowBoardState()) {
         BoardStateList(
             viewModel = viewModel,
-            onStateClicked = { boardState -> /* TODO change BoardState for Issue with provided number/id, Refresh IssueBoard?  */ },
+            onStateClicked = { boardState ->
+                viewModel.updateIssueState(
+                    projectList[viewModel.getProjectId()].id,
+                    longPressIssueId,
+                    boardState
+                )
+            },
             onClose = { viewModel.setShowBoardState(false) }
         )
     }
@@ -58,19 +65,22 @@ internal fun IssueBoardScreen(
                     modifier = Modifier.padding(end = 8.dp)
                 )
                 CustomDropDownMenu(
-                    projects = listOf(),
+                    projects = projectList,
                     projectID = viewModel.getProjectId(),
                     onProjectChange = { id -> viewModel.changeProject(id) }
                 )
             }
             BoardViewPager(
                 pagerState = pagerState,
-                project = Project("sad", "asdf", listOf()),
+                project = projectList[viewModel.getProjectId()],
                 viewModel = viewModel,
-                onClickIssue = onClickIssue,
-                onClickNewIssue = onClickNewIssue,
-//                onLongPressIssue = { issue -> longPressIssueId = issue.number }
-                onLongPressIssue = {}
+                onClickIssue = { issue ->
+                    onClickIssue(issue, projectList[viewModel.getProjectId()].id)
+                },
+                onClickNewIssue = { boardState ->
+                    onClickNewIssue(projectList[viewModel.getProjectId()], boardState)
+                },
+                onLongPressIssue = { issue -> longPressIssueId = issue.id }
             )
         }
     }
@@ -90,100 +100,112 @@ internal fun BoardViewPager(
     project: Project,
     viewModel: IssueBoardViewModel,
     onClickIssue: (Issue) -> Unit,
-    onClickNewIssue: () -> Unit,
+    onClickNewIssue: (BoardState) -> Unit,
     onLongPressIssue: (Issue) -> Unit
 ) {
     // Array of BoardState enums
     val items = values()
     HorizontalPager(state = pagerState, count = items.size) { page ->
         // Checks the BoardState and creates IssueBoardItems according to state
-//        when (items[page]) {
-//            OPEN -> {
-//                // Filters issues from current project according to state and returns as list
-//                val issues = project.issues.filter { issue -> issue.board_state == OPEN }
-//                IssueBoardItem(
-//                    boardTitle = R.string.open,
-//                    issueList = issues,
-//                    boardColor = Color.Black,
-//                    currentPageIndex = page,
-//                    issueSize = issues.size,
-//                    viewModel = viewModel,
-//                    onClickIssue = onClickIssue,
-//                    onClickNewIssue = onClickNewIssue,
-//                    onLongPressIssue = onLongPressIssue
-//                )
-//            }
-//            TODO -> {
-//                val issues = project.issues.filter { issue -> issue.board_state == TODO }
-//                IssueBoardItem(
-//                    boardTitle = R.string.todo,
-//                    issueList = issues,
-//                    boardColor = Green500,
-//                    currentPageIndex = page,
-//                    issueSize = issues.size,
-//                    viewModel = viewModel,
-//                    onClickIssue = onClickIssue,
-//                    onClickNewIssue = onClickNewIssue,
-//                    onLongPressIssue = onLongPressIssue
-//                )
-//            }
-//            DOING -> {
-//                val issues = project.issues.filter { issue -> issue.board_state == DOING }
-//                IssueBoardItem(
-//                    boardTitle = R.string.doing,
-//                    issueList = issues,
-//                    boardColor = Blue500,
-//                    currentPageIndex = page,
-//                    issueSize = issues.size,
-//                    viewModel = viewModel,
-//                    onClickIssue = onClickIssue,
-//                    onClickNewIssue = onClickNewIssue,
-//                    onLongPressIssue = onLongPressIssue
-//                )
-//            }
-//            REVIEW -> {
-//                val issues = project.issues.filter { issue -> issue.board_state == REVIEW }
-//                IssueBoardItem(
-//                    boardTitle = R.string.review,
-//                    issueList = issues,
-//                    boardColor = Yellow500,
-//                    currentPageIndex = page,
-//                    issueSize = issues.size,
-//                    viewModel = viewModel,
-//                    onClickIssue = onClickIssue,
-//                    onClickNewIssue = onClickNewIssue,
-//                    onLongPressIssue = onLongPressIssue
-//                )
-//            }
-//            BLOCKER -> {
-//                val issues = project.issues.filter { issue -> issue.board_state == BLOCKER }
-//                IssueBoardItem(
-//                    boardTitle = R.string.blocker,
-//                    issueList = issues,
-//                    boardColor = Red500,
-//                    currentPageIndex = page,
-//                    issueSize = issues.size,
-//                    viewModel = viewModel,
-//                    onClickIssue = onClickIssue,
-//                    onClickNewIssue = onClickNewIssue,
-//                    onLongPressIssue = onLongPressIssue
-//                )
-//            }
-//            CLOSED -> {
-//                val issues = project.issues.filter { issue -> issue.board_state == CLOSED }
-//                IssueBoardItem(
-//                    boardTitle = R.string.closed,
-//                    issueList = issues,
-//                    boardColor = Color.Black,
-//                    currentPageIndex = page,
-//                    issueSize = issues.size,
-//                    viewModel = viewModel,
-//                    onClickIssue = onClickIssue,
-//                    onClickNewIssue = onClickNewIssue,
-//                    onLongPressIssue = onLongPressIssue
-//                )
-//            }
-//        }
+        when (items[page]) {
+            OPEN -> {
+                // Filters issues from current project according to state and returns as list
+                val issues = project.issues.filter { issue -> issue.issueState == OPEN }
+                IssueBoardItem(
+                    boardTitle = R.string.open,
+                    issueList = issues,
+                    boardColor = Color.Black,
+                    currentPageIndex = page,
+                    issueSize = issues.size,
+                    viewModel = viewModel,
+                    onClickIssue = onClickIssue,
+                    onClickNewIssue = {
+                        onClickNewIssue(OPEN)
+                    },
+                    onLongPressIssue = onLongPressIssue
+                )
+            }
+            TODO -> {
+                val issues = project.issues.filter { issue -> issue.issueState == TODO }
+                IssueBoardItem(
+                    boardTitle = R.string.todo,
+                    issueList = issues,
+                    boardColor = Green500,
+                    currentPageIndex = page,
+                    issueSize = issues.size,
+                    viewModel = viewModel,
+                    onClickIssue = onClickIssue,
+                    onClickNewIssue = {
+                        onClickNewIssue(TODO)
+                    },
+                    onLongPressIssue = onLongPressIssue
+                )
+            }
+            DOING -> {
+                val issues = project.issues.filter { issue -> issue.issueState == DOING }
+                IssueBoardItem(
+                    boardTitle = R.string.doing,
+                    issueList = issues,
+                    boardColor = Blue500,
+                    currentPageIndex = page,
+                    issueSize = issues.size,
+                    viewModel = viewModel,
+                    onClickIssue = onClickIssue,
+                    onClickNewIssue = {
+                        onClickNewIssue(DOING)
+                    },
+                    onLongPressIssue = onLongPressIssue
+                )
+            }
+            REVIEW -> {
+                val issues = project.issues.filter { issue -> issue.issueState == REVIEW }
+                IssueBoardItem(
+                    boardTitle = R.string.review,
+                    issueList = issues,
+                    boardColor = Yellow500,
+                    currentPageIndex = page,
+                    issueSize = issues.size,
+                    viewModel = viewModel,
+                    onClickIssue = onClickIssue,
+                    onClickNewIssue = {
+                        onClickNewIssue(REVIEW)
+                    },
+                    onLongPressIssue = onLongPressIssue
+                )
+            }
+            BLOCKER -> {
+                val issues = project.issues.filter { issue -> issue.issueState == BLOCKER }
+                IssueBoardItem(
+                    boardTitle = R.string.blocker,
+                    issueList = issues,
+                    boardColor = Red500,
+                    currentPageIndex = page,
+                    issueSize = issues.size,
+                    viewModel = viewModel,
+                    onClickIssue = onClickIssue,
+                    onClickNewIssue = {
+                        onClickNewIssue(BLOCKER)
+                    },
+                    onLongPressIssue = onLongPressIssue
+                )
+            }
+            CLOSED -> {
+                val issues = project.issues.filter { issue -> issue.issueState == CLOSED }
+                IssueBoardItem(
+                    boardTitle = R.string.closed,
+                    issueList = issues,
+                    boardColor = Color.Black,
+                    currentPageIndex = page,
+                    issueSize = issues.size,
+                    viewModel = viewModel,
+                    onClickIssue = onClickIssue,
+                    onClickNewIssue = {
+                        onClickNewIssue(CLOSED)
+                    },
+                    onLongPressIssue = onLongPressIssue
+                )
+            }
+        }
     }
 }
 
@@ -215,7 +237,7 @@ fun BoardStateList(
                 LazyColumn(
                     modifier = Modifier.padding(8.dp)
                 ) {
-                    items(BoardState.values()) { boardState ->
+                    items(values()) { boardState ->
                         Card(modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp)
@@ -255,8 +277,9 @@ enum class BoardState {
 @Composable
 private fun PreviewIssueBoard() {
     IssueBoardScreen(
+        listOf(),
         viewModel = IssueBoardViewModel(LocalContext.current),
-        onClickIssue = {},
-        onClickNewIssue = {}
+        onClickIssue = { _, _ -> },
+        onClickNewIssue = { _, _ -> }
     )
 }

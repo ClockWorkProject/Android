@@ -33,11 +33,13 @@ import de.lucas.clockwork_android.model.NavigationItem.*
 import de.lucas.clockwork_android.model.NavigationItem.Companion.DATA_PROTECTION
 import de.lucas.clockwork_android.model.NavigationItem.Companion.IMPRINT
 import de.lucas.clockwork_android.model.NavigationItem.Companion.INFO
+import de.lucas.clockwork_android.model.NavigationItem.Companion.ISSUE_CREATE
 import de.lucas.clockwork_android.model.NavigationItem.Companion.ISSUE_DETAIL
 import de.lucas.clockwork_android.model.NavigationItem.Companion.ISSUE_EDIT
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LICENSES
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LOGIN
 import de.lucas.clockwork_android.model.NavigationItem.Companion.VERSION
+import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.info.*
 import de.lucas.clockwork_android.ui.theme.roundedShape
 import timber.log.Timber
@@ -49,6 +51,7 @@ fun Root(rootViewModel: RootViewModel) {
     val context = LocalContext.current
     val navController = rememberNavController()
     val togglePlayerViewModel = TogglePlayerViewModel(context)
+    val editViewModel = EditIssueViewModel(context)
     val auth: FirebaseAuth = Firebase.auth
     lateinit var timer: CountUpTimer
 
@@ -175,11 +178,7 @@ fun Root(rootViewModel: RootViewModel) {
                 // Show IssuePicker when state is true
                 if (rootViewModel.showIssuePickerList.value) {
                     IssuePickerList(
-                        projectList = if (rootViewModel.getGroupId() != "") {
-                            rootViewModel.getAllProjects()
-                        } else {
-                            listOf()
-                        },
+                        projectList = if (rootViewModel.getGroupId() != "") rootViewModel.projectList else listOf(),
                         viewModel = IssuePickerListViewModel(context),
                         onStartToggle = { issue ->
                             if (togglePlayerViewModel.getToggle()!!.number == "") {
@@ -236,14 +235,20 @@ fun Root(rootViewModel: RootViewModel) {
                 rootViewModel.setAppTitle(stringResource(id = R.string.issue_board))
                 rootViewModel.setShowNavigationIcon(false)
                 IssueBoardScreen(
+                    projectList = if (rootViewModel.getGroupId() != "") rootViewModel.projectList else listOf(),
                     viewModel = IssueBoardViewModel(context),
-                    onClickIssue = { issue ->
+                    onClickIssue = { issue, project_id ->
                         // Create Json of information of clicked Issue
                         val jsonIssue = Gson().toJson(issue)
+                        editViewModel.setProjectID(project_id)
                         // Navigate with arguments of clicked Issue, to show in IssueDetailScreen
                         navController.navigate("$ISSUE_DETAIL/$jsonIssue")
                     },
-                    onClickNewIssue = { navController.navigate(ISSUE_EDIT) }
+                    onClickNewIssue = { project, boardState ->
+                        editViewModel.setEditBoardState(boardState)
+                        val jsonProject = Gson().toJson(project)
+                        navController.navigate("$ISSUE_CREATE/$jsonProject")
+                    }
                 )
             }
             composable(STATISTIC.route) {
@@ -291,19 +296,42 @@ fun Root(rootViewModel: RootViewModel) {
                     val issue = Gson().fromJson(json, Issue::class.java)
                     rootViewModel.setAppTitle(stringResource(id = R.string.edit_issue))
                     rootViewModel.setShowNavigationIcon(true)
+                    Timber.e("ISSUE")
                     EditIssueScreen(
                         issue = issue,
-                        buttonText = R.string.save
-                    ) { navController.popBackStack() }
+                        project = null,
+                        projectID = editViewModel.getProjectID(),
+                        viewModel = editViewModel,
+                        buttonText = R.string.save,
+                        state = editViewModel.getEditBoardState()
+                    ) {
+                        navController.navigate(BOARD.route) {
+                            popUpTo(BOARD.route) {
+                                inclusive = true
+                            }
+                        }
+                    }
                 }
             }
-            composable(ISSUE_EDIT) {
-                rootViewModel.setAppTitle(stringResource(id = R.string.create_issue))
-                rootViewModel.setShowNavigationIcon(true)
-                EditIssueScreen(
-                    issue = null,
-                    buttonText = R.string.create
-                ) { navController.popBackStack() }
+            composable(
+                route = "$ISSUE_CREATE/{project}",
+                arguments = listOf(navArgument("project")
+                { type = NavType.StringType })
+            ) { backStackEntry ->
+                backStackEntry.arguments?.getString("project").let { json ->
+                    val project = Gson().fromJson(json, Project::class.java)
+                    rootViewModel.setAppTitle(stringResource(id = R.string.create_issue))
+                    rootViewModel.setShowNavigationIcon(true)
+                    Timber.e("PROJECT")
+                    EditIssueScreen(
+                        issue = null,
+                        project = project,
+                        projectID = editViewModel.getProjectID(),
+                        viewModel = editViewModel,
+                        buttonText = R.string.create,
+                        state = editViewModel.getEditBoardState()
+                    ) { navController.popBackStack() }
+                }
             }
             composable(INFO) {
                 rootViewModel.setAppTitle(stringResource(id = R.string.info))

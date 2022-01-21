@@ -19,6 +19,9 @@ class IssuePickerListViewModel(context: Context) : ViewModel() {
                 val projectID =
                     database.reference.child("groups/${preferences.getGroupId()}/projects")
                         .push().key!!
+                // Set Id for project
+                database.reference.child("groups/${preferences.getGroupId()}/projects/${projectID}/id")
+                    .setValue(projectID)
                 // Create new project in database
                 database.reference.child("groups/${preferences.getGroupId()}/projects/${projectID}/name")
                     .setValue(name)
