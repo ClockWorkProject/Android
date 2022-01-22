@@ -58,7 +58,7 @@ internal fun ToggleItem(toggle: TotalToggle) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(4f)
                 )
-                Text(text = toggle.total_time, fontSize = 18.sp, modifier = Modifier.weight(3f))
+                Text(text = toggle.totalTime, fontSize = 18.sp, modifier = Modifier.weight(3f))
                 IconButton(modifier = Modifier
                     .weight(1f)
                     .rotate(rotationState),
@@ -72,7 +72,7 @@ internal fun ToggleItem(toggle: TotalToggle) {
                 }
             }
             if (expandableState) {
-                toggle.toggle_list.forEach { item -> ToggleEntryItem(toggle = item) }
+                toggle.toggleList.forEach { item -> ToggleEntryItem(toggle = item) }
             }
         }
     }
@@ -89,9 +89,9 @@ private fun ToggleEntryItem(toggle: Toggle) {
             .padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(3f)) {
-            Text(text = toggle.issue, fontSize = 20.sp)
-            Text(text = toggle.project)
+            Text(text = toggle.issueName, fontSize = 20.sp)
+            Text(text = toggle.projectName)
         }
-        Text(text = toggle.time, fontSize = 18.sp, modifier = Modifier.weight(1f))
+        Text(text = toggle.projectTime, fontSize = 18.sp, modifier = Modifier.weight(1f))
     }
 }

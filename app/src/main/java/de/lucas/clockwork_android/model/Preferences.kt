@@ -9,6 +9,7 @@ class Preferences(private val context: Context) {
     private fun prefs() = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
     private val moshi = Moshi.Builder().build()
     private val issueAdapter = moshi.adapter(Issue::class.java)
+    private val projectAdapter = moshi.adapter(Project::class.java)
 
     // Sets the current toggle time to be able to continue counting after user paused
     fun setCurrentToggleTime(pausedTime: Int, count: Int) {
@@ -20,7 +21,8 @@ class Preferences(private val context: Context) {
     fun resetToggle() {
         prefs().edit().apply {
             putInt(TIME, 0)
-            putString(TOGGLE, "")
+            putString(TOGGLE_ISSUE, "")
+            putString(TOGGLE_PROJECT, "")
         }.apply()
     }
 
@@ -35,14 +37,15 @@ class Preferences(private val context: Context) {
     fun getStartTime(): Int = prefs().getInt(START_TIME, 0)
 
     // Sets the chosen issue for the activated toggle
-    fun setToggle(issue: Issue) {
-        prefs().edit().putString(TOGGLE, issueAdapter.toJson(issue)).apply()
-        Timber.e(getToggle().toString())
+    fun setToggle(issue: Issue, project: Project) {
+        prefs().edit().putString(TOGGLE_ISSUE, issueAdapter.toJson(issue)).apply()
+        prefs().edit().putString(TOGGLE_PROJECT, projectAdapter.toJson(project)).apply()
+        Timber.e(getToggleIssue().toString())
     }
 
     // Returns currently saved toggle. If no toggle saved, return empty Issue
-    fun getToggle(): Issue? {
-        val json = prefs().getString(TOGGLE, "")
+    fun getToggleIssue(): Issue? {
+        val json = prefs().getString(TOGGLE_ISSUE, "")
         return if (json!!.isEmpty()) {
             Issue(
                 "wqe",
@@ -53,6 +56,20 @@ class Preferences(private val context: Context) {
             )
         } else {
             issueAdapter.fromJson(json)
+        }
+    }
+
+    // Returns currently saved toggle. If no toggle saved, return empty Issue
+    fun getToggleProject(): Project? {
+        val json = prefs().getString(TOGGLE_PROJECT, "")
+        return if (json!!.isEmpty()) {
+            Project(
+                "wqe",
+                "",
+                listOf()
+            )
+        } else {
+            projectAdapter.fromJson(json)
         }
     }
 
@@ -101,7 +118,8 @@ class Preferences(private val context: Context) {
     companion object {
         const val PREFERENCES = "PREFERENCES"
         const val TIME = "TIME"
-        const val TOGGLE = "TOGGLE"
+        const val TOGGLE_ISSUE = "TOGGLE_ISSUE"
+        const val TOGGLE_PROJECT = "TOGGLE_PROJECT"
         const val START_TIME = "START_TIME"
         const val TOGGLE_PAUSED = "TOGGLE_PAUSED"
         const val PAUSE_TIME = "PAUSE_TIME"

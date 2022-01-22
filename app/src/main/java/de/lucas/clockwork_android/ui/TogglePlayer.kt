@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
+import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.BoardState.OPEN
 import de.lucas.clockwork_android.ui.theme.Purple200
 
@@ -23,6 +24,7 @@ import de.lucas.clockwork_android.ui.theme.Purple200
 @Composable
 internal fun TogglePlayer(
     issue: Issue,
+    project: Project,
     time: String,
     onPause: () -> Unit,
     onResume: () -> Unit,
@@ -48,13 +50,13 @@ internal fun TogglePlayer(
                     .weight(3f)
             ) {
                 Text(
-                    text = issue.name,
+                    text = "#${issue.number} ${issue.name}",
                     fontSize = 20.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "issue.project_name",
+                    text = project.project_name,
                     fontSize = 16.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -99,6 +101,7 @@ internal fun TogglePlayer(
                 onClick = {
                     if (viewModel.getIsPaused()) {
                         onClose()
+                        viewModel.setIsPaused(false)
                     }
                 }) {
                 Icon(
@@ -116,6 +119,7 @@ internal fun TogglePlayer(
 private fun PreviewTogglePlayer() {
     TogglePlayer(
         issue = Issue("w", "Bug Fix", "Vinson", "", OPEN),
+        project = Project("", "Project", listOf()),
         time = "00:00:12",
         onPause = {},
         onResume = {},

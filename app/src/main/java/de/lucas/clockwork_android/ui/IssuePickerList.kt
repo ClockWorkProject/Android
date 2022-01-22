@@ -36,7 +36,7 @@ import de.lucas.clockwork_android.ui.theme.Gray200
 internal fun IssuePickerList(
     projectList: List<Project>,
     viewModel: IssuePickerListViewModel,
-    onStartToggle: (Issue) -> Unit,
+    onStartToggle: (Issue, Project) -> Unit,
     onClose: () -> Unit
 ) {
     var showNewProjectDialog by remember { mutableStateOf(false) }
@@ -71,7 +71,7 @@ internal fun IssuePickerList(
                             issues = project.issues,
                             project_name = project.project_name,
                             onStartToggle = { issue ->
-                                onStartToggle(issue)
+                                onStartToggle(issue, project)
                                 onClose()
                             }
                         )
@@ -191,6 +191,8 @@ private fun PreviewIssuePicker() {
                 "Vinson",
                 listOf(Issue("qwe", "Titel 1", "", "", BoardState.OPEN))
             )
-        ), viewModel = IssuePickerListViewModel(LocalContext.current), onStartToggle = {}) {
+        ),
+        viewModel = IssuePickerListViewModel(LocalContext.current),
+        onStartToggle = { _, _ -> }) {
     }
 }

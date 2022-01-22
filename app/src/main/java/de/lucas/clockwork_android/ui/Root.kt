@@ -82,7 +82,7 @@ fun Root(rootViewModel: RootViewModel) {
      * Check if a Toggle is active, for the scenario, that the user closed the app while Toggle is active
      * After reopen it gets checked if a Toggle is saved, to show TogglePlayer with all it's information
      */
-    if (togglePlayerViewModel.getToggle()!!.number != "") {
+    if (togglePlayerViewModel.getToggleIssue()!!.number != "") {
         // App restart while toggle is paused
         if (togglePlayerViewModel.getIsTogglePaused()) {
             // Start timer with time from last pause
@@ -124,10 +124,11 @@ fun Root(rootViewModel: RootViewModel) {
                             channelId = stringResource(id = R.string.app_name),
                             notificationId = 0,
                             textTitle = stringResource(id = R.string.toggle_active),
-                            textContent = "#${togglePlayerViewModel.getToggle()!!.number} ${togglePlayerViewModel.getToggle()!!.name}"
+                            textContent = "#${togglePlayerViewModel.getToggleIssue()!!.number} ${togglePlayerViewModel.getToggleIssue()!!.name}"
                         )
                         TogglePlayer(
-                            issue = togglePlayerViewModel.getToggle()!!,
+                            issue = togglePlayerViewModel.getToggleIssue()!!,
+                            project = togglePlayerViewModel.getToggleProject()!!,
                             time = togglePlayerViewModel.toggleTimeDisplay.value,
                             onPause = {
                                 // Stop Timer
@@ -144,13 +145,20 @@ fun Root(rootViewModel: RootViewModel) {
                                 /* TODO add item to list with total toggle time */
                                 // Stop Timer
                                 timer.cancel()
+                                // Send to backend
+                                rootViewModel.saveToggle(
+                                    togglePlayerViewModel.getCurrentToggleTime().toString(),
+                                    togglePlayerViewModel.getToggleIssue()!!,
+                                    togglePlayerViewModel.getToggleProject()!!
+                                )
+                                Timber.e(togglePlayerViewModel.getToggleIssue()!!.toString())
                                 // Reset time to 0 and remove saved issue
                                 togglePlayerViewModel.resetToggle()
                                 togglePlayerViewModel.setIsTogglePaused(false)
                                 removeNotification(context)
                                 rootViewModel.setShowTogglePlayer(false)
                             },
-                            viewModel = TogglePlayerViewModel(context)
+                            viewModel = togglePlayerViewModel
                         )
                     }
                 }
@@ -182,11 +190,11 @@ fun Root(rootViewModel: RootViewModel) {
                     IssuePickerList(
                         projectList = if (rootViewModel.getGroupId() != "") rootViewModel.projectList else listOf(),
                         viewModel = IssuePickerListViewModel(context),
-                        onStartToggle = { issue ->
-                            if (togglePlayerViewModel.getToggle()!!.number == "") {
+                        onStartToggle = { issue, project ->
+                            if (togglePlayerViewModel.getToggleIssue()!!.number == "") {
                                 togglePlayerViewModel.setStartTime()
                                 rootViewModel.setShowTogglePlayer(true)
-                                togglePlayerViewModel.setToggle(issue)
+                                togglePlayerViewModel.setToggle(issue, project)
                                 startTimer(togglePlayerViewModel.getCurrentToggleTime())
                             }
                         },

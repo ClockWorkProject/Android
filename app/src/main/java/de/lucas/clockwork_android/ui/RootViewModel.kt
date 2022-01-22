@@ -8,15 +8,17 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import de.lucas.clockwork_android.model.Issue
-import de.lucas.clockwork_android.model.Preferences
-import de.lucas.clockwork_android.model.Project
+import de.lucas.clockwork_android.model.*
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.*
 
 class RootViewModel(context: Context) : ViewModel() {
     private val preferences = Preferences(context)
     private val database = FirebaseDatabase.getInstance()
     val projectList: MutableList<Project> = mutableListOf()
+    val toggleList: MutableList<TotalToggle> = mutableListOf()
+    private val totalTime: MutableState<Double> = mutableStateOf(0.0)
     private val isLoading: MutableState<Boolean> = mutableStateOf(false)
 
     var showBottomNavigation: MutableState<Boolean> = mutableStateOf(false)
@@ -65,6 +67,11 @@ class RootViewModel(context: Context) : ViewModel() {
 
     fun getIsLoading() = isLoading.value
 
+    private fun getUserId() = preferences.getUserId()
+
+    private fun currentDate(): String =
+        SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+
     fun getAllProjects(groupId: String) {
         isLoading.value = true
         if (groupId != "") {
@@ -104,6 +111,69 @@ class RootViewModel(context: Context) : ViewModel() {
         } else {
             projectList.clear()
             isLoading.value = false
+        }
+    }
+
+    fun saveToggle(time: String, issue: Issue, project: Project) {
+        try {
+            getTotalTime()
+            val date = currentDate()
+            val toggle = Toggle(issue.name, project.project_name, time.toDouble().toString())
+            database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/${issue.id}")
+                .get().addOnSuccessListener {
+                    if (it.exists()) {
+                        database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/${issue.id}/projectTime")
+                            .setValue(
+                                (it.child("projectTime").value.toString()
+                                    .toDouble() + time.toDouble()).toString()
+                            )
+                        database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/totalTime")
+                            .setValue((totalTime.value + time.toDouble()).toString())
+                    } else {
+                        // Create date for toggles in database
+                        database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date")
+                            .get().addOnSuccessListener { keyDate ->
+                                if (!keyDate.exists()) {
+                                    database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates")
+                                        .setValue(date)
+                                    // Set toggled issue
+                                    database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/${issue.id}")
+                                        .setValue(toggle)
+                                    // update total toggle time
+                                    database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/totalTime")
+                                        .setValue((totalTime.value + time.toDouble()).toString())
+                                } else {
+                                    // Set toggled issue
+                                    database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/${issue.id}")
+                                        .setValue(toggle)
+                                    // update total toggle time
+                                    database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/totalTime")
+                                        .setValue((totalTime.value + time.toDouble()).toString())
+                                }
+                            }
+                    }
+                }
+        } catch (e: Exception) {
+            Timber.e("Couldn't save toggle")
+        }
+    }
+
+    private fun getTotalTime() {
+        try {
+            val date = currentDate()
+            database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/totalTime")
+                .get().addOnSuccessListener {
+                    if (it.exists()) {
+                        totalTime.value = it.value.toString().toDouble()
+                    } else {
+                        totalTime.value = 0.0
+                    }
+                    return@addOnSuccessListener
+                }.addOnFailureListener {
+                    totalTime.value = 0.0
+                }
+        } catch (e: Exception) {
+            Timber.e("Couldn't get toggle time")
         }
     }
 

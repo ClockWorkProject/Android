@@ -40,6 +40,9 @@ class ToggleViewModel(context: Context) : ViewModel() {
             database.reference.child("groups/${groupID}").setValue(group)
             // Set user who created group to admin
             database.reference.child("groups/${groupID}/user/${getUserId()}/role").setValue("admin")
+            // Set username
+            database.reference.child("groups/${groupID}/user/${getUserId()}/username")
+                .setValue(preferences.getUsername())
             // Update groupID in User, so he is member of this group
             database.reference.child("user/${getUserId()}/groupID").setValue(groupID)
             setGroupInfo(groupID, name)
@@ -55,6 +58,12 @@ class ToggleViewModel(context: Context) : ViewModel() {
                     if (snapshot.exists()) {
                         database.reference.child("user/${getUserId()}/groupID")
                             .setValue(snapshot.child("id").value.toString())
+                        // Set username
+                        database.reference.child("groups/${groupID}/user/${getUserId()}/username")
+                            .setValue(preferences.getUsername())
+                        // Set user who joined group to member
+                        database.reference.child("groups/${groupID}/user/${getUserId()}/role")
+                            .setValue("member")
                         setGroupInfo(
                             snapshot.child("id").value.toString(),
                             snapshot.child("name").value.toString()
