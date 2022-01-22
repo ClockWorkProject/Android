@@ -20,7 +20,6 @@ import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.BoardState.OPEN
 import de.lucas.clockwork_android.ui.theme.Gray200
-import timber.log.Timber
 
 @Composable
 internal fun EditIssueScreen(
@@ -32,7 +31,6 @@ internal fun EditIssueScreen(
     state: BoardState,
     onClickBack: () -> Unit
 ) {
-    Timber.e(project.toString())
     var title by remember { mutableStateOf(issue?.name ?: "") }
     var description by remember { mutableStateOf(issue?.description ?: "") }
     Scaffold(backgroundColor = Color.White) {

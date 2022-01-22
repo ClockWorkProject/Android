@@ -72,13 +72,19 @@ internal fun IssueBoardScreen(
             }
             BoardViewPager(
                 pagerState = pagerState,
-                project = projectList[viewModel.getProjectId()],
+                project = if (viewModel.getProjectId() == -1) {
+                    Project("", "", listOf())
+                } else {
+                    projectList[viewModel.getProjectId()]
+                },
                 viewModel = viewModel,
                 onClickIssue = { issue ->
                     onClickIssue(issue, projectList[viewModel.getProjectId()].id)
                 },
                 onClickNewIssue = { boardState ->
-                    onClickNewIssue(projectList[viewModel.getProjectId()], boardState)
+                    if (viewModel.getProjectId() != -1) {
+                        onClickNewIssue(projectList[viewModel.getProjectId()], boardState)
+                    }
                 },
                 onLongPressIssue = { issue -> longPressIssueId = issue.id }
             )

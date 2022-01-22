@@ -93,7 +93,7 @@ internal fun LoginScreen(
             }
         }
         if (viewModel.getIsLoading()) {
-            LoadingIndicator()
+            LoadingIndicator(id = R.string.login_loading)
         }
     }
 }
@@ -228,7 +228,7 @@ fun RoundedButton(@StringRes id: Int, padding: Int, modifier: Modifier, onClick:
 }
 
 @Composable
-internal fun LoadingIndicator() {
+internal fun LoadingIndicator(@StringRes id: Int) {
     Dialog(
         onDismissRequest = { },
         DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
@@ -243,7 +243,7 @@ internal fun LoadingIndicator() {
                 verticalArrangement = Arrangement.Center
             ) {
                 CircularProgressIndicator()
-                Text(text = stringResource(id = R.string.login_loading))
+                Text(text = stringResource(id = id))
             }
         }
     }

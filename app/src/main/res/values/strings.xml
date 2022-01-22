@@ -62,6 +62,7 @@
     <string name="error_message_login">Ungültige Email/Passwort</string>
     <string name="error_message_text_empty">Textfeld darf nicht leer sein!</string>
     <string name="login_loading">Überprüfung läuft...</string>
+    <string name="data_loading">Daten werden geladen...</string>
     <string name="change_board_state">Issue verschieben in:</string>
     <string name="invite_group">Jemanden in Ihre Gruppe einladen</string>
     <string name="no_group_found">Die von Ihnen eingegebene Gruppe konnte nicht gefunden werden</string>

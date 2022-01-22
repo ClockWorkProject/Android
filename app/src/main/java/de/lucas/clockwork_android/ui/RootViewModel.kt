@@ -17,6 +17,7 @@ class RootViewModel(context: Context) : ViewModel() {
     private val preferences = Preferences(context)
     private val database = FirebaseDatabase.getInstance()
     val projectList: MutableList<Project> = mutableListOf()
+    private val isLoading: MutableState<Boolean> = mutableStateOf(false)
 
     var showBottomNavigation: MutableState<Boolean> = mutableStateOf(false)
         private set
@@ -60,9 +61,14 @@ class RootViewModel(context: Context) : ViewModel() {
 
     fun getGroupId() = preferences.getGroupId()
 
-    fun getAllProjects() {
-        if (getGroupId() != "") {
-            database.reference.child("groups/${preferences.getGroupId()}/projects")
+    fun setProjectIndex(index: Int) = preferences.setProjectId(index)
+
+    fun getIsLoading() = isLoading.value
+
+    fun getAllProjects(groupId: String) {
+        isLoading.value = true
+        if (groupId != "") {
+            database.reference.child("groups/$groupId/projects")
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         projectList.clear()
@@ -87,6 +93,7 @@ class RootViewModel(context: Context) : ViewModel() {
                                 )
                             )
                         }
+                        isLoading.value = false
                         Timber.e(projectList.toString())
                     }
 
@@ -96,6 +103,7 @@ class RootViewModel(context: Context) : ViewModel() {
                 })
         } else {
             projectList.clear()
+            isLoading.value = false
         }
     }
 

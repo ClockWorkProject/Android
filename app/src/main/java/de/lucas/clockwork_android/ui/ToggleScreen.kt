@@ -43,7 +43,7 @@ val listOfToggles =
  */
 @ExperimentalMaterialApi
 @Composable
-internal fun ToggleScreen(viewModel: ToggleViewModel) {
+internal fun ToggleScreen(viewModel: ToggleViewModel, onJoinGroup: (String) -> Unit) {
     Scaffold {
         // Check if user is member of a group (-1 -> no member, else -> member of a group)
         if (viewModel.getGroupId() == "" && viewModel.showEmptyState.value) {
@@ -61,6 +61,7 @@ internal fun ToggleScreen(viewModel: ToggleViewModel) {
                 ) { input ->
                     viewModel.joinGroup("-Mtnv0WvAajXbKU0Wh5I")
                     showJoinDialog = false
+                    onJoinGroup("-Mtnv0WvAajXbKU0Wh5I") // Change to input later!!!!!
                 }
             }
             // if true show create group dialog
@@ -75,6 +76,7 @@ internal fun ToggleScreen(viewModel: ToggleViewModel) {
                     viewModel.showToggleList.value = true
                     showCreateDialog = false
                     viewModel.showEmptyState.value = false
+                    onJoinGroup(viewModel.getGroupId()!!)
                 }
             }
             // Empty state message
@@ -200,7 +202,7 @@ fun ToggleListPreview() {
 @Preview
 @Composable
 private fun PreviewToggleScreen() {
-    ToggleScreen(ToggleViewModel(LocalContext.current))
+    ToggleScreen(ToggleViewModel(LocalContext.current)) { }
 }
 
 @Preview

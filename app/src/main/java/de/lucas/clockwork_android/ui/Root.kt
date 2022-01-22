@@ -3,8 +3,7 @@ package de.lucas.clockwork_android.ui
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,7 +24,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
+import com.squareup.moshi.Moshi
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.InfoCategory
 import de.lucas.clockwork_android.model.Issue
@@ -43,6 +42,7 @@ import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.info.*
 import de.lucas.clockwork_android.ui.theme.roundedShape
 import timber.log.Timber
+import java.net.URLEncoder
 
 @ExperimentalPagerApi
 @OptIn(ExperimentalMaterialApi::class)
@@ -53,9 +53,11 @@ fun Root(rootViewModel: RootViewModel) {
     val togglePlayerViewModel = TogglePlayerViewModel(context)
     val editViewModel = EditIssueViewModel(context)
     val auth: FirebaseAuth = Firebase.auth
+    val moshi = Moshi.Builder().build()
+    var groupId by remember { mutableStateOf(rootViewModel.getGroupId()) }
     lateinit var timer: CountUpTimer
 
-    rootViewModel.getAllProjects()
+    rootViewModel.getAllProjects(groupId!!)
 
     /**
      * Starts the count up timer
@@ -229,7 +231,10 @@ fun Root(rootViewModel: RootViewModel) {
                 rootViewModel.setAppTitle(stringResource(id = R.string.time_record))
                 rootViewModel.setShowNavigationIcon(false)
                 rootViewModel.setShowBottomNavigation(true)
-                ToggleScreen(viewModel = ToggleViewModel(context))
+                ToggleScreen(
+                    viewModel = ToggleViewModel(context),
+                    onJoinGroup = { id -> groupId = id }
+                )
             }
             composable(BOARD.route) {
                 rootViewModel.setAppTitle(stringResource(id = R.string.issue_board))
@@ -238,15 +243,17 @@ fun Root(rootViewModel: RootViewModel) {
                     projectList = if (rootViewModel.getGroupId() != "") rootViewModel.projectList else listOf(),
                     viewModel = IssueBoardViewModel(context),
                     onClickIssue = { issue, project_id ->
+                        val issueAdapter = moshi.adapter(Issue::class.java)
                         // Create Json of information of clicked Issue
-                        val jsonIssue = Gson().toJson(issue)
+                        val jsonIssue = URLEncoder.encode(issueAdapter.toJson(issue), "UTF-8")
                         editViewModel.setProjectID(project_id)
                         // Navigate with arguments of clicked Issue, to show in IssueDetailScreen
                         navController.navigate("$ISSUE_DETAIL/$jsonIssue")
                     },
                     onClickNewIssue = { project, boardState ->
+                        val projectAdapter = moshi.adapter(Project::class.java)
+                        val jsonProject = URLEncoder.encode(projectAdapter.toJson(project), "UTF-8")
                         editViewModel.setEditBoardState(boardState)
-                        val jsonProject = Gson().toJson(project)
                         navController.navigate("$ISSUE_CREATE/$jsonProject")
                     }
                 )
@@ -271,7 +278,10 @@ fun Root(rootViewModel: RootViewModel) {
                             }
                         }
                     },
-                    onClickLeave = { navController.navigate(TOGGLE.route) }
+                    onClickLeave = {
+                        rootViewModel.setProjectIndex(-1)
+                        navController.navigate(TOGGLE.route)
+                    }
                 )
             }
             composable(
@@ -281,10 +291,20 @@ fun Root(rootViewModel: RootViewModel) {
             ) { backStackEntry ->
                 backStackEntry.arguments
                     ?.getString("issue").let { json ->
-                        val issue = Gson().fromJson(json, Issue::class.java)
+                        val issueAdapter = moshi.adapter(Issue::class.java)
+                        val issue = issueAdapter.fromJson(json!!)
                         rootViewModel.setShowNavigationIcon(true)
                         rootViewModel.setAppTitle(stringResource(id = R.string.issue_details))
-                        IssueDetailScreen(issue) { navController.navigate("$ISSUE_EDIT/$json") }
+                        IssueDetailScreen(issue!!) {
+                            navController.navigate(
+                                "$ISSUE_EDIT/${
+                                    URLEncoder.encode(
+                                        json,
+                                        "UTF-8"
+                                    )
+                                }"
+                            )
+                        }
                     }
             }
             composable(
@@ -293,10 +313,10 @@ fun Root(rootViewModel: RootViewModel) {
                 { type = NavType.StringType })
             ) { backStackEntry ->
                 backStackEntry.arguments?.getString("issue").let { json ->
-                    val issue = Gson().fromJson(json, Issue::class.java)
+                    val issueAdapter = moshi.adapter(Issue::class.java)
+                    val issue = issueAdapter.fromJson(json!!)
                     rootViewModel.setAppTitle(stringResource(id = R.string.edit_issue))
                     rootViewModel.setShowNavigationIcon(true)
-                    Timber.e("ISSUE")
                     EditIssueScreen(
                         issue = issue,
                         project = null,
@@ -319,10 +339,10 @@ fun Root(rootViewModel: RootViewModel) {
                 { type = NavType.StringType })
             ) { backStackEntry ->
                 backStackEntry.arguments?.getString("project").let { json ->
-                    val project = Gson().fromJson(json, Project::class.java)
+                    val projectAdapter = moshi.adapter(Project::class.java)
+                    val project = projectAdapter.fromJson(json!!)
                     rootViewModel.setAppTitle(stringResource(id = R.string.create_issue))
                     rootViewModel.setShowNavigationIcon(true)
-                    Timber.e("PROJECT")
                     EditIssueScreen(
                         issue = null,
                         project = project,
@@ -371,6 +391,9 @@ fun Root(rootViewModel: RootViewModel) {
                 rootViewModel.setAppTitle(stringResource(id = R.string.data_protection))
                 DataProtectionScreen()
             }
+        }
+        if (rootViewModel.getIsLoading()) {
+            LoadingIndicator(id = R.string.data_loading)
         }
     }
 }

@@ -64,7 +64,6 @@ class ToggleViewModel(context: Context) : ViewModel() {
                         showEmptyState.value = false
                     } else {
                         noGroupFoundState.value = true
-                        Timber.e("NOT HERRRREEEEE")
                     }
                 }
 
