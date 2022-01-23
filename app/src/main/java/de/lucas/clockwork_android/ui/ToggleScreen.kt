@@ -20,22 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.lucas.clockwork_android.R
-import de.lucas.clockwork_android.model.Toggle
 import de.lucas.clockwork_android.model.TotalToggle
-
-// For testing purpose
-val listOfToggles =
-    listOf(
-        TotalToggle(
-            "Heute",
-            "3 Std. 20 Min.",
-            listOf(Toggle("Daily", "Meetings", "00:35:00"), Toggle("Bug Fix", "Vinson", "01:12:00"))
-        ), TotalToggle(
-            "Gestern",
-            "7 Std. 55 Min.",
-            listOf(Toggle("Daily", "Meetings", "00:35:00"), Toggle("Bug Fix", "Vinson", "01:12:00"))
-        )
-    )
 
 /**
  * If user is member of a group -> show list of all his previous toggles and his current toggle
@@ -43,7 +28,11 @@ val listOfToggles =
  */
 @ExperimentalMaterialApi
 @Composable
-internal fun ToggleScreen(viewModel: ToggleViewModel, onJoinGroup: (String) -> Unit) {
+internal fun ToggleScreen(
+    toggleList: List<TotalToggle>,
+    viewModel: ToggleViewModel,
+    onJoinGroup: (String) -> Unit
+) {
     Scaffold {
         // Check if user is member of a group (-1 -> no member, else -> member of a group)
         if (viewModel.getGroupId() == "" && viewModel.showEmptyState.value) {
@@ -88,10 +77,10 @@ internal fun ToggleScreen(viewModel: ToggleViewModel, onJoinGroup: (String) -> U
                 }
             }
         } else {
-            ToggleList(listOfToggles)
+            ToggleList(toggleList)
         }
         // Check state if user creates or joins a group -> show list instead of empty state
-        if (viewModel.showToggleList.value) ToggleList(listOfToggles)
+        if (viewModel.showToggleList.value) ToggleList(toggleList)
     }
 }
 
@@ -195,14 +184,14 @@ fun CustomSnackBar(@StringRes id: Int, onClick: () -> Unit) {
 @Preview
 @Composable
 fun ToggleListPreview() {
-    ToggleList(list = listOfToggles)
+    ToggleList(list = listOf())
 }
 
 @ExperimentalMaterialApi
 @Preview
 @Composable
 private fun PreviewToggleScreen() {
-    ToggleScreen(ToggleViewModel(LocalContext.current)) { }
+    ToggleScreen(listOf(), ToggleViewModel(LocalContext.current)) { }
 }
 
 @Preview

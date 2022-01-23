@@ -1,8 +1,7 @@
 package de.lucas.clockwork_android.ui
 
 import android.content.Context
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -12,14 +11,17 @@ import de.lucas.clockwork_android.model.*
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.roundToInt
 
 class RootViewModel(context: Context) : ViewModel() {
     private val preferences = Preferences(context)
     private val database = FirebaseDatabase.getInstance()
-    val projectList: MutableList<Project> = mutableListOf()
-    val toggleList: MutableList<TotalToggle> = mutableListOf()
+    var projectList by mutableStateOf(listOf<Project>())
+    var toggleList by mutableStateOf(listOf<TotalToggle>())
     private val totalTime: MutableState<Double> = mutableStateOf(0.0)
-    private val isLoading: MutableState<Boolean> = mutableStateOf(false)
+    val isLoading: MutableState<Boolean> = mutableStateOf(false)
+    var toggleListener: ValueEventListener? = null
+    var projectListener: ValueEventListener? = null
 
     var showBottomNavigation: MutableState<Boolean> = mutableStateOf(false)
         private set
@@ -67,18 +69,23 @@ class RootViewModel(context: Context) : ViewModel() {
 
     fun getIsLoading() = isLoading.value
 
-    private fun getUserId() = preferences.getUserId()
+    fun getUserId() = preferences.getUserId()
+
+    fun removeLists() {
+        projectList = listOf()
+        toggleList = listOf()
+    }
 
     private fun currentDate(): String =
         SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
 
-    fun getAllProjects(groupId: String) {
+    fun getAllData(groupId: String) {
         isLoading.value = true
         if (groupId != "") {
-            database.reference.child("groups/$groupId/projects")
+            projectListener = database.reference.child("groups/$groupId/projects")
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        projectList.clear()
+                        projectList = listOf()
                         snapshot.children.forEach { project ->
                             val issues = mutableListOf<Issue>()
                             project.child("issues").children.forEach { issue ->
@@ -92,7 +99,7 @@ class RootViewModel(context: Context) : ViewModel() {
                                     )
                                 )
                             }
-                            projectList.add(
+                            projectList = projectList + listOf(
                                 Project(
                                     project.key!!,
                                     project.child("name").value.toString(),
@@ -100,17 +107,12 @@ class RootViewModel(context: Context) : ViewModel() {
                                 )
                             )
                         }
-                        isLoading.value = false
-                        Timber.e(projectList.toString())
                     }
 
                     override fun onCancelled(error: DatabaseError) {
                         Timber.e("IAAAMMMM CANCCEEELLLEEEDDD")
                     }
                 })
-        } else {
-            projectList.clear()
-            isLoading.value = false
         }
     }
 
@@ -132,29 +134,67 @@ class RootViewModel(context: Context) : ViewModel() {
                     } else {
                         // Create date for toggles in database
                         database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date")
-                            .get().addOnSuccessListener { keyDate ->
-                                if (!keyDate.exists()) {
-                                    database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates")
-                                        .setValue(date)
-                                    // Set toggled issue
-                                    database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/${issue.id}")
-                                        .setValue(toggle)
-                                    // update total toggle time
-                                    database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/totalTime")
-                                        .setValue((totalTime.value + time.toDouble()).toString())
-                                } else {
-                                    // Set toggled issue
-                                    database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/${issue.id}")
-                                        .setValue(toggle)
-                                    // update total toggle time
-                                    database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/totalTime")
-                                        .setValue((totalTime.value + time.toDouble()).toString())
-                                }
+                            .get().addOnSuccessListener {
+                                // Set toggled issue
+                                database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/${issue.id}")
+                                    .setValue(toggle)
+                                // update total toggle time
+                                database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/totalTime")
+                                    .setValue((totalTime.value + time.toDouble()).toString())
                             }
                     }
                 }
         } catch (e: Exception) {
             Timber.e("Couldn't save toggle")
+        }
+    }
+
+    fun getAllToggles(groupID: String, userID: String) {
+        if (groupID != "") {
+            toggleListener = database.reference.child("groups/$groupID/user/$userID/dates")
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        toggleList = listOf()
+                        snapshot.children.reversed().forEach { toggle ->
+                            val totalTime = mutableStateOf("")
+                            val issues = mutableListOf<Toggle>()
+                            toggle.child("issues").children.forEach { issue ->
+                                if (issue.key != "totalTime") {
+                                    issues.add(
+                                        Toggle(
+                                            issue.child("issueName").value.toString(),
+                                            issue.child("projectName").value.toString(),
+                                            issue.child("projectTime").value.toString().toDouble()
+                                                .roundDoubleToString(false)
+                                        )
+                                    )
+                                    totalTime.value =
+                                        issue.child("projectTime").value.toString().toDouble()
+                                            .roundDoubleToString(false)
+                                }
+                            }
+                            if (toggle.child("issues/totalTime").exists()) {
+                                totalTime.value =
+                                    toggle.child("issues/totalTime").value.toString()
+                                        .toDouble()
+                                        .roundDoubleToString(true)
+                            }
+                            toggleList = toggleList + listOf(
+                                TotalToggle(
+                                    toCurrentDate(toggle.key!!.replace("-", ".")),
+                                    totalTime.value,
+                                    issues
+                                )
+                            )
+                        }
+                        Timber.e(toggleList.toString())
+                        isLoading.value = false
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Timber.e("IAAAMMMM CANCCEEELLLEEEDDD")
+                    }
+                })
         }
     }
 
@@ -177,14 +217,60 @@ class RootViewModel(context: Context) : ViewModel() {
         }
     }
 
-    private fun setIssueState(stateString: String): BoardState {
-        return when (stateString) {
-            "open" -> BoardState.OPEN
-            "todo" -> BoardState.TODO
-            "doing" -> BoardState.DOING
-            "blocker" -> BoardState.BLOCKER
-            "review" -> BoardState.REVIEW
-            else -> BoardState.CLOSED
+    fun toCurrentDate(date: String): String {
+        val now = Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24)
+        val currentDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date())
+        val yesterday = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(now)
+        if (date == currentDate) {
+            return "Heute"
+        } else if (date == yesterday) {
+            return "Gestern"
+        }
+        return date
+    }
+
+    fun Double.roundDoubleToString(isTotalTime: Boolean): String =
+        getTimeString(roundToInt(), isTotalTime)
+
+    /*
+ calculates the time from milliseconds to hours, minutes and seconds
+ calls fun to build time as String
+ */
+    private fun getTimeString(time: Int, isTotalTime: Boolean): String {
+        val hours = time % 86400 / 3600
+        var minutes = time % 86400 % 3600 / 60
+        val seconds = time % 86400 % 3600 % 60
+
+        return if (isTotalTime) {
+            if (seconds >= 30) {
+                minutes += 1
+            }
+            makeTotalTimeString(hours, minutes)
+        } else {
+            makeTimeString(hours, minutes, seconds)
         }
     }
+
+    // Formats the given time to String format
+    private fun makeTimeString(hour: Int, min: Int, sec: Int): String =
+        String.format("%02d:%02d:%02d", hour, min, sec)
+
+    private fun makeTotalTimeString(hour: Int, min: Int): String =
+        String.format("%2d Std. %2d Min.", hour, min)
+}
+
+private fun setIssueState(stateString: String): BoardState {
+    return when (stateString) {
+        "open" -> BoardState.OPEN
+        "todo" -> BoardState.TODO
+        "doing" -> BoardState.DOING
+        "blocker" -> BoardState.BLOCKER
+        "review" -> BoardState.REVIEW
+        else -> BoardState.CLOSED
+    }
+}
+
+interface OnDataReceiveCallback {
+    fun onProjectsReceived(projectList: List<Project>)
+    fun onTogglesReceived(toggleList: List<TotalToggle>)
 }

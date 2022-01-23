@@ -57,7 +57,12 @@ fun Root(rootViewModel: RootViewModel) {
     var groupId by remember { mutableStateOf(rootViewModel.getGroupId()) }
     lateinit var timer: CountUpTimer
 
-    rootViewModel.getAllProjects(groupId!!)
+    // Get all data from firebase
+    if (groupId != "") {
+        rootViewModel.removeLists()
+        rootViewModel.getAllData(groupId!!)
+        rootViewModel.getAllToggles(groupId!!, rootViewModel.getUserId()!!)
+    }
 
     /**
      * Starts the count up timer
@@ -142,7 +147,6 @@ fun Root(rootViewModel: RootViewModel) {
                                 togglePlayerViewModel.setIsTogglePaused(false)
                             },
                             onClose = {
-                                /* TODO add item to list with total toggle time */
                                 // Stop Timer
                                 timer.cancel()
                                 // Send to backend
@@ -240,6 +244,7 @@ fun Root(rootViewModel: RootViewModel) {
                 rootViewModel.setShowNavigationIcon(false)
                 rootViewModel.setShowBottomNavigation(true)
                 ToggleScreen(
+                    toggleList = if (rootViewModel.getGroupId() != "") rootViewModel.toggleList else listOf(),
                     viewModel = ToggleViewModel(context),
                     onJoinGroup = { id -> groupId = id }
                 )
@@ -287,6 +292,7 @@ fun Root(rootViewModel: RootViewModel) {
                         }
                     },
                     onClickLeave = {
+                        groupId = ""
                         rootViewModel.setProjectIndex(-1)
                         navController.navigate(TOGGLE.route)
                     }

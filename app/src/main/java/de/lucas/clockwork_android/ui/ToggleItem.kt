@@ -54,7 +54,7 @@ internal fun ToggleItem(toggle: TotalToggle) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = toggle.date,
-                    fontSize = 22.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(4f)
                 )
