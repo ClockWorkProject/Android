@@ -62,10 +62,6 @@ class LoginViewModel(context: Context) : ViewModel() {
         isLoading.value = state
     }
 
-    private fun setGroupID(id: String) {
-        preferences.setGroupId(id)
-    }
-
     fun getIsLoading() = isLoading.value
 
     fun getEmail() = email.value
@@ -110,7 +106,11 @@ class LoginViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun loginUser(auth: FirebaseAuth, context: ComponentActivity, onLogin: () -> Unit) {
+    fun loginUser(
+        auth: FirebaseAuth,
+        context: ComponentActivity,
+        onLogin: (String, String) -> Unit
+    ) {
         // Check if Textfields are not empty locally
         if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
             // Show loading Indicator
@@ -128,19 +128,28 @@ class LoginViewModel(context: Context) : ViewModel() {
                         database.reference.child("user/${auth.currentUser!!.uid}").get()
                             .addOnSuccessListener {
                                 groupId = it.child("groupID").value.toString()
-                                setGroupID(groupId)
                                 setUserInfo(
                                     email.value.substringBefore("@"),
                                     auth.currentUser!!.uid,
                                     groupId
                                 )
+                                if (groupId != "") {
+                                    database.reference.child("groups/${groupId}/user/${auth.currentUser!!.uid}")
+                                        .get().addOnSuccessListener { role ->
+                                            preferences.setUserRole(role.child("role").value.toString())
+                                            onLogin(groupId, role.child("role").value.toString())
+                                        }
+                                    return@addOnSuccessListener
+                                } else {
+                                    preferences.setUserRole("member")
+                                }
+                                // Navigate user to ToggleScreen
+                                onLogin(groupId, preferences.getUserRole()!!)
+                                setError(false)
                                 Timber.e("Got value ${it.child("groupID").value.toString()}")
                             }.addOnFailureListener {
                                 Timber.e("Error getting data", it)
                             }
-                        // Navigate user to ToggleScreen
-                        onLogin()
-                        setError(false)
                     } else {
                         // If sign in fails, display a message to the user.
                         Timber.e("signInWithEmail:failure")

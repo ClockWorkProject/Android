@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -44,6 +45,7 @@ import de.lucas.clockwork_android.ui.theme.roundedShape
 import timber.log.Timber
 import java.net.URLEncoder
 
+@ExperimentalComposeUiApi
 @ExperimentalPagerApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -55,13 +57,16 @@ fun Root(rootViewModel: RootViewModel) {
     val auth: FirebaseAuth = Firebase.auth
     val moshi = Moshi.Builder().build()
     var groupId by remember { mutableStateOf(rootViewModel.getGroupId()) }
+    var userRole by remember { mutableStateOf(rootViewModel.getUserRole()) }
     lateinit var timer: CountUpTimer
 
     // Get all data from firebase
     if (groupId != "") {
-        rootViewModel.removeLists()
         rootViewModel.getAllData(groupId!!)
         rootViewModel.getAllToggles(groupId!!, rootViewModel.getUserId()!!)
+        if (userRole == "admin") {
+            rootViewModel.getAllMembers(groupId!!)
+        }
     }
 
     /**
@@ -221,13 +226,15 @@ fun Root(rootViewModel: RootViewModel) {
                 LoginScreen(
                     viewModel = loginViewModel,
                     auth = auth,
-                    onClickLogin = {
+                    onClickLogin = { id, role ->
                         navController.navigate(TOGGLE.route) {
                             popUpTo(0) {
                                 inclusive = true
                             }
                         }
                         rootViewModel.setShowBottomNavigation(true)
+                        groupId = id
+                        userRole = role
                     },
                     onClickSignUp = {
                         navController.navigate(TOGGLE.route) {
@@ -259,6 +266,7 @@ fun Root(rootViewModel: RootViewModel) {
                         val issueAdapter = moshi.adapter(Issue::class.java)
                         // Create Json of information of clicked Issue
                         val jsonIssue = URLEncoder.encode(issueAdapter.toJson(issue), "UTF-8")
+                            .replace("+", " ")
                         editViewModel.setProjectID(project_id)
                         // Navigate with arguments of clicked Issue, to show in IssueDetailScreen
                         navController.navigate("$ISSUE_DETAIL/$jsonIssue")
@@ -266,6 +274,7 @@ fun Root(rootViewModel: RootViewModel) {
                     onClickNewIssue = { project, boardState ->
                         val projectAdapter = moshi.adapter(Project::class.java)
                         val jsonProject = URLEncoder.encode(projectAdapter.toJson(project), "UTF-8")
+                            .replace("+", " ")
                         editViewModel.setEditBoardState(boardState)
                         navController.navigate("$ISSUE_CREATE/$jsonProject")
                     }
@@ -274,7 +283,7 @@ fun Root(rootViewModel: RootViewModel) {
             composable(STATISTIC.route) {
                 rootViewModel.setAppTitle(stringResource(id = R.string.statistic))
                 rootViewModel.setShowNavigationIcon(false)
-                StatisticScreen()
+                StatisticScreen(rootViewModel.getUserRole()!!, rootViewModel.memberList)
             }
             composable(PROFILE.route) {
                 rootViewModel.setAppTitle(stringResource(id = R.string.profile))
@@ -283,6 +292,7 @@ fun Root(rootViewModel: RootViewModel) {
                     viewModel = ProfileViewModel(context),
                     onClickInfo = { navController.navigate(INFO) },
                     onClickLogout = {
+                        rootViewModel.removeAll()
                         auth.signOut()
                         navController.navigate(LOGIN) {
                             rootViewModel.setShowBottomNavigation(false)
@@ -290,8 +300,10 @@ fun Root(rootViewModel: RootViewModel) {
                                 inclusive = true
                             }
                         }
+                        groupId = ""
                     },
                     onClickLeave = {
+                        rootViewModel.removeAllListeners()
                         groupId = ""
                         rootViewModel.setProjectIndex(-1)
                         navController.navigate(TOGGLE.route)

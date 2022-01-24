@@ -45,6 +45,7 @@ class ToggleViewModel(context: Context) : ViewModel() {
                 .setValue(preferences.getUsername())
             // Update groupID in User, so he is member of this group
             database.reference.child("user/${getUserId()}/groupID").setValue(groupID)
+            preferences.setUserRole("admin")
             setGroupInfo(groupID, name)
         } catch (e: Exception) {
             Timber.e("Couldn't create group")
@@ -62,8 +63,13 @@ class ToggleViewModel(context: Context) : ViewModel() {
                         database.reference.child("groups/${groupID}/user/${getUserId()}/name")
                             .setValue(preferences.getUsername())
                         // Set user who joined group to member
-                        database.reference.child("groups/${groupID}/user/${getUserId()}/role")
-                            .setValue("member")
+                        if (snapshot.child("user/${getUserId()}/role").exists()) {
+                            preferences.setUserRole(snapshot.child("user/${getUserId()}/role").value.toString())
+                        } else {
+                            // Set user who joined group to member
+                            database.reference.child("groups/${groupID}/user/${getUserId()}/role")
+                                .setValue("member")
+                        }
                         setGroupInfo(
                             snapshot.child("id").value.toString(),
                             snapshot.child("name").value.toString()

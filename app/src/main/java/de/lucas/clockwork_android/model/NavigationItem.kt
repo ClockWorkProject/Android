@@ -20,5 +20,6 @@ enum class NavigationItem(val route: String, val icon: Int, val title: String) {
         const val VERSION = "version"
         const val LICENSES = "licenses"
         const val DATA_PROTECTION = "data_protection"
+        const val USER_STATISTIC = "user_statistic"
     }
 }

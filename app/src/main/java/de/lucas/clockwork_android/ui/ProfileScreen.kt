@@ -130,7 +130,10 @@ internal fun ProfileScreen(
                         Text(text = stringResource(id = R.string.leave_group))
                     }
                     Button(
-                        onClick = { onClickLogout() },
+                        onClick = {
+                            onClickLogout()
+                            viewModel.logOut()
+                        },
                         modifier = Modifier
                             .padding(top = 16.dp)
                             .fillMaxWidth()
@@ -221,7 +224,9 @@ fun ProfileDialog(
             } else {
                 TextField(
                     value = text,
-                    onValueChange = { text = it }
+                    onValueChange = { text = it },
+                    singleLine = true,
+                    maxLines = 1
                 )
             }
             if (errorState) {

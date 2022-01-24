@@ -18,10 +18,12 @@ class RootViewModel(context: Context) : ViewModel() {
     private val database = FirebaseDatabase.getInstance()
     var projectList by mutableStateOf(listOf<Project>())
     var toggleList by mutableStateOf(listOf<TotalToggle>())
+    var memberList by mutableStateOf(listOf<UserStatistic>())
     private val totalTime: MutableState<Double> = mutableStateOf(0.0)
     val isLoading: MutableState<Boolean> = mutableStateOf(false)
-    var toggleListener: ValueEventListener? = null
-    var projectListener: ValueEventListener? = null
+    private var toggleListener: ValueEventListener? = null
+    private var projectListener: ValueEventListener? = null
+    private var memberListener: ValueEventListener? = null
 
     var showBottomNavigation: MutableState<Boolean> = mutableStateOf(false)
         private set
@@ -63,6 +65,29 @@ class RootViewModel(context: Context) : ViewModel() {
         showTogglePlayer.value = state
     }
 
+    fun setUserRole(role: String) {
+        preferences.setUserRole("member")
+    }
+
+    fun setGroupName(groupName: String) {
+        preferences.setGroupName(groupName)
+    }
+
+    fun removeAll() {
+        toggleList = listOf()
+        projectList = listOf()
+        memberList = listOf()
+    }
+
+    fun removeAllListeners() {
+        removeAll()
+        database.reference.removeEventListener(toggleListener!!)
+        database.reference.removeEventListener(projectListener!!)
+        if (memberListener != null) {
+            database.reference.removeEventListener(memberListener!!)
+        }
+    }
+
     fun getGroupId() = preferences.getGroupId()
 
     fun setProjectIndex(index: Int) = preferences.setProjectId(index)
@@ -71,10 +96,7 @@ class RootViewModel(context: Context) : ViewModel() {
 
     fun getUserId() = preferences.getUserId()
 
-    fun removeLists() {
-        projectList = listOf()
-        toggleList = listOf()
-    }
+    fun getUserRole() = preferences.getUserRole()
 
     private fun currentDate(): String =
         SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
@@ -124,12 +146,12 @@ class RootViewModel(context: Context) : ViewModel() {
             database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/${issue.id}")
                 .get().addOnSuccessListener {
                     if (it.exists()) {
-                        database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/${issue.id}/projectTime")
+                        database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/${issue.id}/issueTime")
                             .setValue(
-                                (it.child("projectTime").value.toString()
+                                (it.child("issueTime").value.toString()
                                     .toDouble() + time.toDouble()).toString()
                             )
-                        database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/totalTime")
+                        database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/totalTime")
                             .setValue((totalTime.value + time.toDouble()).toString())
                     } else {
                         // Create date for toggles in database
@@ -139,7 +161,7 @@ class RootViewModel(context: Context) : ViewModel() {
                                 database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/${issue.id}")
                                     .setValue(toggle)
                                 // update total toggle time
-                                database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/totalTime")
+                                database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/totalTime")
                                     .setValue((totalTime.value + time.toDouble()).toString())
                             }
                     }
@@ -159,23 +181,18 @@ class RootViewModel(context: Context) : ViewModel() {
                             val totalTime = mutableStateOf("")
                             val issues = mutableListOf<Toggle>()
                             toggle.child("issues").children.forEach { issue ->
-                                if (issue.key != "totalTime") {
-                                    issues.add(
-                                        Toggle(
-                                            issue.child("issueName").value.toString(),
-                                            issue.child("projectName").value.toString(),
-                                            issue.child("projectTime").value.toString().toDouble()
-                                                .roundDoubleToString(false)
-                                        )
-                                    )
-                                    totalTime.value =
-                                        issue.child("projectTime").value.toString().toDouble()
+                                issues.add(
+                                    Toggle(
+                                        issue.child("issueName").value.toString(),
+                                        issue.child("projectName").value.toString(),
+                                        issue.child("issueTime").value.toString().toDouble()
                                             .roundDoubleToString(false)
-                                }
+                                    )
+                                )
                             }
-                            if (toggle.child("issues/totalTime").exists()) {
+                            if (toggle.child("totalTime").exists()) {
                                 totalTime.value =
-                                    toggle.child("issues/totalTime").value.toString()
+                                    toggle.child("totalTime").value.toString()
                                         .toDouble()
                                         .roundDoubleToString(true)
                             }
@@ -198,10 +215,60 @@ class RootViewModel(context: Context) : ViewModel() {
         }
     }
 
+    fun getAllMembers(groupID: String) {
+        memberListener = database.reference.child("groups/$groupID/user")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    memberList = listOf()
+                    snapshot.children.forEach { member ->
+                        val username = mutableStateOf("")
+                        val totalToggleList = mutableListOf<TotalToggle>()
+                        var totalTime = "0.0"
+                        username.value = member.child("name").value.toString()
+                        member.child("dates").children.reversed().forEach { date ->
+                            val issues = mutableListOf<Toggle>()
+                            date.child("issues").children.forEach { issue ->
+                                issues.add(
+                                    Toggle(
+                                        issue.child("issueName").value.toString(),
+                                        issue.child("projectName").value.toString(),
+                                        issue.child("issueTime").value.toString().toDouble()
+                                            .roundDoubleToString(false)
+                                    )
+                                )
+                            }
+                            if (date.child("totalTime").exists()) {
+                                totalTime = date.child("totalTime").value.toString()
+                                    .toDouble()
+                                    .roundDoubleToString(true)
+                            }
+                            totalToggleList.add(
+                                TotalToggle(
+                                    toCurrentDate(date.key!!.replace("-", ".")),
+                                    totalTime,
+                                    issues
+                                )
+                            )
+                        }
+                        memberList = memberList + listOf(
+                            UserStatistic(
+                                username.value,
+                                totalToggleList
+                            )
+                        )
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Timber.e("IAAAMMMM CANCCEEELLLEEEDDD")
+                }
+            })
+    }
+
     private fun getTotalTime() {
         try {
             val date = currentDate()
-            database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/totalTime")
+            database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/totalTime")
                 .get().addOnSuccessListener {
                     if (it.exists()) {
                         totalTime.value = it.value.toString().toDouble()
@@ -268,9 +335,4 @@ private fun setIssueState(stateString: String): BoardState {
         "review" -> BoardState.REVIEW
         else -> BoardState.CLOSED
     }
-}
-
-interface OnDataReceiveCallback {
-    fun onProjectsReceived(projectList: List<Project>)
-    fun onTogglesReceived(toggleList: List<TotalToggle>)
 }

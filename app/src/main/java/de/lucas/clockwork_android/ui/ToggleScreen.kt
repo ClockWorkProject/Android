@@ -77,24 +77,24 @@ internal fun ToggleScreen(
                 }
             }
         } else {
-            ToggleList(toggleList)
+            ToggleList(toggleList, false)
         }
         // Check state if user creates or joins a group -> show list instead of empty state
-        if (viewModel.showToggleList.value) ToggleList(toggleList)
+        if (viewModel.showToggleList.value) ToggleList(toggleList, false)
     }
 }
 
 // List with all toggles of user
 @ExperimentalMaterialApi
 @Composable
-internal fun ToggleList(list: List<TotalToggle>) {
+internal fun ToggleList(list: List<TotalToggle>, smallText: Boolean) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
         items(list) { toggle ->
-            ToggleItem(toggle = toggle)
+            ToggleItem(toggle = toggle, smallText)
         }
     }
 }
@@ -123,7 +123,9 @@ fun CustomDialog(
                 TextField(
                     value = text,
                     onValueChange = { text = it },
-                    label = { Text(stringResource(id = message_id)) }
+                    label = { Text(stringResource(id = message_id)) },
+                    singleLine = true,
+                    maxLines = 1
                 )
                 if (errorState) {
                     Text(
@@ -184,7 +186,7 @@ fun CustomSnackBar(@StringRes id: Int, onClick: () -> Unit) {
 @Preview
 @Composable
 fun ToggleListPreview() {
-    ToggleList(list = listOf())
+    ToggleList(list = listOf(), smallText = false)
 }
 
 @ExperimentalMaterialApi

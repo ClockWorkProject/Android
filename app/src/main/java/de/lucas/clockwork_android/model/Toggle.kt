@@ -16,10 +16,10 @@ data class TotalToggle(
  * data class for a single toggle item
  * @param issueName name of the issue that was toggled
  * @param projectName the project, that the issue is from
- * @param projectTime the toggled time of this issue
+ * @param issueTime the toggled time of this issue
  */
 data class Toggle(
     val issueName: String,
     val projectName: String,
-    val projectTime: String
+    val issueTime: String
 )

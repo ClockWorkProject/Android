@@ -110,6 +110,11 @@ class Preferences(private val context: Context) {
 
     fun getUserId() = prefs().getString(USER_ID, "")
 
+    // Set role of user for group
+    fun setUserRole(id: String) = prefs().edit().putString(USER_ROLE, id).apply()
+
+    fun getUserRole() = prefs().getString(USER_ROLE, "member")
+
     // Set group id to send to backend for all actions
     fun setGroupId(id: String) = prefs().edit().putString(GROUP_ID, id).apply()
 
@@ -126,6 +131,7 @@ class Preferences(private val context: Context) {
         const val PROJECT_ID = "PROJECT_ID"
         const val USER_NAME = "USER_NAME"
         const val USER_ID = "USER_ID"
+        const val USER_ROLE = "USER_ROLE"
         const val GROUP_NAME = "GROUP_NAME"
         const val GROUP_ID = "GROUP_ID"
     }

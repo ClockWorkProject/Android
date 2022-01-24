@@ -56,10 +56,21 @@ class ProfileViewModel(context: Context) : ViewModel() {
         }
     }
 
+    fun logOut() {
+        preferences.setGroupId("")
+        preferences.setGroupName("")
+        preferences.setUserRole("member")
+        preferences.setUserId("")
+        preferences.setUsername("")
+        preferences.setProjectId(-1)
+    }
+
     fun leaveGroup() {
         database.reference.child("user/${preferences.getUserId()}/groupID").setValue("")
         preferences.setGroupId("")
         preferences.setGroupName("")
+        preferences.setUserRole("member")
+        preferences.setProjectId(-1)
     }
 
     fun updateUsername(name: String) {

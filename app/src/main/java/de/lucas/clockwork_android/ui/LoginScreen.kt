@@ -37,7 +37,7 @@ import de.lucas.clockwork_android.R
 internal fun LoginScreen(
     viewModel: LoginViewModel,
     auth: FirebaseAuth,
-    onClickLogin: () -> Unit,
+    onClickLogin: (String, String) -> Unit,
     onClickSignUp: () -> Unit
 ) {
     Scaffold {
@@ -61,7 +61,7 @@ internal fun LoginScreen(
                     errorState = viewModel.getIsError(),
                     viewModel = viewModel,
                     auth = auth,
-                    login = { onClickLogin() },
+                    login = { groupID, role -> onClickLogin(groupID, role) },
                     signUp = { onClickSignUp() }
                 )
                 OutlinedStyledTextPassword(
@@ -166,7 +166,7 @@ fun OutlinedStyledErrorText(
     errorState: Boolean,
     viewModel: LoginViewModel,
     auth: FirebaseAuth,
-    login: () -> Unit,
+    login: (String, String) -> Unit,
     signUp: () -> Unit
 ) {
     fun validateLogin() {
@@ -255,7 +255,7 @@ private fun LoginPreview() {
     LoginScreen(
         LoginViewModel(LocalContext.current),
         Firebase.auth,
-        {},
+        { _, _ -> },
         {}
     )
 }
