@@ -60,7 +60,12 @@
     <string name="toggle_active">Ein Toggle ist zurzeit aktiv!</string>
     <string name="channel_id">%s\'s Channel</string>
     <string name="error_message_login">Ungültige Email/Passwort</string>
-    <string name="error_message_edit_name">Name darf nicht leer sein!</string>
+    <string name="error_message_text_empty">Textfeld darf nicht leer sein!</string>
     <string name="login_loading">Überprüfung läuft...</string>
+    <string name="data_loading">Daten werden geladen...</string>
     <string name="change_board_state">Issue verschieben in:</string>
+    <string name="invite_group">Jemanden in Ihre Gruppe einladen</string>
+    <string name="no_group_found">Die von Ihnen eingegebene Gruppe konnte nicht gefunden werden</string>
+    <string name="error_creating_project">Sie können kein Project erstellen, wenn Sie sich in keiner Gruppe befinden</string>
+    <string name="empty_state_statistic">Statistiken sind zurzeit nur für Admins verfügbar</string>
 </resources>

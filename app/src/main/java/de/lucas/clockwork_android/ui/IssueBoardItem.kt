@@ -31,6 +31,8 @@ import de.lucas.clockwork_android.ui.theme.Gray700
  * @param issueList list of the issues that match BoardState
  * @param currentPageIndex index of currently shown Page, to check if swipe indicator icon must be set invisible/visible
  * @param issueSize size of the shown issue in the list, to show its count/size on Screen
+ * @param onClickIssue callBack with issue data to provide it to edit/update this issue
+ * @param onLongPressIssue call with issue data to update its state
  */
 @Composable
 internal fun IssueBoardItem(
@@ -160,14 +162,16 @@ fun CustomDropDownMenu(
             .border(border = BorderStroke(width = 1.dp, Color.Black))
             .clickable(onClick = { expanded = true })
     ) {
-        Text(
-            projects[selectedIndex].project_name,
-            modifier = Modifier
-                .background(Color.White)
-                .padding(start = 8.dp)
-                .weight(4f),
-            fontSize = 20.sp
-        )
+        if (selectedIndex != -1) {
+            Text(
+                projects[selectedIndex].project_name,
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(start = 8.dp)
+                    .weight(4f),
+                fontSize = 20.sp
+            )
+        }
         Icon(
             painter = painterResource(id = R.drawable.ic_arrow_down_dark),
             contentDescription = "",
@@ -193,6 +197,9 @@ fun CustomDropDownMenu(
     }
 }
 
+/**
+ * Items to populate the LazyColumn list
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun IssueItem(
@@ -218,7 +225,7 @@ private fun IssueItem(
     ) {
         Column {
             Text(
-                text = issue.title,
+                text = issue.name,
                 modifier = Modifier.padding(start = 8.dp, top = 8.dp),
                 fontSize = 18.sp
             )
@@ -250,7 +257,7 @@ private fun PreviewIssueBoard() {
 @Composable
 private fun PreviewDropDown() {
     CustomDropDownMenu(
-        projects = listOf(Project("Projekt", listOf())),
+        projects = listOf(Project("testid", "Projekt", listOf())),
         projectID = 1,
         onProjectChange = { }
     )

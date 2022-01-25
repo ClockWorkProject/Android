@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import de.lucas.clockwork_android.R
 
 /**
- * Empty State Message which if shown if user is no member of a group
+ * Empty State Message which is shown if user is no member of a group
  */
 @Composable
 internal fun NoGroupScreen(

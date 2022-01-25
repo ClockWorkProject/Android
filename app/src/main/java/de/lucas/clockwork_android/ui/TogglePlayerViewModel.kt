@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Preferences
+import de.lucas.clockwork_android.model.Project
 
 class TogglePlayerViewModel(context: Context) : ViewModel() {
     private val preferences = Preferences(context)
@@ -24,9 +25,11 @@ class TogglePlayerViewModel(context: Context) : ViewModel() {
 
     fun resetToggle() = preferences.resetToggle()
 
-    fun setToggle(issue: Issue) = preferences.setToggle(issue)
+    fun setToggle(issue: Issue, project: Project) = preferences.setToggle(issue, project)
 
-    fun getToggle() = preferences.getToggle()
+    fun getToggleIssue() = preferences.getToggleIssue()
+
+    fun getToggleProject() = preferences.getToggleProject()
 
     // Sets the systemtime when toggle is started
     fun setStartTime() = preferences.setStartTime((System.currentTimeMillis() / 1000).toInt())

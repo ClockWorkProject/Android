@@ -9,6 +9,7 @@ class Preferences(private val context: Context) {
     private fun prefs() = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
     private val moshi = Moshi.Builder().build()
     private val issueAdapter = moshi.adapter(Issue::class.java)
+    private val projectAdapter = moshi.adapter(Project::class.java)
 
     // Sets the current toggle time to be able to continue counting after user paused
     fun setCurrentToggleTime(pausedTime: Int, count: Int) {
@@ -20,7 +21,8 @@ class Preferences(private val context: Context) {
     fun resetToggle() {
         prefs().edit().apply {
             putInt(TIME, 0)
-            putString(TOGGLE, "")
+            putString(TOGGLE_ISSUE, "")
+            putString(TOGGLE_PROJECT, "")
         }.apply()
     }
 
@@ -35,18 +37,18 @@ class Preferences(private val context: Context) {
     fun getStartTime(): Int = prefs().getInt(START_TIME, 0)
 
     // Sets the chosen issue for the activated toggle
-    fun setToggle(issue: Issue) {
-        prefs().edit().putString(TOGGLE, issueAdapter.toJson(issue)).apply()
-        Timber.e(getToggle().toString())
+    fun setToggle(issue: Issue, project: Project) {
+        prefs().edit().putString(TOGGLE_ISSUE, issueAdapter.toJson(issue)).apply()
+        prefs().edit().putString(TOGGLE_PROJECT, projectAdapter.toJson(project)).apply()
+        Timber.e(getToggleIssue().toString())
     }
 
     // Returns currently saved toggle. If no toggle saved, return empty Issue
-    fun getToggle(): Issue? {
-        val json = prefs().getString(TOGGLE, "")
+    fun getToggleIssue(): Issue? {
+        val json = prefs().getString(TOGGLE_ISSUE, "")
         return if (json!!.isEmpty()) {
             Issue(
-                -1,
-                "",
+                "wqe",
                 "",
                 "",
                 "",
@@ -54,6 +56,20 @@ class Preferences(private val context: Context) {
             )
         } else {
             issueAdapter.fromJson(json)
+        }
+    }
+
+    // Returns currently saved toggle. If no toggle saved, return empty Issue
+    fun getToggleProject(): Project? {
+        val json = prefs().getString(TOGGLE_PROJECT, "")
+        return if (json!!.isEmpty()) {
+            Project(
+                "wqe",
+                "",
+                listOf()
+            )
+        } else {
+            projectAdapter.fromJson(json)
         }
     }
 
@@ -77,34 +93,46 @@ class Preferences(private val context: Context) {
     // Set project id to show its issues in IssueBoard and send to backend if necessary action
     fun setProjectId(id: Int) = prefs().edit().putInt(PROJECT_ID, id).apply()
 
-    fun getProjectId() = prefs().getInt(PROJECT_ID, 1)
+    fun getProjectId() = prefs().getInt(PROJECT_ID, -1)
 
     // Set group name to show in Profile
     fun setGroupName(name: String) = prefs().edit().putString(GROUP_NAME, name).apply()
 
-    // If setGroupName() properly implemented -> replace "Müller & Wulff GmbH" with ""
-    fun getGroupName() = prefs().getString(GROUP_NAME, "Müller & Wulff GmbH")
+    fun getGroupName() = prefs().getString(GROUP_NAME, "")
 
     // Set Username to show in Profile
     fun setUsername(name: String) = prefs().edit().putString(USER_NAME, name).apply()
 
     fun getUsername() = prefs().getString(USER_NAME, "")
 
-    // Set group id to send to backend for all actions
-    fun setGroupId(id: Int) = prefs().edit().putInt(GROUP_ID, id).apply()
+    // Set Username to show in Profile
+    fun setUserId(id: String) = prefs().edit().putString(USER_ID, id).apply()
 
-    fun getGroupId() = prefs().getInt(GROUP_ID, -1)
+    fun getUserId() = prefs().getString(USER_ID, "")
+
+    // Set role of user for group
+    fun setUserRole(id: String) = prefs().edit().putString(USER_ROLE, id).apply()
+
+    fun getUserRole() = prefs().getString(USER_ROLE, "member")
+
+    // Set group id to send to backend for all actions
+    fun setGroupId(id: String) = prefs().edit().putString(GROUP_ID, id).apply()
+
+    fun getGroupId() = prefs().getString(GROUP_ID, "")
 
     companion object {
         const val PREFERENCES = "PREFERENCES"
         const val TIME = "TIME"
-        const val TOGGLE = "TOGGLE"
+        const val TOGGLE_ISSUE = "TOGGLE_ISSUE"
+        const val TOGGLE_PROJECT = "TOGGLE_PROJECT"
         const val START_TIME = "START_TIME"
         const val TOGGLE_PAUSED = "TOGGLE_PAUSED"
         const val PAUSE_TIME = "PAUSE_TIME"
         const val PROJECT_ID = "PROJECT_ID"
         const val USER_NAME = "USER_NAME"
+        const val USER_ID = "USER_ID"
+        const val USER_ROLE = "USER_ROLE"
         const val GROUP_NAME = "GROUP_NAME"
-        const val GROUP_ID = "GORUP_ID"
+        const val GROUP_ID = "GROUP_ID"
     }
 }

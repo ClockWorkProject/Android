@@ -33,11 +33,16 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import de.lucas.clockwork_android.R
 
+/**
+ * Screen for the user to login or sign up
+ * @param auth authenticator to use firebase calls
+ * @param onClickLogin callBack with 2 Strings -> groupId (if user is in a group) and role of the user, to call functions, that are only for admins
+ */
 @Composable
 internal fun LoginScreen(
     viewModel: LoginViewModel,
     auth: FirebaseAuth,
-    onClickLogin: () -> Unit,
+    onClickLogin: (String, String) -> Unit,
     onClickSignUp: () -> Unit
 ) {
     Scaffold {
@@ -61,7 +66,7 @@ internal fun LoginScreen(
                     errorState = viewModel.getIsError(),
                     viewModel = viewModel,
                     auth = auth,
-                    login = { onClickLogin() },
+                    login = { groupID, role -> onClickLogin(groupID, role) },
                     signUp = { onClickSignUp() }
                 )
                 OutlinedStyledTextPassword(
@@ -92,8 +97,9 @@ internal fun LoginScreen(
                 )
             }
         }
+        // Show loading indicator if "isLoading" is true
         if (viewModel.getIsLoading()) {
-            LoadingIndicator()
+            LoadingIndicator(id = R.string.login_loading)
         }
     }
 }
@@ -125,6 +131,11 @@ fun AppLogo() {
     }
 }
 
+/**
+ * Custom OutlinedTextField for password
+ * Provides an icon to toggle visibility of input
+ *
+ */
 @Composable
 fun OutlinedStyledTextPassword(
     @StringRes id: Int,
@@ -157,6 +168,9 @@ fun OutlinedStyledTextPassword(
     )
 }
 
+/**
+ * Custom OutlinedTextField with validations of user input, to react to inputs (error, login, signup)
+ */
 @Composable
 fun OutlinedStyledErrorText(
     @StringRes id: Int,
@@ -166,7 +180,7 @@ fun OutlinedStyledErrorText(
     errorState: Boolean,
     viewModel: LoginViewModel,
     auth: FirebaseAuth,
-    login: () -> Unit,
+    login: (String, String) -> Unit,
     signUp: () -> Unit
 ) {
     fun validateLogin() {
@@ -228,7 +242,7 @@ fun RoundedButton(@StringRes id: Int, padding: Int, modifier: Modifier, onClick:
 }
 
 @Composable
-internal fun LoadingIndicator() {
+internal fun LoadingIndicator(@StringRes id: Int) {
     Dialog(
         onDismissRequest = { },
         DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
@@ -243,7 +257,7 @@ internal fun LoadingIndicator() {
                 verticalArrangement = Arrangement.Center
             ) {
                 CircularProgressIndicator()
-                Text(text = stringResource(id = R.string.login_loading))
+                Text(text = stringResource(id = id))
             }
         }
     }
@@ -255,7 +269,7 @@ private fun LoginPreview() {
     LoginScreen(
         LoginViewModel(LocalContext.current),
         Firebase.auth,
-        {},
+        { _, _ -> },
         {}
     )
 }

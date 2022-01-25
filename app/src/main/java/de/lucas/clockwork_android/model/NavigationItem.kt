@@ -14,10 +14,12 @@ enum class NavigationItem(val route: String, val icon: Int, val title: String) {
         const val LOGIN = "login"
         const val ISSUE_DETAIL = "detail"
         const val ISSUE_EDIT = "edit"
+        const val ISSUE_CREATE = "create"
         const val INFO = "info"
         const val IMPRINT = "imprint"
         const val VERSION = "version"
         const val LICENSES = "licenses"
         const val DATA_PROTECTION = "data_protection"
+        const val USER_STATISTIC = "user_statistic"
     }
 }

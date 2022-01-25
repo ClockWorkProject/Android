@@ -29,7 +29,7 @@ import de.lucas.clockwork_android.model.TotalToggle
  */
 @ExperimentalMaterialApi
 @Composable
-internal fun ToggleItem(toggle: TotalToggle) {
+internal fun ToggleItem(toggle: TotalToggle, smallText: Boolean) {
     var expandableState by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(targetValue = if (expandableState) 180f else 0f)
     Card(
@@ -54,11 +54,15 @@ internal fun ToggleItem(toggle: TotalToggle) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = toggle.date,
-                    fontSize = 22.sp,
+                    fontSize = if (smallText) 18.sp else 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(4f)
                 )
-                Text(text = toggle.total_time, fontSize = 18.sp, modifier = Modifier.weight(3f))
+                Text(
+                    text = toggle.totalTime,
+                    fontSize = if (smallText) 16.sp else 18.sp,
+                    modifier = Modifier.weight(3f)
+                )
                 IconButton(modifier = Modifier
                     .weight(1f)
                     .rotate(rotationState),
@@ -71,8 +75,14 @@ internal fun ToggleItem(toggle: TotalToggle) {
                     )
                 }
             }
+            // Expand and show all individual toggles
             if (expandableState) {
-                toggle.toggle_list.forEach { item -> ToggleEntryItem(toggle = item) }
+                toggle.toggleList.forEach { item ->
+                    ToggleEntryItem(
+                        toggle = item,
+                        smallText = smallText
+                    )
+                }
             }
         }
     }
@@ -82,16 +92,20 @@ internal fun ToggleItem(toggle: TotalToggle) {
  * Item for the expandable List
  */
 @Composable
-private fun ToggleEntryItem(toggle: Toggle) {
+private fun ToggleEntryItem(toggle: Toggle, smallText: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(3f)) {
-            Text(text = toggle.issue, fontSize = 20.sp)
-            Text(text = toggle.project)
+            Text(text = toggle.issueName, fontSize = if (smallText) 18.sp else 20.sp)
+            Text(text = toggle.projectName)
         }
-        Text(text = toggle.time, fontSize = 18.sp, modifier = Modifier.weight(1f))
+        Text(
+            text = toggle.issueTime,
+            fontSize = if (smallText) 16.sp else 18.sp,
+            modifier = Modifier.weight(1f)
+        )
     }
 }

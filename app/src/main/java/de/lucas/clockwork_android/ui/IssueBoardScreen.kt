@@ -28,171 +28,31 @@ import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.BoardState.*
 import de.lucas.clockwork_android.ui.theme.*
 
-// For testing purpose
-val projectList = listOf(
-    Project(
-        "IT-Projekt", listOf(
-            Issue(
-                2,
-                "Bug Fixes",
-                "IT-Projekt",
-                "Beschreibungen......viiiieeelllll",
-                "Vor 2 Tagen erstellt von Meatüs",
-                BLOCKER
-            ),
-            Issue(
-                4, "Redesign", "", "rwwersdSAddSA", "",
-                BLOCKER
-            ),
-        )
-    ),
-    Project(
-        "Vinson",
-        listOf(
-            Issue(
-                2,
-                "Bug Fixes",
-                "IT-Projekt",
-                "Beschreibungen......viiiieeelllll",
-                "Vor 2 Tagen erstellt von Meatüs",
-                OPEN
-            ),
-            Issue(
-                4, "Redesign", "Vinson", "rwwersdSAddSA", "",
-                TODO
-            ),
-            Issue(
-                1, "UI", "Vinson", "rwweradsgfrgervasdSAddSA", "",
-                CLOSED
-            ),
-            Issue(
-                3, "Documentation", "Vinson", "jfkrzuioolhgjfc", "",
-                CLOSED
-            ),
-            Issue(7, "API connection", "Vinson", "TQRHRZTWSER", "", BLOCKER),
-        )
-    ),
-    Project(
-        "Noch eins", listOf(
-            Issue(
-                1, "UI", "Noch eins", "rwweradsgfrgervasdSAddSA", "",
-                CLOSED
-            )
-        )
-    ), Project(
-        "IT-Projekt", listOf(
-            Issue(
-                2,
-                "Bug Fixes",
-                "IT-Projekt",
-                "Beschreibungen......viiiieeelllll",
-                "Vor 2 Tagen erstellt von Meatüs",
-                BLOCKER
-            ),
-            Issue(
-                4, "Redesign", "", "rwwersdSAddSA", "",
-                BLOCKER
-            ),
-        )
-    ),
-    Project(
-        "Vinson",
-        listOf(
-            Issue(
-                2,
-                "Bug Fixes",
-                "IT-Projekt",
-                "Beschreibungen......viiiieeelllll",
-                "Vor 2 Tagen erstellt von Meatüs",
-                OPEN
-            ),
-            Issue(
-                4, "Redesign", "Vinson", "rwwersdSAddSA", "",
-                TODO
-            ),
-            Issue(
-                1, "UI", "Vinson", "rwweradsgfrgervasdSAddSA", "",
-                CLOSED
-            ),
-            Issue(
-                3, "Documentation", "Vinson", "jfkrzuioolhgjfc", "",
-                CLOSED
-            ),
-            Issue(7, "API connection", "Vinson", "TQRHRZTWSER", "", BLOCKER),
-        )
-    ),
-    Project(
-        "Noch eins", listOf(
-            Issue(
-                1, "UI", "Noch eins", "rwweradsgfrgervasdSAddSA", "",
-                CLOSED
-            )
-        )
-    ),
-    Project(
-        "IT-Projekt", listOf(
-            Issue(
-                2,
-                "Bug Fixes",
-                "IT-Projekt",
-                "Beschreibungen......viiiieeelllll",
-                "Vor 2 Tagen erstellt von Meatüs",
-                BLOCKER
-            ),
-            Issue(
-                4, "Redesign", "", "rwwersdSAddSA", "",
-                BLOCKER
-            ),
-        )
-    ),
-    Project(
-        "Vinson",
-        listOf(
-            Issue(
-                2,
-                "Bug Fixes",
-                "IT-Projekt",
-                "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
-                "Vor 2 Tagen erstellt von Mattis Uphoff",
-                OPEN
-            ),
-            Issue(
-                4, "Redesign", "Vinson", "rwwersdSAddSA", "",
-                TODO
-            ),
-            Issue(
-                1, "UI", "Vinson", "rwweradsgfrgervasdSAddSA", "",
-                CLOSED
-            ),
-            Issue(
-                3, "Documentation", "Vinson", "jfkrzuioolhgjfc", "",
-                CLOSED
-            ),
-            Issue(7, "API connection", "Vinson", "TQRHRZTWSER", "", BLOCKER),
-        )
-    ),
-    Project(
-        "Noch eins", listOf(
-            Issue(
-                1, "UI", "Noch eins", "rwweradsgfrgervasdSAddSA", "",
-                CLOSED
-            )
-        )
-    )
-)
-
+/**
+ * Screen to show all issues, in its state lists, of selected project
+ * @param projectList list of all projects of the group
+ */
 @ExperimentalPagerApi
 @Composable
 internal fun IssueBoardScreen(
+    projectList: List<Project>,
     viewModel: IssueBoardViewModel,
-    onClickIssue: (Issue) -> Unit,
-    onClickNewIssue: () -> Unit
+    onClickIssue: (Issue, String) -> Unit,
+    onClickNewIssue: (Project, BoardState) -> Unit
 ) {
-    var longPressIssueId by remember { mutableStateOf(-1) }
+    // variable to hold the id of the long pressed issue to update its state
+    var longPressIssueId by remember { mutableStateOf("") }
     if (viewModel.getShowBoardState()) {
+        // List of all states to click -> updates state of long pressed issue
         BoardStateList(
             viewModel = viewModel,
-            onStateClicked = { boardState -> /* TODO change BoardState for Issue with provided number/id, Refresh IssueBoard?  */ },
+            onStateClicked = { boardState ->
+                viewModel.updateIssueState(
+                    projectList[viewModel.getProjectId()].id,
+                    longPressIssueId,
+                    boardState
+                )
+            },
             onClose = { viewModel.setShowBoardState(false) }
         )
     }
@@ -216,13 +76,29 @@ internal fun IssueBoardScreen(
                     onProjectChange = { id -> viewModel.changeProject(id) }
                 )
             }
+            /**
+             * ViewPager to swipe between lists of states (e.b. "open", "doing" etc.)
+             * Check if projectID is -1 (in "project =" and "onClickNewIssue")
+             * -> User has no group or group has no projects
+             * -> Sets empty projects to prevent index error and disables "create issue"-button
+             */
             BoardViewPager(
                 pagerState = pagerState,
-                project = projectList[viewModel.getProjectId()],
+                project = if (viewModel.getProjectId() == -1) {
+                    Project("", "", listOf())
+                } else {
+                    projectList[viewModel.getProjectId()]
+                },
                 viewModel = viewModel,
-                onClickIssue = onClickIssue,
-                onClickNewIssue = onClickNewIssue,
-                onLongPressIssue = { issue -> longPressIssueId = issue.number }
+                onClickIssue = { issue ->
+                    onClickIssue(issue, projectList[viewModel.getProjectId()].id)
+                },
+                onClickNewIssue = { boardState ->
+                    if (viewModel.getProjectId() != -1) {
+                        onClickNewIssue(projectList[viewModel.getProjectId()], boardState)
+                    }
+                },
+                onLongPressIssue = { issue -> longPressIssueId = issue.id }
             )
         }
     }
@@ -242,7 +118,7 @@ internal fun BoardViewPager(
     project: Project,
     viewModel: IssueBoardViewModel,
     onClickIssue: (Issue) -> Unit,
-    onClickNewIssue: () -> Unit,
+    onClickNewIssue: (BoardState) -> Unit,
     onLongPressIssue: (Issue) -> Unit
 ) {
     // Array of BoardState enums
@@ -252,7 +128,7 @@ internal fun BoardViewPager(
         when (items[page]) {
             OPEN -> {
                 // Filters issues from current project according to state and returns as list
-                val issues = project.issues.filter { issue -> issue.board_state == OPEN }
+                val issues = project.issues.filter { issue -> issue.issueState == OPEN }
                 IssueBoardItem(
                     boardTitle = R.string.open,
                     issueList = issues,
@@ -261,12 +137,14 @@ internal fun BoardViewPager(
                     issueSize = issues.size,
                     viewModel = viewModel,
                     onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue,
+                    onClickNewIssue = {
+                        onClickNewIssue(OPEN)
+                    },
                     onLongPressIssue = onLongPressIssue
                 )
             }
             TODO -> {
-                val issues = project.issues.filter { issue -> issue.board_state == TODO }
+                val issues = project.issues.filter { issue -> issue.issueState == TODO }
                 IssueBoardItem(
                     boardTitle = R.string.todo,
                     issueList = issues,
@@ -275,12 +153,14 @@ internal fun BoardViewPager(
                     issueSize = issues.size,
                     viewModel = viewModel,
                     onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue,
+                    onClickNewIssue = {
+                        onClickNewIssue(TODO)
+                    },
                     onLongPressIssue = onLongPressIssue
                 )
             }
             DOING -> {
-                val issues = project.issues.filter { issue -> issue.board_state == DOING }
+                val issues = project.issues.filter { issue -> issue.issueState == DOING }
                 IssueBoardItem(
                     boardTitle = R.string.doing,
                     issueList = issues,
@@ -289,12 +169,14 @@ internal fun BoardViewPager(
                     issueSize = issues.size,
                     viewModel = viewModel,
                     onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue,
+                    onClickNewIssue = {
+                        onClickNewIssue(DOING)
+                    },
                     onLongPressIssue = onLongPressIssue
                 )
             }
             REVIEW -> {
-                val issues = project.issues.filter { issue -> issue.board_state == REVIEW }
+                val issues = project.issues.filter { issue -> issue.issueState == REVIEW }
                 IssueBoardItem(
                     boardTitle = R.string.review,
                     issueList = issues,
@@ -303,12 +185,14 @@ internal fun BoardViewPager(
                     issueSize = issues.size,
                     viewModel = viewModel,
                     onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue,
+                    onClickNewIssue = {
+                        onClickNewIssue(REVIEW)
+                    },
                     onLongPressIssue = onLongPressIssue
                 )
             }
             BLOCKER -> {
-                val issues = project.issues.filter { issue -> issue.board_state == BLOCKER }
+                val issues = project.issues.filter { issue -> issue.issueState == BLOCKER }
                 IssueBoardItem(
                     boardTitle = R.string.blocker,
                     issueList = issues,
@@ -317,12 +201,14 @@ internal fun BoardViewPager(
                     issueSize = issues.size,
                     viewModel = viewModel,
                     onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue,
+                    onClickNewIssue = {
+                        onClickNewIssue(BLOCKER)
+                    },
                     onLongPressIssue = onLongPressIssue
                 )
             }
             CLOSED -> {
-                val issues = project.issues.filter { issue -> issue.board_state == CLOSED }
+                val issues = project.issues.filter { issue -> issue.issueState == CLOSED }
                 IssueBoardItem(
                     boardTitle = R.string.closed,
                     issueList = issues,
@@ -331,7 +217,9 @@ internal fun BoardViewPager(
                     issueSize = issues.size,
                     viewModel = viewModel,
                     onClickIssue = onClickIssue,
-                    onClickNewIssue = onClickNewIssue,
+                    onClickNewIssue = {
+                        onClickNewIssue(CLOSED)
+                    },
                     onLongPressIssue = onLongPressIssue
                 )
             }
@@ -339,6 +227,9 @@ internal fun BoardViewPager(
     }
 }
 
+/**
+ * Dialog with a list of all states to "move" selected issue
+ */
 @Composable
 fun BoardStateList(
     viewModel: IssueBoardViewModel,
@@ -367,7 +258,7 @@ fun BoardStateList(
                 LazyColumn(
                     modifier = Modifier.padding(8.dp)
                 ) {
-                    items(BoardState.values()) { boardState ->
+                    items(values()) { boardState ->
                         Card(modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp)
@@ -407,8 +298,9 @@ enum class BoardState {
 @Composable
 private fun PreviewIssueBoard() {
     IssueBoardScreen(
+        listOf(),
         viewModel = IssueBoardViewModel(LocalContext.current),
-        onClickIssue = {},
-        onClickNewIssue = {}
+        onClickIssue = { _, _ -> },
+        onClickNewIssue = { _, _ -> }
     )
 }

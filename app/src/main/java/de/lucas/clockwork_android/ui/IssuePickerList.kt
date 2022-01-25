@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -26,7 +27,7 @@ import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.theme.Gray200
 
 /**
- * List with Project and it's Issues to chose from to start a Toggle
+ * Dialog with a list of all Projects and it's Issues, from current group, to chose from to start a Toggle
  * @param projectList List of Projects and it's Issues
  * @param onStartToggle callBack to retrieve clicked Issue to then start Toggle
  */
@@ -34,7 +35,8 @@ import de.lucas.clockwork_android.ui.theme.Gray200
 @Composable
 internal fun IssuePickerList(
     projectList: List<Project>,
-    onStartToggle: (Issue) -> Unit,
+    viewModel: IssuePickerListViewModel,
+    onStartToggle: (Issue, Project) -> Unit,
     onClose: () -> Unit
 ) {
     var showNewProjectDialog by remember { mutableStateOf(false) }
@@ -59,6 +61,7 @@ internal fun IssuePickerList(
                         fontWeight = FontWeight.Bold
                     )
                 }
+                // List of issues
                 LazyColumn(
                     modifier = Modifier
                         .weight(1f)
@@ -69,7 +72,7 @@ internal fun IssuePickerList(
                             issues = project.issues,
                             project_name = project.project_name,
                             onStartToggle = { issue ->
-                                onStartToggle(issue)
+                                onStartToggle(issue, project)
                                 onClose()
                             }
                         )
@@ -83,7 +86,8 @@ internal fun IssuePickerList(
                 ) {
                     Button(
                         onClick = { showNewProjectDialog = true },
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        enabled = viewModel.getGroupID() != ""
                     ) {
                         Text(text = stringResource(id = R.string.create_project))
                     }
@@ -99,7 +103,7 @@ internal fun IssuePickerList(
             button_text_id = R.string.create,
             onClickDismiss = { showNewProjectDialog = false }
         ) { input ->
-            /* TODO send to backend */
+            viewModel.createProject(input)
             showNewProjectDialog = false
         }
     }
@@ -113,7 +117,11 @@ internal fun IssuePickerList(
  */
 @ExperimentalMaterialApi
 @Composable
-private fun IssueItem(issues: List<Issue>, project_name: String, onStartToggle: (Issue) -> Unit) {
+private fun IssueItem(
+    issues: List<Issue>,
+    project_name: String,
+    onStartToggle: (Issue) -> Unit
+) {
     var expandableState by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(targetValue = if (expandableState) 180f else 0f)
 
@@ -162,7 +170,7 @@ private fun IssueItem(issues: List<Issue>, project_name: String, onStartToggle: 
                         contentAlignment = Alignment.CenterStart
                     ) {
                         Text(
-                            text = "#${issue.number} ${issue.title}",
+                            text = "#${issue.number} ${issue.name}",
                             fontSize = 18.sp,
                             modifier = Modifier.padding(start = 8.dp)
                         )
@@ -180,9 +188,12 @@ private fun PreviewIssuePicker() {
     IssuePickerList(
         projectList = listOf(
             Project(
+                "testid",
                 "Vinson",
-                listOf(Issue(1, "Titel 1", "", "", "", BoardState.OPEN))
+                listOf(Issue("qwe", "Titel 1", "", "", BoardState.OPEN))
             )
-        ), onStartToggle = {}) {
+        ),
+        viewModel = IssuePickerListViewModel(LocalContext.current),
+        onStartToggle = { _, _ -> }) {
     }
 }

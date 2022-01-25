@@ -16,13 +16,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
+import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.BoardState.OPEN
 import de.lucas.clockwork_android.ui.theme.Purple200
 
+/**
+ * Player, which is shown when toggles is active
+ * Lets user stop, start and close (finish) toggle
+ * @param issue and project to get info to show in player
+ * @param time current toggle time that is shown in der player
+ */
 @ExperimentalMaterialApi
 @Composable
 internal fun TogglePlayer(
     issue: Issue,
+    project: Project,
     time: String,
     onPause: () -> Unit,
     onResume: () -> Unit,
@@ -48,13 +56,13 @@ internal fun TogglePlayer(
                     .weight(3f)
             ) {
                 Text(
-                    text = issue.title,
+                    text = "#${issue.number} ${issue.name}",
                     fontSize = 20.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = issue.project_name,
+                    text = project.project_name,
                     fontSize = 16.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -99,6 +107,7 @@ internal fun TogglePlayer(
                 onClick = {
                     if (viewModel.getIsPaused()) {
                         onClose()
+                        viewModel.setIsPaused(false)
                     }
                 }) {
                 Icon(
@@ -115,7 +124,8 @@ internal fun TogglePlayer(
 @Composable
 private fun PreviewTogglePlayer() {
     TogglePlayer(
-        issue = Issue(2, "Bug Fix", "Vinson", "", "", OPEN),
+        issue = Issue("w", "Bug Fix", "Vinson", "", OPEN),
+        project = Project("", "Project", listOf()),
         time = "00:00:12",
         onPause = {},
         onResume = {},
