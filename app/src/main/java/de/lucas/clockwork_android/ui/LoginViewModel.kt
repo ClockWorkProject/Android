@@ -12,7 +12,6 @@ import de.lucas.clockwork_android.model.User
 import timber.log.Timber
 
 /**
- * 3 states:
  * loginAttempt -> set true if user tries to login (LoginButton is being clicked)
  * loginAttempt -> set true if user tries to sign up (SignUpButton is being clicked)
  * isError -> set true if validation of email/password if unsuccessful
@@ -72,6 +71,9 @@ class LoginViewModel(context: Context) : ViewModel() {
 
     fun getIsError() = isError.value
 
+    /**
+     * Function to sign up user
+     */
     fun signUpUser(auth: FirebaseAuth, context: ComponentActivity, onSignUp: () -> Unit) {
         // Check if Textfields are not empty locally
         if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
@@ -106,6 +108,9 @@ class LoginViewModel(context: Context) : ViewModel() {
         }
     }
 
+    /**
+     * Function to login user
+     */
     fun loginUser(
         auth: FirebaseAuth,
         context: ComponentActivity,
@@ -121,10 +126,11 @@ class LoginViewModel(context: Context) : ViewModel() {
                     // disable loading indicator
                     setIsLoading(false)
                     if (task.isSuccessful) {
-                        // Sign in success, update UI with the signed-in user's information
+                        // Sign in success, update UI with the logged in user's information
                         Timber.e("signInWithEmail:success")
                         // Get group_id from database to check if logged in user is a member of a group
                         var groupId: String
+                        // Get information of user from database
                         database.reference.child("user/${auth.currentUser!!.uid}").get()
                             .addOnSuccessListener {
                                 groupId = it.child("groupID").value.toString()
@@ -133,6 +139,7 @@ class LoginViewModel(context: Context) : ViewModel() {
                                     auth.currentUser!!.uid,
                                     groupId
                                 )
+                                // If user is in a group -> set role and login
                                 if (groupId != "") {
                                     database.reference.child("groups/${groupId}/user/${auth.currentUser!!.uid}")
                                         .get().addOnSuccessListener { role ->
@@ -143,7 +150,7 @@ class LoginViewModel(context: Context) : ViewModel() {
                                 } else {
                                     preferences.setUserRole("member")
                                 }
-                                // Navigate user to ToggleScreen
+                                // Navigate user to ToggleScreen with groupId and his role to call specific functions
                                 onLogin(groupId, preferences.getUserRole()!!)
                                 setError(false)
                                 Timber.e("Got value ${it.child("groupID").value.toString()}")

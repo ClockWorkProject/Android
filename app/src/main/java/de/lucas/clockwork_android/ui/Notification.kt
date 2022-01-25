@@ -13,6 +13,10 @@ import androidx.core.app.NotificationManagerCompat
 import de.lucas.clockwork_android.MainActivity
 import de.lucas.clockwork_android.R
 
+/**
+ * Notification, that is set when a toggle is being started
+ * Can't be dismissed manually -> gets closed when toggle is being closed/finished
+ */
 @Composable
 internal fun Notification(
     context: Context,

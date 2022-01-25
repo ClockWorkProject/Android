@@ -28,6 +28,9 @@ class IssueBoardViewModel(context: Context) : ViewModel() {
 
     fun getShowBoardState() = showBoardStateList.value
 
+    /**
+     * Send updated state of issue to database
+     */
     fun updateIssueState(projectID: String, issueID: String, state: BoardState) {
         try {
             if (projectID.isNotEmpty()) {

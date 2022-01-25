@@ -42,8 +42,12 @@ class ProfileViewModel(context: Context) : ViewModel() {
 
     fun getGroupName() = preferences.getGroupName()
 
+    /**
+     * Get groupName from database
+     */
     fun setGroupName() {
         var groupName: String
+        // Check if groupName isn't already set. If set this call will not get executed
         if (preferences.getGroupName() == "" && getGroupId() != "") {
             database.reference.child("groups/${getGroupId()}").get()
                 .addOnSuccessListener {
@@ -56,6 +60,7 @@ class ProfileViewModel(context: Context) : ViewModel() {
         }
     }
 
+    // On logout "reset" all necessary preference variables
     fun logOut() {
         preferences.setGroupId("")
         preferences.setGroupName("")
@@ -65,6 +70,7 @@ class ProfileViewModel(context: Context) : ViewModel() {
         preferences.setProjectId(-1)
     }
 
+    // On leave current group "reset" all necessary preference variables
     fun leaveGroup() {
         database.reference.child("user/${preferences.getUserId()}/groupID").setValue("")
         preferences.setGroupId("")
@@ -73,6 +79,7 @@ class ProfileViewModel(context: Context) : ViewModel() {
         preferences.setProjectId(-1)
     }
 
+    // Update the username -> sent to firebase
     fun updateUsername(name: String) {
         database.reference.child("user/${preferences.getUserId()}/username").setValue(name)
         preferences.setUsername(name)

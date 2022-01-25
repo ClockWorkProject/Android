@@ -12,6 +12,10 @@ data class Issue(
     val issueState: BoardState
 )
 
+/**
+ * data class for sending issues to firebase database
+ * difference to data class Issue -> issueState must be string here
+ */
 data class NewIssue(
     val id: String,
     val name: String,

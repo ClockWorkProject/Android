@@ -34,6 +34,12 @@ class EditIssueViewModel(context: Context) : ViewModel() {
 
     fun getEditBoardState() = editBoardState.value
 
+    /**
+     * Function to create new issue and send to firebase
+     * @param projectID id of the selected project in IssueBoard, where new issue is being created
+     * @param number issue number of created issue
+     * @param state state of issue (e.g. "open") where new issue is being created
+     */
     fun createIssue(
         projectID: String,
         number: String,
@@ -42,13 +48,16 @@ class EditIssueViewModel(context: Context) : ViewModel() {
         state: BoardState
     ) {
         try {
+            // Check if title is empty -> show error message
             if (title.isEmpty()) {
                 setIsError(true)
             } else {
                 setIsError(false)
+                // Get id of issue from firebase database
                 val issueID =
                     database.reference.child("groups/${preferences.getGroupId()}/projects(${projectID}/issues")
                         .push().key!!
+                // Create NewIssue object to send to firebase
                 val issue = NewIssue(
                     issueID,
                     title,
@@ -56,7 +65,7 @@ class EditIssueViewModel(context: Context) : ViewModel() {
                     description,
                     state.name.lowercase()
                 )
-                // Create group in database
+                // Create issue with provided NewIssue object, which hold all necessary data, in database
                 database.reference.child("groups/${preferences.getGroupId()}/projects/${projectID}/issues/${issueID}")
                     .setValue(issue)
             }
@@ -65,6 +74,9 @@ class EditIssueViewModel(context: Context) : ViewModel() {
         }
     }
 
+    /**
+     * Function to update clicked issue
+     */
     fun updateIssue(projectID: String, issueID: String, title: String, description: String) {
         try {
             if (projectID.isNotEmpty()) {

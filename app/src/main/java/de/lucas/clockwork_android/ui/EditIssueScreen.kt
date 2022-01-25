@@ -21,6 +21,11 @@ import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.BoardState.OPEN
 import de.lucas.clockwork_android.ui.theme.Gray200
 
+/**
+ * Screen to update and create issues
+ * @param issue provide issue if issue should be updated
+ * @param project provide project if new issue should be created (needed project info to send to firebase)
+ */
 @Composable
 internal fun EditIssueScreen(
     issue: Issue?,
@@ -48,6 +53,11 @@ internal fun EditIssueScreen(
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
+                /**
+                 * Check if issue is provided
+                 * If issue exists show components to edit the issue
+                 * Else show components to create a new one
+                 */
                 if (issue != null) {
                     Text(text = "Issue #${issue.number}", fontSize = 14.sp)
                     OutlinedStyledText(
@@ -131,6 +141,9 @@ internal fun EditIssueScreen(
     }
 }
 
+/**
+ *
+ */
 @Composable
 fun OutlinedStyledText(
     @StringRes id: Int,
@@ -161,7 +174,7 @@ fun OutlinedStyledText(
                 }
             },
         )
-
+        // Check if the title is empty -> show error message
         if (isTitle && isError) {
             Text(
                 text = stringResource(id = R.string.error_message_text_empty),

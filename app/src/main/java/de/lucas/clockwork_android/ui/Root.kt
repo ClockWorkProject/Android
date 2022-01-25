@@ -60,10 +60,11 @@ fun Root(rootViewModel: RootViewModel) {
     var userRole by remember { mutableStateOf(rootViewModel.getUserRole()) }
     lateinit var timer: CountUpTimer
 
-    // Get all data from firebase
+    // Get all data from firebase if user is in a group
     if (groupId != "") {
-        rootViewModel.getAllData(groupId!!)
+        rootViewModel.getProjectData(groupId!!)
         rootViewModel.getAllToggles(groupId!!, rootViewModel.getUserId()!!)
+        // If user is "admin" get all members of group
         if (userRole == "admin") {
             rootViewModel.getAllMembers(groupId!!)
         }
@@ -154,7 +155,7 @@ fun Root(rootViewModel: RootViewModel) {
                             onClose = {
                                 // Stop Timer
                                 timer.cancel()
-                                // Send to backend
+                                // Send toggle to backend
                                 rootViewModel.saveToggle(
                                     togglePlayerViewModel.getCurrentToggleTime().toString(),
                                     togglePlayerViewModel.getToggleIssue()!!,
@@ -273,6 +274,7 @@ fun Root(rootViewModel: RootViewModel) {
                     },
                     onClickNewIssue = { project, boardState ->
                         val projectAdapter = moshi.adapter(Project::class.java)
+                        // Encode to utf-8 to prevent "unterminated string"-error for special characters
                         val jsonProject = URLEncoder.encode(projectAdapter.toJson(project), "UTF-8")
                             .replace("+", " ")
                         editViewModel.setEditBoardState(boardState)
@@ -292,7 +294,9 @@ fun Root(rootViewModel: RootViewModel) {
                     viewModel = ProfileViewModel(context),
                     onClickInfo = { navController.navigate(INFO) },
                     onClickLogout = {
+                        // Remove all global lists, to be able to store new data on new login
                         rootViewModel.removeAll()
+                        // Sign out from firebase
                         auth.signOut()
                         navController.navigate(LOGIN) {
                             rootViewModel.setShowBottomNavigation(false)
@@ -303,6 +307,7 @@ fun Root(rootViewModel: RootViewModel) {
                         groupId = ""
                     },
                     onClickLeave = {
+                        // Remove all global lists and listeners, to be able to get/store new data on new login
                         rootViewModel.removeAllListeners()
                         groupId = ""
                         rootViewModel.setProjectIndex(-1)
@@ -310,6 +315,7 @@ fun Root(rootViewModel: RootViewModel) {
                     }
                 )
             }
+            // Navigation to IssueDetailsScreen with issue as navigation argument
             composable(
                 route = "$ISSUE_DETAIL/{issue}",
                 arguments = listOf(navArgument("issue")
@@ -333,6 +339,7 @@ fun Root(rootViewModel: RootViewModel) {
                         }
                     }
             }
+            // Navigation to EditIssueScreen with issue as navigation argument
             composable(
                 route = "$ISSUE_EDIT/{issue}",
                 arguments = listOf(navArgument("issue")
@@ -359,6 +366,7 @@ fun Root(rootViewModel: RootViewModel) {
                     }
                 }
             }
+            // Navigation to EditIssueScreen with project as navigation argument
             composable(
                 route = "$ISSUE_CREATE/{project}",
                 arguments = listOf(navArgument("project")
@@ -418,6 +426,7 @@ fun Root(rootViewModel: RootViewModel) {
                 DataProtectionScreen()
             }
         }
+        // If isLoading is true, show loading indicator
         if (rootViewModel.getIsLoading()) {
             LoadingIndicator(id = R.string.data_loading)
         }

@@ -32,8 +32,12 @@ class ToggleViewModel(context: Context) : ViewModel() {
 
     private fun getUserId() = preferences.getUserId()
 
+    /**
+     * Function to create a group, sends data to firebase
+     */
     fun createGroup(name: String) {
         try {
+            // Create unique id/key for group
             val groupID = database.reference.child("groups").push().key!!
             val group = Group(groupID, name)
             // Create group in database
@@ -45,18 +49,25 @@ class ToggleViewModel(context: Context) : ViewModel() {
                 .setValue(preferences.getUsername())
             // Update groupID in User, so he is member of this group
             database.reference.child("user/${getUserId()}/groupID").setValue(groupID)
+            // Set role to "admin"
             preferences.setUserRole("admin")
+            // Set group data
             setGroupInfo(groupID, name)
         } catch (e: Exception) {
             Timber.e("Couldn't create group")
         }
     }
 
+    /**
+     * Function to join a group, sends data to firebase
+     */
     fun joinGroup(groupID: String) {
         database.reference.child("groups/$groupID")
             .addListenerForSingleValueEvent(object : ValueEventListener {
+                // Check if group exists in database
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
+                        // Set groupID in user -> groupID, to "join" group
                         database.reference.child("user/${getUserId()}/groupID")
                             .setValue(snapshot.child("id").value.toString())
                         // Set username
@@ -75,9 +86,12 @@ class ToggleViewModel(context: Context) : ViewModel() {
                             snapshot.child("name").value.toString()
                         )
                         Timber.e("Got value ${snapshot.child("id").value.toString()}")
+                        // Show ToggleList with all toggles of user
                         showToggleList.value = true
+                        // hide empty state message
                         showEmptyState.value = false
                     } else {
+                        // If group doesn't exist -> show SnackBar with info
                         noGroupFoundState.value = true
                     }
                 }

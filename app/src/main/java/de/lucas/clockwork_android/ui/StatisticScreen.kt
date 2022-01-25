@@ -27,6 +27,12 @@ import de.lucas.clockwork_android.model.TotalToggle
 import de.lucas.clockwork_android.model.UserStatistic
 import de.lucas.clockwork_android.ui.theme.Gray200
 
+/**
+ * Screen for "statistics"
+ * Checks if user is "member" or "admin"
+ * if member: Show text, that this screen is currently only available for admins
+ * if admin: Show list of all users of the group -> onClick: Show Dialog with all toggles of clicked User (like ToggleScreen)
+ */
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Composable
@@ -104,6 +110,10 @@ private fun UserItem(user: UserStatistic, onClick: () -> Unit) {
     )
 }
 
+/**
+ * Dialog with toggles of clicked user
+ * @param toggleList list of all Toggles of user
+ */
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Composable

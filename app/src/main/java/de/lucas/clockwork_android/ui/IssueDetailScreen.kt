@@ -20,6 +20,10 @@ import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.ui.BoardState.OPEN
 import de.lucas.clockwork_android.ui.theme.Gray200
 
+/**
+ * Screen to show details of a clicked issue
+ * Provides a button to navigate to EditIssueScreen, to edit this issue
+ */
 @Composable
 internal fun IssueDetailScreen(issue: Issue, onClickEdit: () -> Unit) {
     Scaffold(backgroundColor = Color.White) {

@@ -27,7 +27,7 @@ import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.theme.Gray200
 
 /**
- * List with Project and it's Issues to chose from to start a Toggle
+ * Dialog with a list of all Projects and it's Issues, from current group, to chose from to start a Toggle
  * @param projectList List of Projects and it's Issues
  * @param onStartToggle callBack to retrieve clicked Issue to then start Toggle
  */
@@ -61,6 +61,7 @@ internal fun IssuePickerList(
                         fontWeight = FontWeight.Bold
                     )
                 }
+                // List of issues
                 LazyColumn(
                     modifier = Modifier
                         .weight(1f)

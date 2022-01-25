@@ -28,6 +28,10 @@ import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.BoardState.*
 import de.lucas.clockwork_android.ui.theme.*
 
+/**
+ * Screen to show all issues, in its state lists, of selected project
+ * @param projectList list of all projects of the group
+ */
 @ExperimentalPagerApi
 @Composable
 internal fun IssueBoardScreen(
@@ -36,8 +40,10 @@ internal fun IssueBoardScreen(
     onClickIssue: (Issue, String) -> Unit,
     onClickNewIssue: (Project, BoardState) -> Unit
 ) {
+    // variable to hold the id of the long pressed issue to update its state
     var longPressIssueId by remember { mutableStateOf("") }
     if (viewModel.getShowBoardState()) {
+        // List of all states to click -> updates state of long pressed issue
         BoardStateList(
             viewModel = viewModel,
             onStateClicked = { boardState ->
@@ -70,6 +76,12 @@ internal fun IssueBoardScreen(
                     onProjectChange = { id -> viewModel.changeProject(id) }
                 )
             }
+            /**
+             * ViewPager to swipe between lists of states (e.b. "open", "doing" etc.)
+             * Check if projectID is -1 (in "project =" and "onClickNewIssue")
+             * -> User has no group or group has no projects
+             * -> Sets empty projects to prevent index error and disables "create issue"-button
+             */
             BoardViewPager(
                 pagerState = pagerState,
                 project = if (viewModel.getProjectId() == -1) {
@@ -215,6 +227,9 @@ internal fun BoardViewPager(
     }
 }
 
+/**
+ * Dialog with a list of all states to "move" selected issue
+ */
 @Composable
 fun BoardStateList(
     viewModel: IssueBoardViewModel,

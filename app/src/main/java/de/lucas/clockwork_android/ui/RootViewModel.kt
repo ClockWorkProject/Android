@@ -21,6 +21,8 @@ class RootViewModel(context: Context) : ViewModel() {
     var memberList by mutableStateOf(listOf<UserStatistic>())
     private val totalTime: MutableState<Double> = mutableStateOf(0.0)
     val isLoading: MutableState<Boolean> = mutableStateOf(false)
+
+    // Listeners for the ValueEventListeners of firebase
     private var toggleListener: ValueEventListener? = null
     private var projectListener: ValueEventListener? = null
     private var memberListener: ValueEventListener? = null
@@ -65,20 +67,14 @@ class RootViewModel(context: Context) : ViewModel() {
         showTogglePlayer.value = state
     }
 
-    fun setUserRole(role: String) {
-        preferences.setUserRole("member")
-    }
-
-    fun setGroupName(groupName: String) {
-        preferences.setGroupName(groupName)
-    }
-
+    // Empty all lists, to then add new items
     fun removeAll() {
         toggleList = listOf()
         projectList = listOf()
         memberList = listOf()
     }
 
+    // Empty all lists and remove listeners
     fun removeAllListeners() {
         removeAll()
         database.reference.removeEventListener(toggleListener!!)
@@ -98,16 +94,24 @@ class RootViewModel(context: Context) : ViewModel() {
 
     fun getUserRole() = preferences.getUserRole()
 
+    // Get current date
     private fun currentDate(): String =
         SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
 
-    fun getAllData(groupId: String) {
+    /**
+     * Get all projects and its issue from specific group (from groupID)
+     */
+    fun getProjectData(groupId: String) {
+        // Show loading indicator
         isLoading.value = true
+        // Check if group exists
         if (groupId != "") {
+            // Listener on projects child in database
             projectListener = database.reference.child("groups/$groupId/projects")
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         projectList = listOf()
+                        // Get issues for every project child
                         snapshot.children.forEach { project ->
                             val issues = mutableListOf<Issue>()
                             project.child("issues").children.forEach { issue ->
@@ -121,6 +125,7 @@ class RootViewModel(context: Context) : ViewModel() {
                                     )
                                 )
                             }
+                            // Add project with its issues to global projectList variable
                             projectList = projectList + listOf(
                                 Project(
                                     project.key!!,
@@ -138,13 +143,18 @@ class RootViewModel(context: Context) : ViewModel() {
         }
     }
 
+    /**
+     * Save closed/finished toggle -> send total counted time to firebase
+     */
     fun saveToggle(time: String, issue: Issue, project: Project) {
         try {
+            // Get the total time of an toggle if its exist, to add the new time
             getTotalTime()
             val date = currentDate()
             val toggle = Toggle(issue.name, project.project_name, time.toDouble().toString())
             database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/${issue.id}")
                 .get().addOnSuccessListener {
+                    // Check if issueId exists -> add toggle time to already set time
                     if (it.exists()) {
                         database.reference.child("groups/${getGroupId()}/user/${getUserId()}/dates/$date/issues/${issue.id}/issueTime")
                             .setValue(
@@ -171,12 +181,17 @@ class RootViewModel(context: Context) : ViewModel() {
         }
     }
 
+    /**
+     * Get all toggles of user from group
+     */
     fun getAllToggles(groupID: String, userID: String) {
+        // Check if user is in a group
         if (groupID != "") {
             toggleListener = database.reference.child("groups/$groupID/user/$userID/dates")
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         toggleList = listOf()
+                        // Get all toggles with its date -> reverse list to have newest date at top
                         snapshot.children.reversed().forEach { toggle ->
                             val totalTime = mutableStateOf("")
                             val issues = mutableListOf<Toggle>()
@@ -190,12 +205,14 @@ class RootViewModel(context: Context) : ViewModel() {
                                     )
                                 )
                             }
+                            // Get totalTime if exists
                             if (toggle.child("totalTime").exists()) {
                                 totalTime.value =
                                     toggle.child("totalTime").value.toString()
                                         .toDouble()
                                         .roundDoubleToString(true)
                             }
+                            // Add toggle with its issues and time to global toggleList variable
                             toggleList = toggleList + listOf(
                                 TotalToggle(
                                     toCurrentDate(toggle.key!!.replace("-", ".")),
@@ -215,11 +232,15 @@ class RootViewModel(context: Context) : ViewModel() {
         }
     }
 
+    /**
+     * Get all members from the group
+     */
     fun getAllMembers(groupID: String) {
         memberListener = database.reference.child("groups/$groupID/user")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     memberList = listOf()
+                    // For all member child get its toggles
                     snapshot.children.forEach { member ->
                         val username = mutableStateOf("")
                         val totalToggleList = mutableListOf<TotalToggle>()
@@ -250,6 +271,7 @@ class RootViewModel(context: Context) : ViewModel() {
                                 )
                             )
                         }
+                        // Add member with its toggles to global memberList variable
                         memberList = memberList + listOf(
                             UserStatistic(
                                 username.value,
@@ -265,6 +287,10 @@ class RootViewModel(context: Context) : ViewModel() {
             })
     }
 
+    /**
+     * Get the totalTime of a date from the user
+     * If exists set time from database, else set 0.0
+     */
     private fun getTotalTime() {
         try {
             val date = currentDate()
@@ -284,6 +310,9 @@ class RootViewModel(context: Context) : ViewModel() {
         }
     }
 
+    /**
+     * Check if the provided date equals the date of today or yesterday, to show string of day instead of date instead
+     */
     fun toCurrentDate(date: String): String {
         val now = Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24)
         val currentDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date())

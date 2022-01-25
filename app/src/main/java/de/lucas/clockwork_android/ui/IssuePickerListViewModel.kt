@@ -12,10 +12,14 @@ class IssuePickerListViewModel(context: Context) : ViewModel() {
 
     fun getGroupID() = preferences.getGroupId()
 
+    /**
+     * Function to create a project -> send to firebase
+     * @param name only a name for the project is needed
+     */
     fun createProject(name: String) {
         try {
             if (preferences.getGroupId() != "") {
-                // Create unique id for project
+                // Create unique id/key for project
                 val projectID =
                     database.reference.child("groups/${preferences.getGroupId()}/projects")
                         .push().key!!

@@ -38,6 +38,7 @@ internal fun ProfileScreen(
     onClickLeave: () -> Unit
 ) {
     val context = LocalContext.current
+    // Get name of current group from database
     viewModel.setGroupName()
     Scaffold {
         Column(
@@ -166,6 +167,7 @@ internal fun ProfileScreen(
                 button_text_id = R.string.leave,
                 onClickDismiss = { viewModel.setLeaveDialog(false) },
                 onClickConfirm = {
+                    // Reset all necessary preference data and navigate to ToggleScreen
                     viewModel.leaveGroup()
                     onClickLeave()
                 }
@@ -263,6 +265,9 @@ fun ProfileDialog(
         })
 }
 
+/**
+ * Sharesheet for sharing the groupId of current group, so others can join the group
+ */
 private fun shareGroup(groupId: String, context: Context) {
     val share = Intent.createChooser(Intent().apply {
         action = Intent.ACTION_SEND

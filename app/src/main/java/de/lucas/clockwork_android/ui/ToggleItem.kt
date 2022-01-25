@@ -75,6 +75,7 @@ internal fun ToggleItem(toggle: TotalToggle, smallText: Boolean) {
                     )
                 }
             }
+            // Expand and show all individual toggles
             if (expandableState) {
                 toggle.toggleList.forEach { item ->
                     ToggleEntryItem(

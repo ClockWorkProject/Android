@@ -25,6 +25,8 @@ import de.lucas.clockwork_android.model.TotalToggle
 /**
  * If user is member of a group -> show list of all his previous toggles and his current toggle
  * If user is not a member of a group -> show empty state message
+ * @param toggleList list of all toggles from the user
+ * @param onJoinGroup callBack with String, to provide groupID when group joined
  */
 @ExperimentalMaterialApi
 @Composable
@@ -161,6 +163,9 @@ fun CustomDialog(
         })
 }
 
+/**
+ * SnackBar to show, when joining group failed
+ */
 @Composable
 fun CustomSnackBar(@StringRes id: Int, onClick: () -> Unit) {
     Snackbar(modifier = Modifier.padding(16.dp)) {

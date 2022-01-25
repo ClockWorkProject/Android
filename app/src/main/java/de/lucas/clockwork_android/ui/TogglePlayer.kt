@@ -20,6 +20,12 @@ import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.BoardState.OPEN
 import de.lucas.clockwork_android.ui.theme.Purple200
 
+/**
+ * Player, which is shown when toggles is active
+ * Lets user stop, start and close (finish) toggle
+ * @param issue and project to get info to show in player
+ * @param time current toggle time that is shown in der player
+ */
 @ExperimentalMaterialApi
 @Composable
 internal fun TogglePlayer(
