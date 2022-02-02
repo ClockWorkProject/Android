@@ -50,9 +50,8 @@ internal fun ToggleScreen(
                     button_text_id = R.string.join,
                     onClickDismiss = { showJoinDialog = false }
                 ) { input ->
-                    viewModel.joinGroup("-Mtnv0WvAajXbKU0Wh5I")
+                    viewModel.joinGroup(input) { joined -> if (joined) onJoinGroup(input) }
                     showJoinDialog = false
-                    onJoinGroup("-Mtnv0WvAajXbKU0Wh5I") // Change to input later!!!!!
                 }
             }
             // if true show create group dialog

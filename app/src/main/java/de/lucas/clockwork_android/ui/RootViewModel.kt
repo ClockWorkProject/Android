@@ -67,6 +67,11 @@ class RootViewModel(context: Context) : ViewModel() {
         showTogglePlayer.value = state
     }
 
+    // Sort list by dates
+    fun getSortedToggles() = toggleList.sortedByDescending { it.date }
+
+    fun getSortedToggles(list: List<TotalToggle>) = list.sortedByDescending { it.date }
+
     // Empty all lists, to then add new items
     fun removeAll() {
         toggleList = listOf()
@@ -246,7 +251,7 @@ class RootViewModel(context: Context) : ViewModel() {
                         val totalToggleList = mutableListOf<TotalToggle>()
                         var totalTime = "0.0"
                         username.value = member.child("name").value.toString()
-                        member.child("dates").children.reversed().forEach { date ->
+                        member.child("dates").children.forEach { date ->
                             val issues = mutableListOf<Toggle>()
                             date.child("issues").children.forEach { issue ->
                                 issues.add(
@@ -275,7 +280,7 @@ class RootViewModel(context: Context) : ViewModel() {
                         memberList = memberList + listOf(
                             UserStatistic(
                                 username.value,
-                                totalToggleList
+                                getSortedToggles(totalToggleList)
                             )
                         )
                     }
