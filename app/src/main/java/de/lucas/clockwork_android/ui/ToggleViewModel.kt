@@ -61,7 +61,7 @@ class ToggleViewModel(context: Context) : ViewModel() {
     /**
      * Function to join a group, sends data to firebase
      */
-    fun joinGroup(groupID: String) {
+    fun joinGroup(groupID: String, onJoinedSuccessful: (Boolean) -> Unit) {
         database.reference.child("groups/$groupID")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 // Check if group exists in database
@@ -90,8 +90,10 @@ class ToggleViewModel(context: Context) : ViewModel() {
                         showToggleList.value = true
                         // hide empty state message
                         showEmptyState.value = false
+                        onJoinedSuccessful(true)
                     } else {
                         // If group doesn't exist -> show SnackBar with info
+                        onJoinedSuccessful(false)
                         noGroupFoundState.value = true
                     }
                 }

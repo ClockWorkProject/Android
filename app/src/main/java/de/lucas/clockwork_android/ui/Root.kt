@@ -252,7 +252,7 @@ fun Root(rootViewModel: RootViewModel) {
                 rootViewModel.setShowNavigationIcon(false)
                 rootViewModel.setShowBottomNavigation(true)
                 ToggleScreen(
-                    toggleList = if (rootViewModel.getGroupId() != "") rootViewModel.toggleList else listOf(),
+                    toggleList = if (rootViewModel.getGroupId() != "") rootViewModel.getSortedToggles() else listOf(),
                     viewModel = ToggleViewModel(context),
                     onJoinGroup = { id -> groupId = id }
                 )
