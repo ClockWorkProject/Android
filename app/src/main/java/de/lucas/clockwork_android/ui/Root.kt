@@ -333,7 +333,7 @@ fun Root(rootViewModel: RootViewModel) {
                                     URLEncoder.encode(
                                         json,
                                         "UTF-8"
-                                    )
+                                    ).replace("+", " ")
                                 }"
                             )
                         }
