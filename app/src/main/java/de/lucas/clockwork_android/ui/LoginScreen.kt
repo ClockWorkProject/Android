@@ -32,6 +32,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import de.lucas.clockwork_android.R
+import de.lucas.clockwork_android.viewmodel.LoginViewModel
 
 /**
  * Screen for the user to login or sign up

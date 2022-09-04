@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.TotalToggle
+import de.lucas.clockwork_android.viewmodel.ToggleViewModel
 
 /**
  * If user is member of a group -> show list of all his previous toggles and his current toggle

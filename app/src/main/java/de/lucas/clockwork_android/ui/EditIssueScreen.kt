@@ -20,6 +20,7 @@ import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.BoardState.OPEN
 import de.lucas.clockwork_android.ui.theme.Gray200
+import de.lucas.clockwork_android.viewmodel.EditIssueViewModel
 
 /**
  * Screen to update and create issues

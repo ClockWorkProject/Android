@@ -1,4 +1,4 @@
-package de.lucas.clockwork_android.ui
+package de.lucas.clockwork_android.viewmodel
 
 import android.content.Context
 import androidx.compose.runtime.MutableState
@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.FirebaseDatabase
 import de.lucas.clockwork_android.model.Preferences
+import de.lucas.clockwork_android.ui.BoardState
 import timber.log.Timber
 
 class IssueBoardViewModel(context: Context) : ViewModel() {

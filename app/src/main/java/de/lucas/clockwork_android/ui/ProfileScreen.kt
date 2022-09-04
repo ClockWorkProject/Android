@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import de.lucas.clockwork_android.R
+import de.lucas.clockwork_android.viewmodel.ProfileViewModel
 
 /**
  * Screen of Profile -> shows information of user/current group and provides different actions

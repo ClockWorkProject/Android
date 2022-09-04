@@ -24,6 +24,7 @@ import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.theme.Gray200
 import de.lucas.clockwork_android.ui.theme.Gray500
 import de.lucas.clockwork_android.ui.theme.Gray700
+import de.lucas.clockwork_android.viewmodel.IssueBoardViewModel
 
 /**
  * Item of the IssueBoard (card with boarder)

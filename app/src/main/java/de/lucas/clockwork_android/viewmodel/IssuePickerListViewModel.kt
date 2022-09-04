@@ -1,4 +1,4 @@
-package de.lucas.clockwork_android.ui
+package de.lucas.clockwork_android.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

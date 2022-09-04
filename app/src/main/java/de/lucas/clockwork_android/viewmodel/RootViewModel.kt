@@ -1,13 +1,17 @@
-package de.lucas.clockwork_android.ui
+package de.lucas.clockwork_android.viewmodel
 
 import android.content.Context
-import androidx.compose.runtime.*
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import de.lucas.clockwork_android.model.*
+import de.lucas.clockwork_android.ui.BoardState
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
