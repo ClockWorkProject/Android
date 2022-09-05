@@ -1,5 +1,6 @@
 package de.lucas.clockwork_android.ui
 
+import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -32,12 +33,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import de.lucas.clockwork_android.R
+import de.lucas.clockwork_android.viewmodel.LoginViewModel
 
 /**
  * Screen for the user to login or sign up
  * @param auth authenticator to use firebase calls
  * @param onClickLogin callBack with 2 Strings -> groupId (if user is in a group) and role of the user, to call functions, that are only for admins
  */
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 internal fun LoginScreen(
     viewModel: LoginViewModel,

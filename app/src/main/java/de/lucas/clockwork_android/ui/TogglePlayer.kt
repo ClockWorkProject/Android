@@ -19,6 +19,7 @@ import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.BoardState.OPEN
 import de.lucas.clockwork_android.ui.theme.Purple200
+import de.lucas.clockwork_android.viewmodel.TogglePlayerViewModel
 
 /**
  * Player, which is shown when toggles is active

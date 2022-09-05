@@ -1,5 +1,6 @@
 package de.lucas.clockwork_android.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +25,7 @@ import de.lucas.clockwork_android.ui.theme.Gray200
  * Screen to show details of a clicked issue
  * Provides a button to navigate to EditIssueScreen, to edit this issue
  */
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 internal fun IssueDetailScreen(issue: Issue, onClickEdit: () -> Unit) {
     Scaffold(backgroundColor = Color.White) {

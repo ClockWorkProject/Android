@@ -40,8 +40,12 @@ import de.lucas.clockwork_android.model.NavigationItem.Companion.LICENSES
 import de.lucas.clockwork_android.model.NavigationItem.Companion.LOGIN
 import de.lucas.clockwork_android.model.NavigationItem.Companion.VERSION
 import de.lucas.clockwork_android.model.Project
-import de.lucas.clockwork_android.ui.info.*
+import de.lucas.clockwork_android.ui.info.DataProtectionScreen
+import de.lucas.clockwork_android.ui.info.ImprintScreen
+import de.lucas.clockwork_android.ui.info.RightsAndLicencesScreen
+import de.lucas.clockwork_android.ui.info.VersionDialog
 import de.lucas.clockwork_android.ui.theme.roundedShape
+import de.lucas.clockwork_android.viewmodel.*
 import timber.log.Timber
 import java.net.URLEncoder
 

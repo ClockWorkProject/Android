@@ -25,6 +25,7 @@ import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.theme.Gray200
+import de.lucas.clockwork_android.viewmodel.IssuePickerListViewModel
 
 /**
  * Dialog with a list of all Projects and it's Issues, from current group, to chose from to start a Toggle

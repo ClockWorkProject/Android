@@ -1,6 +1,7 @@
 package de.lucas.clockwork_android.ui.info
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -17,8 +18,8 @@ import de.lucas.clockwork_android.R
 
 @Composable
 internal fun ImprintScreen() {
-    Scaffold {
-        InfoText(text = stringResource(id = R.string.imprint_text))
+    Scaffold { padding ->
+        InfoText(text = stringResource(id = R.string.imprint_text), padding = padding)
     }
 }
 
@@ -26,12 +27,13 @@ internal fun ImprintScreen() {
  * Simple Text composable for Imprint and DataProtection
  */
 @Composable
-internal fun InfoText(text: String) {
+internal fun InfoText(text: String, padding: PaddingValues) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .padding(padding)
     ) {
         Text(text = text, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 32.dp))
     }

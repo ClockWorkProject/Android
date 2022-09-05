@@ -43,7 +43,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = Versions.compose
+        kotlinCompilerExtensionVersion = Versions.composeCompiler
     }
 }
 
@@ -58,7 +58,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:${Versions.composeNav}")
     implementation("androidx.compose.material:material:${Versions.compose}")
     implementation("androidx.compose.ui:ui-tooling-preview:${Versions.compose}")
-    implementation("androidx.compose.runtime:runtime-livedata:${Versions.composeLiveData}")
+    implementation("androidx.compose.runtime:runtime-livedata:${Versions.compose}")
     implementation("androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayout}")
     implementation("com.google.firebase:firebase-auth-ktx:${Versions.firebase_auth}")
     debugImplementation("androidx.compose.ui:ui-tooling:${Versions.compose}")
@@ -78,7 +78,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:${Versions.retrofit}")
     implementation("com.squareup.retrofit2:converter-moshi:${Versions.retrofit}")
 
-    implementation("com.google.code.gson:gson:2.8.9")
+    implementation("com.google.code.gson:gson:${Versions.gson}")
 
     testImplementation("junit:junit:${Versions.junit}")
     androidTestImplementation("androidx.test.ext:junit:${Versions.junitExt}")

@@ -27,6 +27,7 @@ import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.BoardState.*
 import de.lucas.clockwork_android.ui.theme.*
+import de.lucas.clockwork_android.viewmodel.IssueBoardViewModel
 
 /**
  * Screen to show all issues, in its state lists, of selected project
@@ -58,8 +59,12 @@ internal fun IssueBoardScreen(
     }
     // State for the HorizontalPager to remember state across composition
     val pagerState = rememberPagerState()
-    Scaffold {
-        Column(modifier = Modifier.background(Color.White)) {
+    Scaffold { padding ->
+        Column(
+            modifier = Modifier
+                .background(Color.White)
+                .padding(padding)
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

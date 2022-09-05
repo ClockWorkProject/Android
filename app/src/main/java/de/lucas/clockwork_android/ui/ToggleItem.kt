@@ -4,12 +4,14 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +35,7 @@ internal fun ToggleItem(toggle: TotalToggle, smallText: Boolean) {
     var expandableState by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(targetValue = if (expandableState) 180f else 0f)
     Card(
+        onClick = { expandableState = !expandableState },
         modifier = Modifier
             .fillMaxWidth()
             .animateContentSize(
@@ -42,10 +45,13 @@ internal fun ToggleItem(toggle: TotalToggle, smallText: Boolean) {
                 )
             )
             .padding(top = 8.dp),
+        true,
         shape = RoundedCornerShape(12.dp),
-        indication = null,
-        onClick = { expandableState = !expandableState }
-    ) {
+        backgroundColor = MaterialTheme.colors.surface,
+        contentColor = contentColorFor(backgroundColor),
+        border = null,
+        elevation = 1.dp,
+        interactionSource = remember { MutableInteractionSource() }) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()

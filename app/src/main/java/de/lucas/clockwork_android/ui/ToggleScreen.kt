@@ -1,5 +1,6 @@
 package de.lucas.clockwork_android.ui
 
+import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.TotalToggle
+import de.lucas.clockwork_android.viewmodel.ToggleViewModel
 
 /**
  * If user is member of a group -> show list of all his previous toggles and his current toggle
@@ -28,6 +30,7 @@ import de.lucas.clockwork_android.model.TotalToggle
  * @param toggleList list of all toggles from the user
  * @param onJoinGroup callBack with String, to provide groupID when group joined
  */
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalMaterialApi
 @Composable
 internal fun ToggleScreen(

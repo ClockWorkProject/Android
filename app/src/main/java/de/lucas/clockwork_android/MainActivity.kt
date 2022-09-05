@@ -9,8 +9,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import de.lucas.clockwork_android.ui.Root
-import de.lucas.clockwork_android.ui.RootViewModel
 import de.lucas.clockwork_android.ui.theme.ClockWork_AndroidTheme
+import de.lucas.clockwork_android.viewmodel.RootViewModel
 
 class MainActivity : ComponentActivity() {
     @ExperimentalComposeUiApi

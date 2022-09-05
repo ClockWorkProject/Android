@@ -1,13 +1,17 @@
-package de.lucas.clockwork_android.ui
+package de.lucas.clockwork_android.viewmodel
 
 import android.content.Context
-import androidx.compose.runtime.*
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import de.lucas.clockwork_android.model.*
+import de.lucas.clockwork_android.ui.BoardState
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
@@ -19,8 +23,8 @@ class RootViewModel(context: Context) : ViewModel() {
     var projectList by mutableStateOf(listOf<Project>())
     var toggleList by mutableStateOf(listOf<TotalToggle>())
     var memberList by mutableStateOf(listOf<UserStatistic>())
-    private val totalTime: MutableState<Double> = mutableStateOf(0.0)
     val isLoading: MutableState<Boolean> = mutableStateOf(false)
+    private val totalTime: MutableState<Double> = mutableStateOf(0.0)
 
     // Listeners for the ValueEventListeners of firebase
     private var toggleListener: ValueEventListener? = null
@@ -142,7 +146,7 @@ class RootViewModel(context: Context) : ViewModel() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        Timber.e("IAAAMMMM CANCCEEELLLEEEDDD")
+                        Timber.e("getting projects data canceled")
                     }
                 })
         }
@@ -231,7 +235,7 @@ class RootViewModel(context: Context) : ViewModel() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        Timber.e("IAAAMMMM CANCCEEELLLEEEDDD")
+                        Timber.e("getting toggles canceled")
                     }
                 })
         }

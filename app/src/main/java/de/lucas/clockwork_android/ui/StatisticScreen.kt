@@ -1,5 +1,6 @@
 package de.lucas.clockwork_android.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -33,6 +34,7 @@ import de.lucas.clockwork_android.ui.theme.Gray200
  * if member: Show text, that this screen is currently only available for admins
  * if admin: Show list of all users of the group -> onClick: Show Dialog with all toggles of clicked User (like ToggleScreen)
  */
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Composable
