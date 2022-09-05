@@ -59,8 +59,12 @@ internal fun IssueBoardScreen(
     }
     // State for the HorizontalPager to remember state across composition
     val pagerState = rememberPagerState()
-    Scaffold {
-        Column(modifier = Modifier.background(Color.White)) {
+    Scaffold { padding ->
+        Column(
+            modifier = Modifier
+                .background(Color.White)
+                .padding(padding)
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

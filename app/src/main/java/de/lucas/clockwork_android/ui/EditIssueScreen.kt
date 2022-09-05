@@ -1,5 +1,6 @@
 package de.lucas.clockwork_android.ui
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
@@ -27,6 +28,7 @@ import de.lucas.clockwork_android.viewmodel.EditIssueViewModel
  * @param issue provide issue if issue should be updated
  * @param project provide project if new issue should be created (needed project info to send to firebase)
  */
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 internal fun EditIssueScreen(
     issue: Issue?,
@@ -60,49 +62,31 @@ internal fun EditIssueScreen(
                  * Else show components to create a new one
                  */
                 if (issue != null) {
-                    Text(text = "Issue #${issue.number}", fontSize = 14.sp)
-                    OutlinedStyledText(
-                        id = R.string.title,
-                        text = title,
-                        padding = 32,
-                        modifier = Modifier.fillMaxWidth(),
-                        maxLines = 1,
-                        isSingleLine = true,
-                        isTitle = true,
-                        isError = viewModel.getIsError()
-                    ) { title = it }
-                    OutlinedStyledText(
-                        id = R.string.description,
-                        text = description,
-                        padding = 16,
-                        modifier = Modifier.fillMaxWidth(),
-                        maxLines = 8,
-                        isSingleLine = false,
-                        isTitle = false,
-                        isError = viewModel.getIsError()
-                    ) { description = it }
+                    EditComponents(
+                        issue_number = "Issue #${issue.number}",
+                        title = title,
+                        description = description,
+                        error = viewModel.getIsError(),
+                        onChangeTitle = { changedTitle ->
+                            title = changedTitle
+                        },
+                        onChangeDescription = { changedDescription ->
+                            description = changedDescription
+                        }
+                    )
                 } else if (project != null) {
-                    Text(text = "Issue #${project.issues.size + 1} erstellen", fontSize = 14.sp)
-                    OutlinedStyledText(
-                        id = R.string.title,
-                        text = title,
-                        padding = 32,
-                        modifier = Modifier.fillMaxWidth(),
-                        maxLines = 1,
-                        isSingleLine = true,
-                        isTitle = true,
-                        isError = viewModel.getIsError()
-                    ) { title = it }
-                    OutlinedStyledText(
-                        id = R.string.description,
-                        text = description,
-                        padding = 16,
-                        modifier = Modifier.fillMaxWidth(),
-                        maxLines = 8,
-                        isSingleLine = false,
-                        isTitle = false,
-                        isError = viewModel.getIsError()
-                    ) { description = it }
+                    EditComponents(
+                        issue_number = "Issue #${project.issues.size + 1} erstellen",
+                        title = title,
+                        description = description,
+                        error = viewModel.getIsError(),
+                        onChangeTitle = { changedTitle ->
+                            title = changedTitle
+                        },
+                        onChangeDescription = { changedDescription ->
+                            description = changedDescription
+                        }
+                    )
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -142,9 +126,38 @@ internal fun EditIssueScreen(
     }
 }
 
-/**
- *
- */
+@Composable
+fun EditComponents(
+    issue_number: String,
+    title: String,
+    description: String,
+    error: Boolean,
+    onChangeTitle: (String) -> Unit,
+    onChangeDescription: (String) -> Unit
+) {
+    Text(text = issue_number, fontSize = 14.sp)
+    OutlinedStyledText(
+        id = R.string.title,
+        text = title,
+        padding = 32,
+        modifier = Modifier.fillMaxWidth(),
+        maxLines = 1,
+        isSingleLine = true,
+        isTitle = true,
+        isError = error
+    ) { onChangeTitle(it) }
+    OutlinedStyledText(
+        id = R.string.description,
+        text = description,
+        padding = 16,
+        modifier = Modifier.fillMaxWidth(),
+        maxLines = 8,
+        isSingleLine = false,
+        isTitle = false,
+        isError = error
+    ) { onChangeDescription(it) }
+}
+
 @Composable
 fun OutlinedStyledText(
     @StringRes id: Int,

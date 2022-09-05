@@ -23,8 +23,8 @@ class RootViewModel(context: Context) : ViewModel() {
     var projectList by mutableStateOf(listOf<Project>())
     var toggleList by mutableStateOf(listOf<TotalToggle>())
     var memberList by mutableStateOf(listOf<UserStatistic>())
-    private val totalTime: MutableState<Double> = mutableStateOf(0.0)
     val isLoading: MutableState<Boolean> = mutableStateOf(false)
+    private val totalTime: MutableState<Double> = mutableStateOf(0.0)
 
     // Listeners for the ValueEventListeners of firebase
     private var toggleListener: ValueEventListener? = null
@@ -146,7 +146,7 @@ class RootViewModel(context: Context) : ViewModel() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        Timber.e("IAAAMMMM CANCCEEELLLEEEDDD")
+                        Timber.e("getting projects data canceled")
                     }
                 })
         }
@@ -235,7 +235,7 @@ class RootViewModel(context: Context) : ViewModel() {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        Timber.e("IAAAMMMM CANCCEEELLLEEEDDD")
+                        Timber.e("getting toggles canceled")
                     }
                 })
         }

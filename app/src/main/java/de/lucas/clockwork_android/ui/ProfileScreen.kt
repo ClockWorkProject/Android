@@ -1,5 +1,6 @@
 package de.lucas.clockwork_android.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.StringRes
@@ -9,7 +10,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -30,7 +30,7 @@ import de.lucas.clockwork_android.viewmodel.ProfileViewModel
  * @param onClickLogout on "logout"-button click -> logout user -> navigate back to LoginScreen
  * @param onClickLeave on "leave"-click -> leave group -> navigate to ToggleScreen and show empty state message
  */
-@OptIn(ExperimentalComposeUiApi::class)
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 internal fun ProfileScreen(
     viewModel: ProfileViewModel,

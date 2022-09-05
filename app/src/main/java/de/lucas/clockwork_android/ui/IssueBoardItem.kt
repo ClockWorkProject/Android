@@ -51,8 +51,13 @@ internal fun IssueBoardItem(
     val swipeLeftVisible = if (currentPageIndex == 0) 0f else 1f
     val swipeRightVisible = if (currentPageIndex == 5) 0f else 1f
 
-    Scaffold(backgroundColor = Color.White) {
-        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+    Scaffold(backgroundColor = Color.White) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            verticalArrangement = Arrangement.Center
+        ) {
             Card(
                 modifier = Modifier
                     .fillMaxSize()
