@@ -1,12 +1,13 @@
 package de.lucas.clockwork_android.viewmodel
 
-import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.FirebaseDatabase
-import de.lucas.clockwork_android.model.Preferences
+import dagger.hilt.android.lifecycle.HiltViewModel
+import de.lucas.clockwork_android.model.preferences.Preferences
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * 3 states:
@@ -14,9 +15,11 @@ import timber.log.Timber
  * showDeleteDialogState -> set true if user clicks "delete"-button in ProfileScreen to show Dialog
  * showEditDialogState -> set true if user clicks "edit"-button in ProfileScreen to show Dialog
  */
-class ProfileViewModel(context: Context) : ViewModel() {
-    private val preferences = Preferences(context)
-    private val database = FirebaseDatabase.getInstance()
+@HiltViewModel
+class ProfileViewModel @Inject constructor(
+    private val preferences: Preferences,
+    private val database: FirebaseDatabase
+) : ViewModel() {
     var showLeaveDialogState: MutableState<Boolean> = mutableStateOf(false)
         private set
     var showDeleteDialogState: MutableState<Boolean> = mutableStateOf(false)

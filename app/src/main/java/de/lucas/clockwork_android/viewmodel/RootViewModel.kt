@@ -1,25 +1,33 @@
 package de.lucas.clockwork_android.viewmodel
 
-import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.squareup.moshi.Moshi
+import dagger.hilt.android.lifecycle.HiltViewModel
 import de.lucas.clockwork_android.model.*
+import de.lucas.clockwork_android.model.preferences.Preferences
 import de.lucas.clockwork_android.ui.BoardState
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 import kotlin.math.roundToInt
 
-class RootViewModel(context: Context) : ViewModel() {
-    private val preferences = Preferences(context)
-    private val database = FirebaseDatabase.getInstance()
+@HiltViewModel
+class RootViewModel @Inject constructor(
+    private val preferences: Preferences,
+    private val database: FirebaseDatabase,
+    private val moshi: Moshi,
+    private val auth: FirebaseAuth
+) : ViewModel() {
     var projectList by mutableStateOf(listOf<Project>())
     var toggleList by mutableStateOf(listOf<TotalToggle>())
     var memberList by mutableStateOf(listOf<UserStatistic>())
@@ -70,6 +78,10 @@ class RootViewModel(context: Context) : ViewModel() {
     fun setShowTogglePlayer(state: Boolean) {
         showTogglePlayer.value = state
     }
+
+    fun currentUser() = auth.currentUser
+
+    fun signOut() = auth.signOut()
 
     // Sort list by dates
     fun getSortedToggles() = toggleList.sortedByDescending { it.date }

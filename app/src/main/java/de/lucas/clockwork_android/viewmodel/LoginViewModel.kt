@@ -1,15 +1,16 @@
 package de.lucas.clockwork_android.viewmodel
 
-import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import de.lucas.clockwork_android.model.Preferences
+import dagger.hilt.android.lifecycle.HiltViewModel
 import de.lucas.clockwork_android.model.User
+import de.lucas.clockwork_android.model.preferences.Preferences
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * loginAttempt -> set true if user tries to login (LoginButton is being clicked)
@@ -19,35 +20,22 @@ import timber.log.Timber
  * password -> state to store entered password
  * isLoading -> state to show loading indicator if needed
  */
-class LoginViewModel(context: Context) : ViewModel() {
-    private val preferences = Preferences(context)
-    private val loginAttempt: MutableState<Boolean> = mutableStateOf(false)
-    private val signUpAttempt: MutableState<Boolean> = mutableStateOf(false)
-    private val isError: MutableState<Boolean> = mutableStateOf(false)
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val preferences: Preferences,
+    private val database: FirebaseDatabase,
+    private val auth: FirebaseAuth
+) : ViewModel() {
+    private val state: MutableState<State> = mutableStateOf(State.DEFAULT)
     private val email: MutableState<String> = mutableStateOf("")
     private val password: MutableState<String> = mutableStateOf("")
     private val isLoading: MutableState<Boolean> = mutableStateOf(false)
-    private val database = FirebaseDatabase.getInstance()
-
-    fun setLogin(state: Boolean) {
-        loginAttempt.value = state
-    }
-
-    private fun setError(state: Boolean) {
-        isError.value = state
-    }
 
     private fun setUserInfo(name: String, user_id: String, group_id: String) {
         preferences.setUsername(name)
         preferences.setUserId(user_id)
         preferences.setGroupId(group_id)
     }
-
-    fun setSignUp(state: Boolean) {
-        signUpAttempt.value = state
-    }
-
-    fun getSignUp() = signUpAttempt.value
 
     fun setEmail(text: String) {
         email.value = text
@@ -61,20 +49,25 @@ class LoginViewModel(context: Context) : ViewModel() {
         isLoading.value = state
     }
 
+    fun setState(newState: State) {
+        state.value = newState
+    }
+
     fun getIsLoading() = isLoading.value
 
     fun getEmail() = email.value
 
     fun getPassword() = password.value
 
-    fun getLogin() = loginAttempt.value
-
-    fun getIsError() = isError.value
+    fun getState() = state.value
 
     /**
      * Function to sign up user
      */
-    fun signUpUser(auth: FirebaseAuth, context: ComponentActivity, onSignUp: () -> Unit) {
+    fun signUpUser(
+        context: ComponentActivity,
+        onSignUp: () -> Unit
+    ) {
         // Check if Textfields are not empty locally
         if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
             // Show loading Indicator
@@ -96,15 +89,15 @@ class LoginViewModel(context: Context) : ViewModel() {
                         setUserInfo(email.value.substringBefore("@"), auth.currentUser!!.uid, "")
                         // Navigate user to ToggleScreen
                         onSignUp()
-                        setError(false)
+                        setState(State.DEFAULT)
                     } else {
                         // If sign in fails, display a message to the user.
                         Timber.e("createUserWithEmail:failure")
-                        setError(true)
+                        setState(State.ERROR)
                     }
                 }
         } else {
-            setError(true)
+            setState(State.ERROR)
         }
     }
 
@@ -112,7 +105,6 @@ class LoginViewModel(context: Context) : ViewModel() {
      * Function to login user
      */
     fun loginUser(
-        auth: FirebaseAuth,
         context: ComponentActivity,
         onLogin: (String, String) -> Unit
     ) {
@@ -152,19 +144,23 @@ class LoginViewModel(context: Context) : ViewModel() {
                                 }
                                 // Navigate user to ToggleScreen with groupId and his role to call specific functions
                                 onLogin(groupId, preferences.getUserRole()!!)
-                                setError(false)
                                 Timber.e("Got value ${it.child("groupID").value.toString()}")
                             }.addOnFailureListener {
                                 Timber.e("Error getting data", it)
                             }
+                        setState(State.DEFAULT)
                     } else {
                         // If sign in fails, display a message to the user.
                         Timber.e("signInWithEmail:failure")
-                        setError(true)
+                        setState(State.ERROR)
                     }
                 }
         } else {
-            setError(true)
+            setState(State.ERROR)
         }
     }
+}
+
+enum class State {
+    DEFAULT, LOGIN, SIGNUP, ERROR
 }

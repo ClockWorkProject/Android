@@ -10,7 +10,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,7 +20,6 @@ import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.BoardState.OPEN
 import de.lucas.clockwork_android.ui.theme.Gray200
-import de.lucas.clockwork_android.viewmodel.EditIssueViewModel
 
 /**
  * Screen to update and create issues
@@ -35,8 +33,10 @@ internal fun EditIssueScreen(
     project: Project?,
     projectID: String,
     @StringRes buttonText: Int,
-    viewModel: EditIssueViewModel,
     state: BoardState,
+    isError: Boolean,
+    updateIssue: (String, String, String, String) -> Unit,
+    createIssue: (String, String, String, String, BoardState) -> Unit,
     onClickBack: () -> Unit
 ) {
     var title by remember { mutableStateOf(issue?.name ?: "") }
@@ -66,7 +66,7 @@ internal fun EditIssueScreen(
                         issue_number = "Issue #${issue.number}",
                         title = title,
                         description = description,
-                        error = viewModel.getIsError(),
+                        error = isError,
                         onChangeTitle = { changedTitle ->
                             title = changedTitle
                         },
@@ -79,7 +79,7 @@ internal fun EditIssueScreen(
                         issue_number = "Issue #${project.issues.size + 1} erstellen",
                         title = title,
                         description = description,
-                        error = viewModel.getIsError(),
+                        error = isError,
                         onChangeTitle = { changedTitle ->
                             title = changedTitle
                         },
@@ -95,7 +95,7 @@ internal fun EditIssueScreen(
                     Button(
                         onClick = {
                             if (issue != null) {
-                                viewModel.updateIssue(
+                                updateIssue(
                                     projectID,
                                     issue.id,
                                     title,
@@ -103,7 +103,7 @@ internal fun EditIssueScreen(
                                 )
                             }
                             if (project != null) {
-                                viewModel.createIssue(
+                                createIssue(
                                     project.id,
                                     "${project.issues.size + 1}",
                                     title,
@@ -111,7 +111,7 @@ internal fun EditIssueScreen(
                                     state
                                 )
                             }
-                            if (!viewModel.getIsError()) onClickBack()
+                            if (!isError) onClickBack()
                         },
                         modifier = Modifier.padding(top = 32.dp)
                     ) {
@@ -213,8 +213,10 @@ private fun PreviewIssueDetailScreen() {
         ),
         Project("", "", listOf()),
         projectID = "",
-        viewModel = EditIssueViewModel(LocalContext.current),
         buttonText = R.string.save,
+        isError = false,
+        updateIssue = { _, _, _, _ -> },
+        createIssue = { _, _, _, _, _ -> },
         state = OPEN
     ) { }
 }

@@ -1,5 +1,6 @@
 package de.lucas.clockwork_android.ui
 
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -14,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -22,9 +24,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.squareup.moshi.Moshi
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.InfoCategory
@@ -53,12 +52,12 @@ import java.net.URLEncoder
 @ExperimentalPagerApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Root(rootViewModel: RootViewModel) {
+fun Root() {
+    val rootViewModel: RootViewModel = viewModel()
     val context = LocalContext.current
     val navController = rememberNavController()
-    val togglePlayerViewModel = TogglePlayerViewModel(context)
-    val editViewModel = EditIssueViewModel(context)
-    val auth: FirebaseAuth = Firebase.auth
+    val togglePlayerViewModel: TogglePlayerViewModel = hiltViewModel()
+    val editViewModel: EditIssueViewModel = hiltViewModel()
     val moshi = Moshi.Builder().build()
     var groupId by remember { mutableStateOf(rootViewModel.getGroupId()) }
     var userRole by remember { mutableStateOf(rootViewModel.getUserRole()) }
@@ -201,9 +200,10 @@ fun Root(rootViewModel: RootViewModel) {
                 }
                 // Show IssuePicker when state is true
                 if (rootViewModel.showIssuePickerList.value) {
+                    val model: IssuePickerListViewModel = hiltViewModel()
                     IssuePickerList(
                         projectList = if (rootViewModel.getGroupId() != "") rootViewModel.projectList else listOf(),
-                        viewModel = IssuePickerListViewModel(context),
+                        viewModel = model,
                         onStartToggle = { issue, project ->
                             if (togglePlayerViewModel.getToggleIssue()!!.number == "") {
                                 togglePlayerViewModel.setStartTime()
@@ -223,50 +223,84 @@ fun Root(rootViewModel: RootViewModel) {
         NavHost(
             navController,
             // If a user exists (is currently logged in) -> navigate straight to ToggleScreen and skip login
-            startDestination = if (auth.currentUser != null) TOGGLE.route else LOGIN,
+            startDestination = if (rootViewModel.currentUser() != null) TOGGLE.route else LOGIN,
             Modifier.padding(innerPadding)
         ) {
-            composable(LOGIN) {
-                val loginViewModel = LoginViewModel(context)
+            composable(LOGIN) { stackEntry ->
+                val model: LoginViewModel = hiltViewModel(stackEntry)
                 LoginScreen(
-                    viewModel = loginViewModel,
-                    auth = auth,
-                    onClickLogin = { id, role ->
-                        navController.navigate(TOGGLE.route) {
-                            popUpTo(0) {
-                                inclusive = true
+                    isLoading = model.getIsLoading(),
+                    currentState = model.getState(),
+                    password = model.getPassword(),
+                    email = model.getEmail(),
+                    setEmail = { email -> model.setEmail(email) },
+                    setState = { state -> model.setState(state) },
+                    setPassword = { password -> model.setPassword(password) },
+                    loginUser = {
+                        model.loginUser(AppCompatActivity()) { id, role ->
+                            navController.navigate(TOGGLE.route) {
+                                popUpTo(0) {
+                                    inclusive = true
+                                }
                             }
+                            rootViewModel.setShowBottomNavigation(true)
+                            groupId = id
+                            userRole = role
                         }
-                        rootViewModel.setShowBottomNavigation(true)
-                        groupId = id
-                        userRole = role
                     },
-                    onClickSignUp = {
-                        navController.navigate(TOGGLE.route) {
-                            popUpTo(0) {
-                                inclusive = true
+                    signUpUser = {
+                        model.signUpUser(AppCompatActivity()) {
+                            navController.navigate(TOGGLE.route) {
+                                popUpTo(0) {
+                                    inclusive = true
+                                }
                             }
+                            rootViewModel.setShowBottomNavigation(true)
                         }
-                        rootViewModel.setShowBottomNavigation(true)
                     }
                 )
             }
-            composable(TOGGLE.route) {
+            composable(TOGGLE.route) { stackEntry ->
+                val model: ToggleViewModel = hiltViewModel(stackEntry)
                 rootViewModel.setAppTitle(stringResource(id = R.string.time_record))
                 rootViewModel.setShowNavigationIcon(false)
                 rootViewModel.setShowBottomNavigation(true)
                 ToggleScreen(
                     toggleList = if (rootViewModel.getGroupId() != "") rootViewModel.getSortedToggles() else listOf(),
-                    viewModel = ToggleViewModel(context),
-                    onJoinGroup = { id -> groupId = id }
+                    groupId = model.getGroupId() ?: "",
+                    showEmptyState = model.showEmptyState.value,
+                    showNoGroupState = model.noGroupFoundState.value,
+                    showToggleList = model.showToggleList.value,
+                    setShowEmptyState = { state ->
+                        model.setEmptyState(state)
+                    },
+                    setShowToggleList = { state ->
+                        model.setShowToggleList(state)
+                    },
+                    setShowNoGroupFound = { state ->
+                        model.setNoGroupFound(state)
+                    },
+                    joinGroup = { id ->
+                        model.joinGroup(groupId ?: "") { joined ->
+                            if (joined) {
+                                groupId = id
+                            }
+                        }
+                    },
+                    createGroup = { name ->
+                        model.createGroup(name) { id ->
+                            groupId = id
+                        }
+                    }
                 )
             }
-            composable(BOARD.route) {
+            composable(BOARD.route) { stackEntry ->
+                val model: IssueBoardViewModel = hiltViewModel(stackEntry)
                 rootViewModel.setAppTitle(stringResource(id = R.string.issue_board))
                 rootViewModel.setShowNavigationIcon(false)
                 IssueBoardScreen(
                     projectList = if (rootViewModel.getGroupId() != "") rootViewModel.projectList else listOf(),
-                    viewModel = IssueBoardViewModel(context),
+                    viewModel = model,
                     onClickIssue = { issue, project_id ->
                         val issueAdapter = moshi.adapter(Issue::class.java)
                         // Create Json of information of clicked Issue
@@ -291,17 +325,18 @@ fun Root(rootViewModel: RootViewModel) {
                 rootViewModel.setShowNavigationIcon(false)
                 StatisticScreen(rootViewModel.getUserRole()!!, rootViewModel.memberList)
             }
-            composable(PROFILE.route) {
+            composable(PROFILE.route) { stackEntry ->
+                val model: ProfileViewModel = hiltViewModel(stackEntry)
                 rootViewModel.setAppTitle(stringResource(id = R.string.profile))
                 rootViewModel.setShowNavigationIcon(false)
                 ProfileScreen(
-                    viewModel = ProfileViewModel(context),
+                    viewModel = model,
                     onClickInfo = { navController.navigate(INFO) },
                     onClickLogout = {
                         // Remove all global lists, to be able to store new data on new login
                         rootViewModel.removeAll()
                         // Sign out from firebase
-                        auth.signOut()
+                        rootViewModel.signOut()
                         navController.navigate(LOGIN) {
                             rootViewModel.setShowBottomNavigation(false)
                             popUpTo(0) {
@@ -358,9 +393,15 @@ fun Root(rootViewModel: RootViewModel) {
                         issue = issue,
                         project = null,
                         projectID = editViewModel.getProjectID(),
-                        viewModel = editViewModel,
+                        isError = editViewModel.getIsError(),
                         buttonText = R.string.save,
-                        state = editViewModel.getEditBoardState()
+                        state = editViewModel.getEditBoardState(),
+                        updateIssue = { projectId, issueId, title, desc ->
+                            editViewModel.updateIssue(projectId, issueId, title, desc)
+                        },
+                        createIssue = { projectId, issueId, title, desc, state ->
+                            editViewModel.createIssue(projectId, issueId, title, desc, state)
+                        }
                     ) {
                         navController.navigate(BOARD.route) {
                             popUpTo(BOARD.route) {
@@ -385,9 +426,15 @@ fun Root(rootViewModel: RootViewModel) {
                         issue = null,
                         project = project,
                         projectID = editViewModel.getProjectID(),
-                        viewModel = editViewModel,
+                        isError = editViewModel.getIsError(),
                         buttonText = R.string.create,
-                        state = editViewModel.getEditBoardState()
+                        state = editViewModel.getEditBoardState(),
+                        updateIssue = { projectId, issueId, title, desc ->
+                            editViewModel.updateIssue(projectId, issueId, title, desc)
+                        },
+                        createIssue = { projectId, issueId, title, desc, state ->
+                            editViewModel.createIssue(projectId, issueId, title, desc, state)
+                        }
                     ) { navController.popBackStack() }
                 }
             }

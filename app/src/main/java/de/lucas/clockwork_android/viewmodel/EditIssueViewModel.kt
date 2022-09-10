@@ -1,18 +1,21 @@
 package de.lucas.clockwork_android.viewmodel
 
-import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.FirebaseDatabase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import de.lucas.clockwork_android.model.NewIssue
-import de.lucas.clockwork_android.model.Preferences
+import de.lucas.clockwork_android.model.preferences.Preferences
 import de.lucas.clockwork_android.ui.BoardState
 import timber.log.Timber
+import javax.inject.Inject
 
-class EditIssueViewModel(context: Context) : ViewModel() {
-    private val preferences = Preferences(context)
-    private val database = FirebaseDatabase.getInstance()
+@HiltViewModel
+class EditIssueViewModel @Inject constructor(
+    private val preferences: Preferences,
+    private val database: FirebaseDatabase
+) : ViewModel() {
     private val editBoardState: MutableState<BoardState> = mutableStateOf(BoardState.OPEN)
     private val projectID: MutableState<String> = mutableStateOf("")
     private val isError: MutableState<Boolean> = mutableStateOf(false)

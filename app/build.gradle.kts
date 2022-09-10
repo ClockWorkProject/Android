@@ -1,7 +1,10 @@
 plugins {
     id("com.android.application")
     kotlin("android")
+    kotlin("kapt")
+    kotlin("plugin.serialization") version Versions.kotlin
     id("kotlin-parcelize")
+    id("dagger.hilt.android.plugin")
     id("com.mikepenz.aboutlibraries.plugin") version Versions.about
     id("com.google.gms.google-services")
 }
@@ -66,6 +69,8 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:${Versions.firebase_bom}"))
     implementation("com.google.firebase:firebase-database-ktx")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.serialization}")
+
     implementation("com.chargemap.compose:numberpicker:${Versions.numberPicker}")
 
     implementation("com.jakewharton.timber:timber:${Versions.timber}")
@@ -74,6 +79,10 @@ dependencies {
 
     implementation("com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}")
     implementation("com.google.accompanist:accompanist-pager:${Versions.accompanist}")
+
+    implementation("androidx.hilt:hilt-navigation-compose:${Versions.hiltNavigationCompose}")
+    implementation("com.google.dagger:hilt-android:${Versions.hilt}")
+    kapt("com.google.dagger:hilt-android-compiler:${Versions.hilt}")
 
     implementation("com.squareup.retrofit2:retrofit:${Versions.retrofit}")
     implementation("com.squareup.retrofit2:converter-moshi:${Versions.retrofit}")
