@@ -10,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,7 +26,6 @@ import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.BoardState.*
 import de.lucas.clockwork_android.ui.theme.*
-import de.lucas.clockwork_android.viewmodel.IssueBoardViewModel
 
 /**
  * Screen to show all issues, in its state lists, of selected project
@@ -37,24 +35,30 @@ import de.lucas.clockwork_android.viewmodel.IssueBoardViewModel
 @Composable
 internal fun IssueBoardScreen(
     projectList: List<Project>,
-    viewModel: IssueBoardViewModel,
+    showBoardState: Boolean,
+    projectId: Int,
+    setShowBoardState: (Boolean) -> Unit,
+    updateIssueState: (String, String, BoardState) -> Unit,
     onClickIssue: (Issue, String) -> Unit,
-    onClickNewIssue: (Project, BoardState) -> Unit
+    onClickNewIssue: (Project, BoardState) -> Unit,
+    changeProject: (Int) -> Unit
 ) {
     // variable to hold the id of the long pressed issue to update its state
     var longPressIssueId by remember { mutableStateOf("") }
-    if (viewModel.getShowBoardState()) {
+    if (showBoardState) {
         // List of all states to click -> updates state of long pressed issue
         BoardStateList(
-            viewModel = viewModel,
             onStateClicked = { boardState ->
-                viewModel.updateIssueState(
-                    projectList[viewModel.getProjectId()].id,
+                updateIssueState(
+                    projectList[projectId].id,
                     longPressIssueId,
                     boardState
                 )
             },
-            onClose = { viewModel.setShowBoardState(false) }
+            setShowBoardState = { state ->
+                setShowBoardState(state)
+            },
+            onClose = { setShowBoardState(false) }
         )
     }
     // State for the HorizontalPager to remember state across composition
@@ -77,8 +81,8 @@ internal fun IssueBoardScreen(
                 )
                 CustomDropDownMenu(
                     projects = projectList,
-                    projectID = viewModel.getProjectId(),
-                    onProjectChange = { id -> viewModel.changeProject(id) }
+                    projectID = projectId,
+                    onProjectChange = { id -> changeProject(id) }
                 )
             }
             /**
@@ -89,18 +93,20 @@ internal fun IssueBoardScreen(
              */
             BoardViewPager(
                 pagerState = pagerState,
-                project = if (viewModel.getProjectId() == -1) {
+                project = if (projectId == -1) {
                     Project("", "", listOf())
                 } else {
-                    projectList[viewModel.getProjectId()]
+                    projectList[projectId]
                 },
-                viewModel = viewModel,
+                setShowBoardState = { state ->
+                    setShowBoardState(state)
+                },
                 onClickIssue = { issue ->
-                    onClickIssue(issue, projectList[viewModel.getProjectId()].id)
+                    onClickIssue(issue, projectList[projectId].id)
                 },
                 onClickNewIssue = { boardState ->
-                    if (viewModel.getProjectId() != -1) {
-                        onClickNewIssue(projectList[viewModel.getProjectId()], boardState)
+                    if (projectId != -1) {
+                        onClickNewIssue(projectList[projectId], boardState)
                     }
                 },
                 onLongPressIssue = { issue -> longPressIssueId = issue.id }
@@ -121,7 +127,7 @@ internal fun IssueBoardScreen(
 internal fun BoardViewPager(
     pagerState: PagerState,
     project: Project,
-    viewModel: IssueBoardViewModel,
+    setShowBoardState: (Boolean) -> Unit,
     onClickIssue: (Issue) -> Unit,
     onClickNewIssue: (BoardState) -> Unit,
     onLongPressIssue: (Issue) -> Unit
@@ -140,7 +146,9 @@ internal fun BoardViewPager(
                     boardColor = Color.Black,
                     currentPageIndex = page,
                     issueSize = issues.size,
-                    viewModel = viewModel,
+                    setShowBoardState = { state ->
+                        setShowBoardState(state)
+                    },
                     onClickIssue = onClickIssue,
                     onClickNewIssue = {
                         onClickNewIssue(OPEN)
@@ -156,7 +164,9 @@ internal fun BoardViewPager(
                     boardColor = Green500,
                     currentPageIndex = page,
                     issueSize = issues.size,
-                    viewModel = viewModel,
+                    setShowBoardState = { state ->
+                        setShowBoardState(state)
+                    },
                     onClickIssue = onClickIssue,
                     onClickNewIssue = {
                         onClickNewIssue(TODO)
@@ -172,7 +182,9 @@ internal fun BoardViewPager(
                     boardColor = Blue500,
                     currentPageIndex = page,
                     issueSize = issues.size,
-                    viewModel = viewModel,
+                    setShowBoardState = { state ->
+                        setShowBoardState(state)
+                    },
                     onClickIssue = onClickIssue,
                     onClickNewIssue = {
                         onClickNewIssue(DOING)
@@ -188,7 +200,9 @@ internal fun BoardViewPager(
                     boardColor = Yellow500,
                     currentPageIndex = page,
                     issueSize = issues.size,
-                    viewModel = viewModel,
+                    setShowBoardState = { state ->
+                        setShowBoardState(state)
+                    },
                     onClickIssue = onClickIssue,
                     onClickNewIssue = {
                         onClickNewIssue(REVIEW)
@@ -204,7 +218,9 @@ internal fun BoardViewPager(
                     boardColor = Red500,
                     currentPageIndex = page,
                     issueSize = issues.size,
-                    viewModel = viewModel,
+                    setShowBoardState = { state ->
+                        setShowBoardState(state)
+                    },
                     onClickIssue = onClickIssue,
                     onClickNewIssue = {
                         onClickNewIssue(BLOCKER)
@@ -220,7 +236,9 @@ internal fun BoardViewPager(
                     boardColor = Color.Black,
                     currentPageIndex = page,
                     issueSize = issues.size,
-                    viewModel = viewModel,
+                    setShowBoardState = { state ->
+                        setShowBoardState(state)
+                    },
                     onClickIssue = onClickIssue,
                     onClickNewIssue = {
                         onClickNewIssue(CLOSED)
@@ -237,8 +255,8 @@ internal fun BoardViewPager(
  */
 @Composable
 fun BoardStateList(
-    viewModel: IssueBoardViewModel,
     onStateClicked: (BoardState) -> Unit,
+    setShowBoardState: (Boolean) -> Unit,
     onClose: () -> Unit
 ) {
     Dialog(onDismissRequest = { onClose() }) {
@@ -270,7 +288,7 @@ fun BoardStateList(
                             .height(48.dp)
                             .clickable {
                                 onStateClicked(boardState)
-                                viewModel.setShowBoardState(false)
+                                setShowBoardState(false)
                             }) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -303,9 +321,13 @@ enum class BoardState {
 @Composable
 private fun PreviewIssueBoard() {
     IssueBoardScreen(
-        listOf(),
-        viewModel = IssueBoardViewModel(LocalContext.current),
+        projectList = listOf(),
+        showBoardState = false,
+        projectId = -1,
+        setShowBoardState = { },
+        updateIssueState = { _, _, _ -> },
         onClickIssue = { _, _ -> },
-        onClickNewIssue = { _, _ -> }
+        onClickNewIssue = { _, _ -> },
+        changeProject = {}
     )
 }

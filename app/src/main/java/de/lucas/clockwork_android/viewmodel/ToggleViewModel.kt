@@ -1,6 +1,5 @@
 package de.lucas.clockwork_android.viewmodel
 
-import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -8,13 +7,17 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import dagger.hilt.android.lifecycle.HiltViewModel
 import de.lucas.clockwork_android.model.Group
-import de.lucas.clockwork_android.model.Preferences
+import de.lucas.clockwork_android.model.preferences.Preferences
 import timber.log.Timber
+import javax.inject.Inject
 
-class ToggleViewModel(context: Context) : ViewModel() {
-    private val preferences = Preferences(context)
-    private val database = FirebaseDatabase.getInstance()
+@HiltViewModel
+class ToggleViewModel @Inject constructor(
+    private val preferences: Preferences,
+    private val database: FirebaseDatabase
+) : ViewModel() {
     val noGroupFoundState: MutableState<Boolean> = mutableStateOf(false)
     val showToggleList: MutableState<Boolean> = mutableStateOf(false)
     val showEmptyState: MutableState<Boolean> = mutableStateOf(true)
@@ -23,19 +26,27 @@ class ToggleViewModel(context: Context) : ViewModel() {
         noGroupFoundState.value = state
     }
 
-    fun getGroupId() = preferences.getGroupId()
+    fun setEmptyState(state: Boolean) {
+        showEmptyState.value = state
+    }
+
+    fun setShowToggleList(state: Boolean) {
+        showToggleList.value = state
+    }
 
     private fun setGroupInfo(id: String, name: String) {
         preferences.setGroupId(id)
         preferences.setGroupName(name)
     }
 
+    fun getGroupId() = preferences.getGroupId()
+
     private fun getUserId() = preferences.getUserId()
 
     /**
      * Function to create a group, sends data to firebase
      */
-    fun createGroup(name: String) {
+    fun createGroup(name: String, createdId: (String) -> Unit) {
         try {
             // Create unique id/key for group
             val groupID = database.reference.child("groups").push().key!!
@@ -53,6 +64,7 @@ class ToggleViewModel(context: Context) : ViewModel() {
             preferences.setUserRole("admin")
             // Set group data
             setGroupInfo(groupID, name)
+            createdId(groupID)
         } catch (e: Exception) {
             Timber.e("Couldn't create group")
         }

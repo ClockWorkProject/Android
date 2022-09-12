@@ -2,8 +2,12 @@ package de.lucas.clockwork_android.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-internal class VersionViewModel(private val app: Application) : AndroidViewModel(app) {
+@HiltViewModel
+internal class VersionViewModel @Inject constructor(private val app: Application) :
+    AndroidViewModel(app) {
 
     // Gets the set application name
     val appName = app.packageManager.getApplicationLabel(app.applicationInfo).toString()

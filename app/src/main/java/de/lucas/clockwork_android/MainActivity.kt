@@ -8,10 +8,11 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import dagger.hilt.android.AndroidEntryPoint
 import de.lucas.clockwork_android.ui.Root
 import de.lucas.clockwork_android.ui.theme.ClockWork_AndroidTheme
-import de.lucas.clockwork_android.viewmodel.RootViewModel
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @ExperimentalComposeUiApi
     @OptIn(ExperimentalPagerApi::class)
@@ -25,7 +26,7 @@ class MainActivity : ComponentActivity() {
                     // set the color of the statusBar of the app
                     systemUiController.setStatusBarColor(primary)
                 }
-                Root(rootViewModel = RootViewModel(applicationContext))
+                Root()
             }
         }
     }

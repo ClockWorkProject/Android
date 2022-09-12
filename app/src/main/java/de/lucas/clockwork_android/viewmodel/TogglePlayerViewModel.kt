@@ -1,16 +1,19 @@
 package de.lucas.clockwork_android.viewmodel
 
-import android.content.Context
 import android.os.CountDownTimer
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import de.lucas.clockwork_android.model.Issue
-import de.lucas.clockwork_android.model.Preferences
 import de.lucas.clockwork_android.model.Project
+import de.lucas.clockwork_android.model.preferences.Preferences
+import javax.inject.Inject
 
-class TogglePlayerViewModel(context: Context) : ViewModel() {
-    private val preferences = Preferences(context)
+@HiltViewModel
+class TogglePlayerViewModel @Inject constructor(
+    private val preferences: Preferences
+) : ViewModel() {
     val toggleTimeDisplay: MutableState<String> = mutableStateOf(getTimeString(0))
     private val isPausedState: MutableState<Boolean> =
         mutableStateOf(preferences.getIsTogglePaused())

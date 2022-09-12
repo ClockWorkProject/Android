@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Toggle
 import de.lucas.clockwork_android.model.TotalToggle
+import de.lucas.clockwork_android.ui.utility.toCurrentDate
 
 /**
  * Item to populate the ToggleList
@@ -59,7 +60,7 @@ internal fun ToggleItem(toggle: TotalToggle, smallText: Boolean) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = toggle.date,
+                    text = toggle.date.toCurrentDate(),
                     fontSize = if (smallText) 18.sp else 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(4f)

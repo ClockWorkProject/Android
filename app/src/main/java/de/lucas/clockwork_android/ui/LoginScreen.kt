@@ -1,7 +1,6 @@
 package de.lucas.clockwork_android.ui
 
 import android.annotation.SuppressLint
-import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,7 +16,6 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,11 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import de.lucas.clockwork_android.R
-import de.lucas.clockwork_android.viewmodel.LoginViewModel
+import de.lucas.clockwork_android.viewmodel.State
 
 /**
  * Screen for the user to login or sign up
@@ -43,10 +39,15 @@ import de.lucas.clockwork_android.viewmodel.LoginViewModel
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 internal fun LoginScreen(
-    viewModel: LoginViewModel,
-    auth: FirebaseAuth,
-    onClickLogin: (String, String) -> Unit,
-    onClickSignUp: () -> Unit
+    isLoading: Boolean,
+    currentState: State,
+    password: String,
+    email: String,
+    setEmail: (String) -> Unit,
+    setState: (State) -> Unit,
+    setPassword: (String) -> Unit,
+    loginUser: () -> Unit,
+    signUpUser: () -> Unit
 ) {
     Scaffold {
         Column(
@@ -64,13 +65,12 @@ internal fun LoginScreen(
                 OutlinedStyledErrorText(
                     id = R.string.email,
                     maxLines = 1,
-                    loginState = viewModel.getLogin(),
-                    signUpState = viewModel.getSignUp(),
-                    errorState = viewModel.getIsError(),
-                    viewModel = viewModel,
-                    auth = auth,
-                    login = { groupID, role -> onClickLogin(groupID, role) },
-                    signUp = { onClickSignUp() }
+                    currentState = currentState,
+                    email = email,
+                    setEmail = { email -> setEmail(email) },
+                    setState = { state -> setState(state) },
+                    loginUser = { loginUser() },
+                    signUpUser = { signUpUser() }
                 )
                 OutlinedStyledTextPassword(
                     id = R.string.password,
@@ -78,13 +78,14 @@ internal fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 1,
                     isSingleLine = true,
-                    viewModel = viewModel
+                    password = password,
+                    setPassword = setPassword
                 )
                 RoundedButton(
                     id = R.string.login,
                     padding = 40,
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = { viewModel.setLogin(true) }
+                    onClick = { setState(State.LOGIN) }
                 )
                 Text(
                     text = stringResource(id = R.string.no_account),
@@ -96,12 +97,12 @@ internal fun LoginScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 4.dp),
-                    onClick = { viewModel.setSignUp(true) }
+                    onClick = { setState(State.SIGNUP) }
                 )
             }
         }
         // Show loading indicator if "isLoading" is true
-        if (viewModel.getIsLoading()) {
+        if (isLoading) {
             LoadingIndicator(id = R.string.login_loading)
         }
     }
@@ -146,7 +147,8 @@ fun OutlinedStyledTextPassword(
     modifier: Modifier,
     maxLines: Int,
     isSingleLine: Boolean,
-    viewModel: LoginViewModel
+    password: String,
+    setPassword: (String) -> Unit
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
     val icon = if (passwordVisible) {
@@ -155,8 +157,8 @@ fun OutlinedStyledTextPassword(
         painterResource(id = R.drawable.ic_pw_invisible)
     }
     OutlinedTextField(
-        value = viewModel.getPassword(),
-        onValueChange = { viewModel.setPassword(it) },
+        value = password,
+        onValueChange = { setPassword(it) },
         label = { Text(stringResource(id = id)) },
         modifier = modifier.padding(top = padding.dp),
         trailingIcon = {
@@ -178,43 +180,34 @@ fun OutlinedStyledTextPassword(
 fun OutlinedStyledErrorText(
     @StringRes id: Int,
     maxLines: Int,
-    loginState: Boolean,
-    signUpState: Boolean,
-    errorState: Boolean,
-    viewModel: LoginViewModel,
-    auth: FirebaseAuth,
-    login: (String, String) -> Unit,
-    signUp: () -> Unit
+    currentState: State,
+    email: String,
+    setEmail: (String) -> Unit,
+    setState: (State) -> Unit,
+    loginUser: () -> Unit,
+    signUpUser: () -> Unit
 ) {
-    fun validateLogin() {
-        viewModel.loginUser(auth, ComponentActivity(), login)
-    }
-
-    fun validateSignUp() {
-        viewModel.signUpUser(auth, ComponentActivity(), signUp)
-    }
-
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
-            value = viewModel.getEmail(),
+            value = email,
             onValueChange = {
-                viewModel.setEmail(it)
+                setEmail(it)
             },
             label = { Text(stringResource(id = id)) },
             trailingIcon = {
-                if (errorState)
+                if (currentState == State.ERROR)
                     Icon(
                         painterResource(id = R.drawable.ic_error),
                         "",
                         tint = MaterialTheme.colors.error
                     )
             },
-            isError = errorState,
+            isError = currentState == State.ERROR,
             maxLines = maxLines,
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
-        if (errorState) {
+        if (currentState == State.ERROR) {
             Text(
                 text = stringResource(id = R.string.error_message_login),
                 color = MaterialTheme.colors.error,
@@ -222,13 +215,13 @@ fun OutlinedStyledErrorText(
                 modifier = Modifier.padding(start = 16.dp)
             )
         }
-        if (loginState) {
-            validateLogin()
-            viewModel.setLogin(false)
+        if (currentState == State.LOGIN) {
+            loginUser()
+            setState(State.DEFAULT)
         }
-        if (signUpState) {
-            validateSignUp()
-            viewModel.setSignUp(false)
+        if (currentState == State.SIGNUP) {
+            signUpUser()
+            setState(State.DEFAULT)
         }
     }
 }
@@ -270,9 +263,14 @@ internal fun LoadingIndicator(@StringRes id: Int) {
 @Composable
 private fun LoginPreview() {
     LoginScreen(
-        LoginViewModel(LocalContext.current),
-        Firebase.auth,
-        { _, _ -> },
-        {}
+        isLoading = false,
+        currentState = State.DEFAULT,
+        password = "",
+        email = "",
+        setEmail = {},
+        setState = {},
+        setPassword = {},
+        loginUser = {},
+        signUpUser = {}
     )
 }

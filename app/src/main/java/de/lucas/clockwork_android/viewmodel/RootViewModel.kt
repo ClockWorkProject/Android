@@ -1,25 +1,35 @@
 package de.lucas.clockwork_android.viewmodel
 
-import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.squareup.moshi.Moshi
+import dagger.hilt.android.lifecycle.HiltViewModel
 import de.lucas.clockwork_android.model.*
+import de.lucas.clockwork_android.model.preferences.Preferences
 import de.lucas.clockwork_android.ui.BoardState
 import timber.log.Timber
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
+import javax.inject.Inject
 import kotlin.math.roundToInt
 
-class RootViewModel(context: Context) : ViewModel() {
-    private val preferences = Preferences(context)
-    private val database = FirebaseDatabase.getInstance()
+@HiltViewModel
+class RootViewModel @Inject constructor(
+    private val preferences: Preferences,
+    private val database: FirebaseDatabase,
+    private val moshi: Moshi,
+    private val auth: FirebaseAuth
+) : ViewModel() {
     var projectList by mutableStateOf(listOf<Project>())
     var toggleList by mutableStateOf(listOf<TotalToggle>())
     var memberList by mutableStateOf(listOf<UserStatistic>())
@@ -71,10 +81,27 @@ class RootViewModel(context: Context) : ViewModel() {
         showTogglePlayer.value = state
     }
 
-    // Sort list by dates
-    fun getSortedToggles() = toggleList.sortedByDescending { it.date }
+    fun currentUser() = auth.currentUser
 
-    fun getSortedToggles(list: List<TotalToggle>) = list.sortedByDescending { it.date }
+    fun signOut() = auth.signOut()
+
+    // Get sort list by dates of current user
+    fun getSortedToggles(): List<TotalToggle> {
+        val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+        return toggleList.sortedByDescending { toggle ->
+            LocalDate.parse(toggle.date, dateTimeFormatter)
+        }
+    }
+
+    // Get sorted list of other member
+    fun getSortedToggles(list: List<TotalToggle>): List<TotalToggle> {
+        val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+        return list.sortedByDescending { toggle ->
+            LocalDate.parse(toggle.date, dateTimeFormatter)
+        }
+    }
 
     // Empty all lists, to then add new items
     fun removeAll() {
@@ -224,7 +251,7 @@ class RootViewModel(context: Context) : ViewModel() {
                             // Add toggle with its issues and time to global toggleList variable
                             toggleList = toggleList + listOf(
                                 TotalToggle(
-                                    toCurrentDate(toggle.key!!.replace("-", ".")),
+                                    toggle.key!!.replace("-", "."),
                                     totalTime.value,
                                     issues
                                 )
@@ -274,7 +301,7 @@ class RootViewModel(context: Context) : ViewModel() {
                             }
                             totalToggleList.add(
                                 TotalToggle(
-                                    toCurrentDate(date.key!!.replace("-", ".")),
+                                    date.key!!.replace("-", "."),
                                     totalTime,
                                     issues
                                 )
@@ -317,21 +344,6 @@ class RootViewModel(context: Context) : ViewModel() {
         } catch (e: Exception) {
             Timber.e("Couldn't get toggle time")
         }
-    }
-
-    /**
-     * Check if the provided date equals the date of today or yesterday, to show string of day instead of date instead
-     */
-    fun toCurrentDate(date: String): String {
-        val now = Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24)
-        val currentDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date())
-        val yesterday = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(now)
-        if (date == currentDate) {
-            return "Heute"
-        } else if (date == yesterday) {
-            return "Gestern"
-        }
-        return date
     }
 
     fun Double.roundDoubleToString(isTotalTime: Boolean): String =

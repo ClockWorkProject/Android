@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import de.lucas.clockwork_android.R
-import de.lucas.clockwork_android.viewmodel.ProfileViewModel
 
 /**
  * Screen of Profile -> shows information of user/current group and provides different actions
@@ -33,14 +32,26 @@ import de.lucas.clockwork_android.viewmodel.ProfileViewModel
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 internal fun ProfileScreen(
-    viewModel: ProfileViewModel,
+    groupName: String,
+    groupId: String,
+    userName: String,
+    showEditDialog: Boolean,
+    showDeleteDialog: Boolean,
+    showLeaveDialog: Boolean,
+    setEditDialog: (Boolean) -> Unit,
+    setDeleteDialog: (Boolean) -> Unit,
+    setLeaveDialog: (Boolean) -> Unit,
+    setGroupName: () -> Unit,
+    setUserName: (String) -> Unit,
+    logout: () -> Unit,
+    leaveGroup: () -> Unit,
     onClickInfo: () -> Unit,
     onClickLogout: () -> Unit,
     onClickLeave: () -> Unit
 ) {
     val context = LocalContext.current
     // Get name of current group from database
-    viewModel.setGroupName()
+    setGroupName()
     Scaffold {
         Column(
             modifier = Modifier
@@ -53,7 +64,7 @@ internal fun ProfileScreen(
                 Text(
                     text = stringResource(
                         id = R.string.current_group,
-                        if (viewModel.getGroupName()!! == "") "-" else viewModel.getGroupName()!!
+                        if (groupName == "") "-" else groupName
                     ),
                     fontSize = 18.sp,
                     lineHeight = 32.sp,
@@ -65,9 +76,9 @@ internal fun ProfileScreen(
                             end.linkTo(parent.end)
                         }
                 )
-                if (viewModel.getGroupId() != "") {
+                if (groupId != "") {
                     IconButton(
-                        onClick = { shareGroup(viewModel.getGroupId()!!, context) },
+                        onClick = { shareGroup(groupId, context) },
                         modifier = Modifier.constrainAs(info_icon) {
                             start.linkTo(group.end)
                             bottom.linkTo(group.bottom)
@@ -81,7 +92,7 @@ internal fun ProfileScreen(
                 Text(
                     text = stringResource(
                         id = R.string.profile_username,
-                        viewModel.getUsername()!!
+                        userName
                     ),
                     fontSize = 18.sp,
                     textAlign = TextAlign.Center,
@@ -95,7 +106,7 @@ internal fun ProfileScreen(
                         }
                 )
                 IconButton(
-                    onClick = { viewModel.setEditDialog(true) },
+                    onClick = { setEditDialog(true) },
                     modifier = Modifier.constrainAs(edit_icon) {
                         start.linkTo(name.end)
                         bottom.linkTo(name.bottom)
@@ -124,7 +135,7 @@ internal fun ProfileScreen(
                         Text(text = stringResource(id = R.string.info))
                     }
                     Button(
-                        onClick = { viewModel.setLeaveDialog(true) },
+                        onClick = { setLeaveDialog(true) },
                         modifier = Modifier
                             .padding(top = 16.dp)
                             .fillMaxWidth()
@@ -134,7 +145,7 @@ internal fun ProfileScreen(
                     Button(
                         onClick = {
                             onClickLogout()
-                            viewModel.logOut()
+                            logout()
                         },
                         modifier = Modifier
                             .padding(top = 16.dp)
@@ -143,7 +154,7 @@ internal fun ProfileScreen(
                         Text(text = stringResource(id = R.string.sign_out))
                     }
                     Button(
-                        onClick = { viewModel.setDeleteDialog(true) },
+                        onClick = { setDeleteDialog(true) },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red),
                         modifier = Modifier
                             .padding(top = 40.dp)
@@ -160,40 +171,40 @@ internal fun ProfileScreen(
         /**
          * Check if states are true to show according dialog
          */
-        if (viewModel.showLeaveDialogState.value) {
+        if (showLeaveDialog) {
             ProfileDialog(
                 username = "-",
                 title_id = R.string.leave_group,
                 message_id = R.string.leave_message,
                 button_text_id = R.string.leave,
-                onClickDismiss = { viewModel.setLeaveDialog(false) },
+                onClickDismiss = { setLeaveDialog(false) },
                 onClickConfirm = {
                     // Reset all necessary preference data and navigate to ToggleScreen
-                    viewModel.leaveGroup()
+                    leaveGroup()
                     onClickLeave()
                 }
             )
         }
-        if (viewModel.showDeleteDialogState.value) {
+        if (showDeleteDialog) {
             ProfileDialog(
                 username = "-",
                 title_id = R.string.delete_profile,
                 message_id = R.string.delete_message,
                 button_text_id = R.string.delete,
-                onClickDismiss = { viewModel.setDeleteDialog(false) },
+                onClickDismiss = { setDeleteDialog(false) },
                 onClickConfirm = { /* TODO leave group -> delete profile request to backend -> navigate to login  */ }
             )
         }
-        if (viewModel.showEditDialogState.value) {
+        if (showEditDialog) {
             ProfileDialog(
-                username = viewModel.getUsername(),
+                username = userName,
                 title_id = R.string.edit_username,
                 message_id = null,
                 button_text_id = R.string.save,
-                onClickDismiss = { viewModel.setEditDialog(false) },
+                onClickDismiss = { setEditDialog(false) },
                 onClickConfirm = { name ->
-                    viewModel.updateUsername(name)
-                    viewModel.setEditDialog(false)
+                    setUserName(name)
+                    setEditDialog(false)
                 }
             )
         }
@@ -282,7 +293,22 @@ private fun shareGroup(groupId: String, context: Context) {
 @Preview
 @Composable
 private fun PreviewProfileScreen() {
-    ProfileScreen(ProfileViewModel(LocalContext.current), { }, { }, { })
+    ProfileScreen(
+        groupName = "",
+        groupId = "",
+        userName = "",
+        showEditDialog = false,
+        showDeleteDialog = false,
+        showLeaveDialog = false,
+        setEditDialog = {},
+        setDeleteDialog = {},
+        setLeaveDialog = {},
+        setGroupName = {},
+        setUserName = {},
+        logout = {},
+        leaveGroup = {},
+        onClickInfo = {},
+        onClickLogout = {}) {}
 }
 
 @Preview

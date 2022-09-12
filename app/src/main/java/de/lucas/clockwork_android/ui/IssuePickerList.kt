@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -25,7 +24,6 @@ import de.lucas.clockwork_android.R
 import de.lucas.clockwork_android.model.Issue
 import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.theme.Gray200
-import de.lucas.clockwork_android.viewmodel.IssuePickerListViewModel
 
 /**
  * Dialog with a list of all Projects and it's Issues, from current group, to chose from to start a Toggle
@@ -36,7 +34,8 @@ import de.lucas.clockwork_android.viewmodel.IssuePickerListViewModel
 @Composable
 internal fun IssuePickerList(
     projectList: List<Project>,
-    viewModel: IssuePickerListViewModel,
+    groupId: String,
+    createProject: (String) -> Unit,
     onStartToggle: (Issue, Project) -> Unit,
     onClose: () -> Unit
 ) {
@@ -88,7 +87,7 @@ internal fun IssuePickerList(
                     Button(
                         onClick = { showNewProjectDialog = true },
                         modifier = Modifier.padding(bottom = 8.dp),
-                        enabled = viewModel.getGroupID() != ""
+                        enabled = groupId != ""
                     ) {
                         Text(text = stringResource(id = R.string.create_project))
                     }
@@ -104,7 +103,7 @@ internal fun IssuePickerList(
             button_text_id = R.string.create,
             onClickDismiss = { showNewProjectDialog = false }
         ) { input ->
-            viewModel.createProject(input)
+            createProject(input)
             showNewProjectDialog = false
         }
     }
@@ -194,7 +193,8 @@ private fun PreviewIssuePicker() {
                 listOf(Issue("qwe", "Titel 1", "", "", BoardState.OPEN))
             )
         ),
-        viewModel = IssuePickerListViewModel(LocalContext.current),
+        groupId = "",
+        createProject = {},
         onStartToggle = { _, _ -> }) {
     }
 }
