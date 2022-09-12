@@ -17,6 +17,8 @@ import de.lucas.clockwork_android.model.preferences.Preferences
 import de.lucas.clockwork_android.ui.BoardState
 import timber.log.Timber
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -83,10 +85,23 @@ class RootViewModel @Inject constructor(
 
     fun signOut() = auth.signOut()
 
-    // Sort list by dates
-    fun getSortedToggles() = toggleList.sortedByDescending { it.date }
+    // Get sort list by dates of current user
+    fun getSortedToggles(): List<TotalToggle> {
+        val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
-    fun getSortedToggles(list: List<TotalToggle>) = list.sortedByDescending { it.date }
+        return toggleList.sortedByDescending { toggle ->
+            LocalDate.parse(toggle.date, dateTimeFormatter)
+        }
+    }
+
+    // Get sorted list of other member
+    fun getSortedToggles(list: List<TotalToggle>): List<TotalToggle> {
+        val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+        return list.sortedByDescending { toggle ->
+            LocalDate.parse(toggle.date, dateTimeFormatter)
+        }
+    }
 
     // Empty all lists, to then add new items
     fun removeAll() {
@@ -236,7 +251,7 @@ class RootViewModel @Inject constructor(
                             // Add toggle with its issues and time to global toggleList variable
                             toggleList = toggleList + listOf(
                                 TotalToggle(
-                                    toCurrentDate(toggle.key!!.replace("-", ".")),
+                                    toggle.key!!.replace("-", "."),
                                     totalTime.value,
                                     issues
                                 )
@@ -286,7 +301,7 @@ class RootViewModel @Inject constructor(
                             }
                             totalToggleList.add(
                                 TotalToggle(
-                                    toCurrentDate(date.key!!.replace("-", ".")),
+                                    date.key!!.replace("-", "."),
                                     totalTime,
                                     issues
                                 )
@@ -329,21 +344,6 @@ class RootViewModel @Inject constructor(
         } catch (e: Exception) {
             Timber.e("Couldn't get toggle time")
         }
-    }
-
-    /**
-     * Check if the provided date equals the date of today or yesterday, to show string of day instead of date instead
-     */
-    fun toCurrentDate(date: String): String {
-        val now = Date(System.currentTimeMillis() - 1000 * 60 * 60 * 24)
-        val currentDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date())
-        val yesterday = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(now)
-        if (date == currentDate) {
-            return "Heute"
-        } else if (date == yesterday) {
-            return "Gestern"
-        }
-        return date
     }
 
     fun Double.roundDoubleToString(isTotalTime: Boolean): String =

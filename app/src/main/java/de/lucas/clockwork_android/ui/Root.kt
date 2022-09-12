@@ -144,6 +144,10 @@ fun Root() {
                             issue = togglePlayerViewModel.getToggleIssue()!!,
                             project = togglePlayerViewModel.getToggleProject()!!,
                             time = togglePlayerViewModel.toggleTimeDisplay.value,
+                            isPaused = togglePlayerViewModel.getIsPaused(),
+                            setIsPaused = { isPaused ->
+                                togglePlayerViewModel.setIsPaused(isPaused)
+                            },
                             onPause = {
                                 // Stop Timer
                                 timer.cancel()
@@ -170,8 +174,7 @@ fun Root() {
                                 togglePlayerViewModel.setIsTogglePaused(false)
                                 removeNotification(context)
                                 rootViewModel.setShowTogglePlayer(false)
-                            },
-                            viewModel = togglePlayerViewModel
+                            }
                         )
                     }
                 }
@@ -203,7 +206,10 @@ fun Root() {
                     val model: IssuePickerListViewModel = hiltViewModel()
                     IssuePickerList(
                         projectList = if (rootViewModel.getGroupId() != "") rootViewModel.projectList else listOf(),
-                        viewModel = model,
+                        groupId = model.getGroupID() ?: "",
+                        createProject = { name ->
+                            model.createProject(name)
+                        },
                         onStartToggle = { issue, project ->
                             if (togglePlayerViewModel.getToggleIssue()!!.number == "") {
                                 togglePlayerViewModel.setStartTime()
@@ -281,7 +287,7 @@ fun Root() {
                         model.setNoGroupFound(state)
                     },
                     joinGroup = { id ->
-                        model.joinGroup(groupId ?: "") { joined ->
+                        model.joinGroup(id) { joined ->
                             if (joined) {
                                 groupId = id
                             }
@@ -300,7 +306,14 @@ fun Root() {
                 rootViewModel.setShowNavigationIcon(false)
                 IssueBoardScreen(
                     projectList = if (rootViewModel.getGroupId() != "") rootViewModel.projectList else listOf(),
-                    viewModel = model,
+                    showBoardState = model.getShowBoardState(),
+                    projectId = model.getProjectId(),
+                    setShowBoardState = { state ->
+                        model.setShowBoardState(state)
+                    },
+                    updateIssueState = { projectId, issueId, state ->
+                        model.updateIssueState(projectId, issueId, state)
+                    },
                     onClickIssue = { issue, project_id ->
                         val issueAdapter = moshi.adapter(Issue::class.java)
                         // Create Json of information of clicked Issue
@@ -317,6 +330,9 @@ fun Root() {
                             .replace("+", " ")
                         editViewModel.setEditBoardState(boardState)
                         navController.navigate("$ISSUE_CREATE/$jsonProject")
+                    },
+                    changeProject = { id ->
+                        model.changeProject(id)
                     }
                 )
             }
@@ -330,7 +346,27 @@ fun Root() {
                 rootViewModel.setAppTitle(stringResource(id = R.string.profile))
                 rootViewModel.setShowNavigationIcon(false)
                 ProfileScreen(
-                    viewModel = model,
+                    groupName = model.getGroupName() ?: "",
+                    groupId = model.getGroupId() ?: "",
+                    userName = model.getUsername() ?: "",
+                    showEditDialog = model.showEditDialogState.value,
+                    showDeleteDialog = model.showDeleteDialogState.value,
+                    showLeaveDialog = model.showLeaveDialogState.value,
+                    setEditDialog = { state ->
+                        model.setEditDialog(state)
+                    },
+                    setDeleteDialog = { state ->
+                        model.setDeleteDialog(state)
+                    },
+                    setLeaveDialog = { state ->
+                        model.setLeaveDialog(state)
+                    },
+                    setGroupName = { model.setGroupName() },
+                    setUserName = { name ->
+                        model.updateUsername(name)
+                    },
+                    logout = { model.logOut() },
+                    leaveGroup = { model.leaveGroup() },
                     onClickInfo = { navController.navigate(INFO) },
                     onClickLogout = {
                         // Remove all global lists, to be able to store new data on new login
@@ -558,12 +594,14 @@ internal fun CustomTopBar(
                         )
                     }
                 }
-                Text(
-                    text = title,
-                    modifier = Modifier.padding(start = 16.dp),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
+                    Text(
+                        text = title,
+                        modifier = Modifier.padding(start = 16.dp),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
     }

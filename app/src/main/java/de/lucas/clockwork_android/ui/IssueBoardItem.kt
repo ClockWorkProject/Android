@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,7 +23,6 @@ import de.lucas.clockwork_android.model.Project
 import de.lucas.clockwork_android.ui.theme.Gray200
 import de.lucas.clockwork_android.ui.theme.Gray500
 import de.lucas.clockwork_android.ui.theme.Gray700
-import de.lucas.clockwork_android.viewmodel.IssueBoardViewModel
 
 /**
  * Item of the IssueBoard (card with boarder)
@@ -42,7 +40,7 @@ internal fun IssueBoardItem(
     boardColor: Color,
     currentPageIndex: Int,
     issueSize: Int,
-    viewModel: IssueBoardViewModel,
+    setShowBoardState: (Boolean) -> Unit,
     onClickIssue: (Issue) -> Unit,
     onClickNewIssue: () -> Unit,
     onLongPressIssue: (Issue) -> Unit
@@ -113,7 +111,9 @@ internal fun IssueBoardItem(
                             items(issueList) { issue ->
                                 IssueItem(
                                     issue = issue,
-                                    viewModel = viewModel,
+                                    setShowBoardState = { state ->
+                                        setShowBoardState(state)
+                                    },
                                     onClickIssue = { onClickIssue(issue) },
                                     onLongPressIssue = { onLongPressIssue(issue) }
                                 )
@@ -159,7 +159,6 @@ fun CustomDropDownMenu(
     projectID: Int,
     onProjectChange: (Int) -> Unit
 ) {
-    val viewModel = IssueBoardViewModel(LocalContext.current)
     var expanded by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableStateOf(projectID) }
     Row(
@@ -192,7 +191,6 @@ fun CustomDropDownMenu(
             projects.forEachIndexed { index, project ->
                 DropdownMenuItem(onClick = {
                     onProjectChange(index)
-                    viewModel.changeProject(index)
                     selectedIndex = index
                     expanded = false
                 }) {
@@ -210,7 +208,7 @@ fun CustomDropDownMenu(
 @Composable
 private fun IssueItem(
     issue: Issue,
-    viewModel: IssueBoardViewModel,
+    setShowBoardState: (Boolean) -> Unit,
     onClickIssue: (Issue) -> Unit,
     onLongPressIssue: (Issue) -> Unit
 ) {
@@ -222,7 +220,7 @@ private fun IssueItem(
             .combinedClickable(
                 onClick = { onClickIssue(issue) },
                 onLongClick = {
-                    viewModel.setShowBoardState(true)
+                    setShowBoardState(true)
                     onLongPressIssue(issue)
                 }
             ),
@@ -253,7 +251,7 @@ private fun PreviewIssueBoard() {
         boardColor = Color.Black,
         currentPageIndex = 1,
         issueSize = 3,
-        viewModel = IssueBoardViewModel(LocalContext.current),
+        setShowBoardState = {},
         onClickIssue = {},
         onClickNewIssue = {}
     ) { }
